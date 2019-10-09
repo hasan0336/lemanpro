@@ -14,3 +14,4 @@
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('register/verify/{token}', 'API\AuthController@verify')->name('verified_email');
