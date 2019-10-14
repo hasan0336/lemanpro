@@ -7,17 +7,19 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\User;
-class UserNotification extends Mailable
+class NewOtp extends Mailable
 {
     use Queueable, SerializesModels;
+    public $new_pwd;
     public $user;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct($new_pwd, User $user)
     {
+        $this->new_pwd = $new_pwd;
         $this->user = $user;
     }
 
@@ -28,11 +30,12 @@ class UserNotification extends Mailable
      */
     public function build()
     {
-         return $this->from(env('MAIL_USERNAME'))
-        ->view('emails.verification')
+
+        return $this->from(env('MAIL_USERNAME'))
+        ->view('emails.otp')
         ->with([
+                'password' => $this->new_pwd,
                 'email' => $this->user->email,
         ]);;
-        // return $this->view('emails.verification');
     }
 }

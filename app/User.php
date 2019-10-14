@@ -16,7 +16,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'email', 'password','email_token','login_type','device_type','device_token'
+        'email', 'password','email_token','login_type','device_type','device_token','role_id'
     ];
 
     /**
@@ -40,5 +40,15 @@ class User extends Authenticatable
     public function profile()
     {
         return $this->hasOne('App\Profile');
+    }
+
+    public function tryout()
+    {
+        return $this->hasmany('App\Tryout','team_id');
+    }
+
+    public function tryoutplayers()
+    {
+        return $this->hasmany('App\TryoutPlayers');
     }
 }

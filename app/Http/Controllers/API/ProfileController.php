@@ -20,6 +20,9 @@ class ProfileController extends ResponseController
             'last_name' => 'required',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
+        if($validator->fails()){
+            return $this->sendError($validator->errors());       
+        }
 
     	$input = $request->all();
     	$imageName = time().'.'.request()->image->getClientOriginalExtension();
