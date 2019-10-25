@@ -16,4 +16,14 @@ class Profile extends Model
     {
         return $this->belongsTo('App\User');
     }
+
+    public function game()
+    {
+    	return $this->hasmany('App\Game','team_id');
+    }
+
+    public function match()
+    {
+        return $this->hasmany('App\match','palyer_id');
+    }
 }

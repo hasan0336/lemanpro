@@ -51,4 +51,14 @@ class User extends Authenticatable
     {
         return $this->hasmany('App\TryoutPlayers');
     }
+
+    public function rosters()
+    {
+        return $this->hasmany('App\Rosters','player_id');
+    }
+
+    public function match()
+    {
+        return $this->hasmany('App\match');
+    }
 }

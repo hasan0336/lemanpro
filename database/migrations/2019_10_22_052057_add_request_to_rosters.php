@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTryoutPlayersTable extends Migration
+class AddRequestToRosters extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class CreateTryoutPlayersTable extends Migration
      */
     public function up()
     {
-        Schema::create('tryout_players', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->timestamps();
+        Schema::table('rosters', function (Blueprint $table) {
+            $table->integer('request');
         });
     }
 
@@ -26,6 +25,8 @@ class CreateTryoutPlayersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tryout_players');
+        Schema::table('rosters', function (Blueprint $table) {
+            $table->dropColumn('request');
+        });
     }
 }

@@ -10,6 +10,9 @@ use App\User;
 use Validator;
 use App\Profile;
 use File;
+use App\Match;
+use URL;
+use DB;
 class ProfileController extends ResponseController
 {
     public function create_profile(Request $request)
@@ -199,5 +202,59 @@ class ProfileController extends ResponseController
 		        return $this->sendResponse($success);	
     		}
     	}
+    }
+
+    public function profile(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required',
+        ]);
+        if($validator->fails()){
+            return $this->sendError($validator->errors());       
+        }
+        if($request->user()->id == $request->user_id)
+        {
+            $user = User::find($request->user_id);
+            if($user->role_id == 1)
+            {
+                $profile = Profile::select('team_name','coach_name','home_field_address','home_field_city','home_field_state','home_field_zipcode','website','facebook','instagram','twitter','image')->where('user_id',$request->user_id)->first();
+                $profile->image = URL::to('/images/profile_image/').$profile->image; 
+                
+                $success['status'] = "1";
+                $success['message'] = "Team Profile";
+                $success['data'] = $profile;
+                return $this->sendResponse($success);
+            }
+            else if($user->role_id == 2)
+            {
+                $profile = Profile::select('team_name','coach_name','home_field_address','home_field_city','home_field_state','home_field_zipcode','website','facebook','instagram','twitter','image')->where('profiles.user_id',$request->user_id)->first();
+                $profile->image = URL::to('/images/profile_image/').$profile->image; 
+                
+                $matches = Match::select(DB::raw('count(game_id) as game_id'),'player_id',DB::raw('SUM(yellow) as yellow'),DB::raw('SUM(red) as red'),DB::raw('SUM(goals) as goals'),DB::raw('SUM(trophies) as trophies'),DB::raw('SUM(time) as time'))->where('player_id',$request->user_id)->get();
+                // dd($matches);
+                // $profile->game = count($matches);
+                foreach ($matches as $key => $value) 
+                {
+                    // dd($value->yellow);
+                    $profile->games = $value->game_id;
+                    $profile->yellow = $value->yellow;
+                    $profile->red = $value->red;
+                    $profile->goals = $value->goals;
+                    $profile->trophies = $value->trophies;
+                    $profile->time = $value->time;
+                }
+                $success['status'] = "1";
+                $success['message'] = "Player Profile";
+                $success['data'] = $profile;
+                return $this->sendResponse($success);   
+            }
+            
+            // Profile::with('matches')->where('')
+        }
+        else
+        {
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+        }
     }
 }
