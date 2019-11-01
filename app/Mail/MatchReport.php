@@ -7,18 +7,18 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\User;
-class UserNotification extends Mailable
+class MatchReport extends Mailable
 {
     use Queueable, SerializesModels;
-    public $user;
+    public $game;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(User $user)
+    public function __construct($game)
     {
-        $this->user = $user;
+        $this->game = $game;
     }
 
     /**
@@ -28,11 +28,8 @@ class UserNotification extends Mailable
      */
     public function build()
     {
-         return $this->from('dev.appsnado@gmail.com')
-        ->view('emails.verification')
-        ->with([
-                'email' => $this->user->email
-        ]);;
-        // return $this->view('emails.verification');
+        return $this->from('dev.appsnado@gmail.com')
+        ->view('emails.match_report')
+        ->with(['game' => $this->game]);
     }
 }

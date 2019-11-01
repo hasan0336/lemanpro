@@ -25,7 +25,7 @@ class AuthController extends ResponseController
             'password' => 'required',
             'confirm_password' => 'required|same:password',
             'device_type' => 'required',
-            'device_token' => 'required'
+            'device_token' => 'required|unique:users'
         ]);
 
         if($validator->fails()){
@@ -42,7 +42,6 @@ class AuthController extends ResponseController
         {
         	$data = array('user_id' => $user->id);
         	$pro = Profile::create($data);
-
         	Mail::to($request->email)->send(new UserNotification($user));
             $success['token'] =  $user->createToken('token')->accessToken;
             $success['message'] = "Registration successfull..";
@@ -69,6 +68,7 @@ class AuthController extends ResponseController
         }
 
         $credentials = request(['email', 'password']);
+        // dd($credentials);
         if(!Auth::attempt($credentials)){
             $error = "Unauthorized";
             return $this->sendError($error, 401);

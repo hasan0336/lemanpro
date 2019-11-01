@@ -13,6 +13,10 @@ use App\Match;
 use URL;
 use DB;
 use Carbon\Carbon;
+use App\Mail\PlayerReport;
+use App\Mail\MatchReport;
+use App\User;
+use Mail;
 class GameController extends ResponseController
 {
     public function create_game(Request $request)
@@ -134,6 +138,9 @@ class GameController extends ResponseController
         	$match = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->update($data);
         	if($match == 1)
         	{
+        		$user = User::join('matches','users.id','matches.player_id')->where('matches.player_id',$request->player_id)->where('matches.game_id',$request->game_id)->first();
+        		
+        		Mail::to($user->email)->send(new PlayerReport($user));
         		$success['status'] = "1";
                 $success['message'] = "player score inserted";
                 return $this->sendResponse($success);
@@ -148,6 +155,29 @@ class GameController extends ResponseController
         else
         {
         	$success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+        }
+    }
+
+    public function report_to_manager(Request $request)
+    {
+    	$validator = Validator::make($request->all(), [
+            'team_id' => 'required',
+            'game_id'=>'required',
+        ]);
+        if($validator->fails())
+        {
+            return $this->sendError($validator->errors());       
+        }
+        if($request->user()->id == $request->team_id)
+        {
+        	$game = Match::join('users','users.id','=','matches.player_id')->where('game_id',$request->game_id)->get();
+        	$users = User::where('id',$request->team_id)->first();
+        	
+        	Mail::to($users->email)->send(new MatchReport($game));
+        	$success['status'] = "1";
+            $success['message'] = "Report sent to Manager";
+            $success['data'] = $game;
             return $this->sendResponse($success);
         }
     }
