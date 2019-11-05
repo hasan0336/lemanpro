@@ -10,7 +10,7 @@ use Validator;
 use App\Profile;
 use App\Tryout;
 use App\TryoutPlayers;
-
+use DB;
 class TryoutController extends ResponseController
 {
     public function create_tryout(Request $request)
@@ -175,20 +175,28 @@ class TryoutController extends ResponseController
     {
     	$input['tryout_id'] = $request->tryout_id;
     	$input['player_id'] = $request->player_id;
+        $input['stripe_id'] = $request->stripe_id;
+        $input['card_brand'] = $request->card_brand;
+        $input['card_last_four'] = $request->card_last_four;
+        $input['trial_ends_at'] = $request->trial_ends_at;
     	if($request->user()->id == $request->player_id)
     	{
     		$check_player =TryoutPlayers::where('player_id',$request->player_id)->where('tryout_id',$request->tryout_id)->first();
+            $data = array('tryout_id' => $request->tryout_id, 'player_id' => $request->player_id );
+            $card_data = array('user_id' => $request->player_id,'stripe_id' => $request->stripe_id, 'card_brand' => $request->card_brand, 'card_last_four' => $request->card_last_four, 'trial_ends_at' => $request->trial_ends_at );
     		if($check_player != null || !empty($check_player))
     		{
+
     			$success['status'] = "1";
 		    	$success['message'] = "You have already joined this tryout.";
 		        return $this->sendResponse($success);
     		}
     		else
     		{ 
-	    		$join_player = TryoutPlayers::create(($request->all()));
+	    		$join_player = TryoutPlayers::create($data);
 	    		if($join_player)
 	    		{
+                    DB::table('stripe')->insert($card_data);
 	    			$success['status'] = "1";
 			    	$success['message'] = "Player joins tryout";
 			        return $this->sendResponse($success);

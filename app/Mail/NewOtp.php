@@ -31,7 +31,7 @@ class NewOtp extends Mailable
     public function build()
     {
 
-        return $this->from(env('MAIL_USERNAME'))
+        return $this->from('dev.appsnado@gmail.com')
         ->view('emails.otp')
         ->with([
                 'password' => $this->new_pwd,
