@@ -67,41 +67,47 @@ class AuthController extends ResponseController
     //login
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
-            'password' => 'required'
-        ]);
-
-        if($validator->fails()){
-            return $this->sendError($validator->errors());       
+        if($request->email == "" || empty($request->email))
+        {
+            $success['status'] = '0';
+            $success['message'] = "Email is missing";
+            return $this->sendResponse($success);
         }
 
-        $check_email = User::where('email',$request->email)->first();
-        if($check_email)
+        elseif($request->password == "" || empty($request->password))
         {
-            $credentials = request(['email', 'password']);
-            // dd($credentials);
-            if(!Auth::attempt($credentials)){
-                $success['status'] = '0';
-                $success['message'] = "Credentials done't match";
-                return $this->sendResponse($success);
-            }
-            $user = $request->user();
-            $user_info = User::with('profile')->where('id',$user->id)->first();
-
-            $success['status'] = '1';
-            $success['message'] = "Login Sucessfully";
-            $success['data'] = $user_info;
-            $success['token'] =  $user->createToken('token')->accessToken;
-            return $this->sendResponse($success);
+            $success['status'] = '0';
+            $success['message'] = "Password is missing";
+            return $this->sendResponse($success);   
         }
         else
         {
-            $success['status'] = '0';
-            $success['message'] = "email not exist";
-            return $this->sendResponse($success);
+            $check_email = User::where('email',$request->email)->first();
+            if($check_email)
+            {
+                $credentials = request(['email', 'password']);
+                // dd($credentials);
+                if(!Auth::attempt($credentials)){
+                    $success['status'] = '0';
+                    $success['message'] = "Credentials done't match";
+                    return $this->sendResponse($success);
+                }
+                $user = $request->user();
+                $user_info = User::with('profile')->where('id',$user->id)->first();
+
+                $success['status'] = '1';
+                $success['message'] = "Login Sucessfully";
+                $success['data'] = $user_info;
+                $success['token'] =  $user->createToken('token')->accessToken;
+                return $this->sendResponse($success);
+            }
+            else
+            {
+                $success['status'] = '0';
+                $success['message'] = "email not exist";
+                return $this->sendResponse($success);
+            }
         }
-        
     }
 
     //logout
