@@ -21,7 +21,7 @@ class AuthController extends ResponseController
     public function signup(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|unique:users',
+            'email' => 'required|string|email',
             'password' => 'required',
             'confirm_password' => 'required|same:password',
             'device_type' => 'required',
@@ -31,29 +31,37 @@ class AuthController extends ResponseController
         if($validator->fails()){
             return $this->sendError($validator->errors());       
         }
-
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $input['login_type'] = "email";
-        $input['email_token'] = md5(uniqid());
-
-        $user = User::create($input);
-        if($user)
+        $check_email = User::where('email',$request->email)->first();
+        if($check_email)
         {
-        	$data = array('user_id' => $user->id);
-        	$pro = Profile::create($data);
-        	Mail::to($request->email)->send(new UserNotification($user));
-            
-            $success['token'] =  $user->createToken('token')->accessToken;
-            $success['message'] = "Registration successfull..";
+            $success['status'] = '0';
+            $success['message'] = "email already exist";
             return $this->sendResponse($success);
         }
         else
         {
-            $error = "Sorry! Registration is not successfull.";
-            return $this->sendError($error, 401); 
+            $input = $request->all();
+            $input['password'] = bcrypt($input['password']);
+            $input['login_type'] = "email";
+            $input['email_token'] = md5(uniqid());
+
+            $user = User::create($input);
+            if($user)
+            {
+                $data = array('user_id' => $user->id);
+                $pro = Profile::create($data);
+                Mail::to($request->email)->send(new UserNotification($user));
+
+                $success['token'] =  $user->createToken('token')->accessToken;
+                $success['message'] = "Registration successfull..";
+                return $this->sendResponse($success);
+            }
+            else
+            {
+                $error = "Sorry! Registration is not successfull.";
+                return $this->sendError($error, 401); 
+            }
         }
-        
     }
     
     //login
