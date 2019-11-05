@@ -150,8 +150,13 @@ class ProfileController extends ResponseController
         		$profile = Profile::where('user_id',$input['user_id'])->update($update_profile);
         		if($profile == 1)
         		{
-        			$success['status'] = "1";
-		        	$success['message'] = "Profile completed";
+                    $user = $request->user();
+                    $user_info = User::with('profile')->where('id',$user->id)->first();
+
+                    $success['status'] = '1';
+                    $success['message'] = "Profile completed";
+                    $success['data'] = $user_info;
+                    $success['token'] =  $user->createToken('token')->accessToken;
 		            return $this->sendResponse($success);		
         		}
         		else

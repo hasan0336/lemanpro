@@ -53,6 +53,7 @@ class AuthController extends ResponseController
                 Mail::to($request->email)->send(new UserNotification($user));
 
                 $success['token'] =  $user->createToken('token')->accessToken;
+                $success['status'] = '1';
                 $success['message'] = "Registration successfull..";
                 return $this->sendResponse($success);
             }
