@@ -46,6 +46,9 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 	Route::get('delete_game','API\GameController@delete_game');
 	Route::get('report_to_manager','API\GameController@report_to_manager');
 
+
+	Route::post('create_news','API\NewsController@create_news');
+
 });
 // Route::middleware(['auth:api','client.credentials'])->get('/user', function (Request $request) {
 

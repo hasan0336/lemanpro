@@ -21,7 +21,7 @@ class AuthController extends ResponseController
     public function signup(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|unique:users',
+            'email' => 'required|string|email',
             'password' => 'required',
             'confirm_password' => 'required|same:password',
             'device_type' => 'required',
@@ -31,28 +31,37 @@ class AuthController extends ResponseController
         if($validator->fails()){
             return $this->sendError($validator->errors());       
         }
-
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $input['login_type'] = "email";
-        $input['email_token'] = md5(uniqid());
-
-        $user = User::create($input);
-        if($user)
+        $check_email = User::where('email',$request->email)->first();
+        if($check_email)
         {
-        	$data = array('user_id' => $user->id);
-        	$pro = Profile::create($data);
-        	Mail::to($request->email)->send(new UserNotification($user));
-            $success['token'] =  $user->createToken('token')->accessToken;
-            $success['message'] = "Registration successfull..";
+            $success['status'] = '0';
+            $success['message'] = "email already exist";
             return $this->sendResponse($success);
         }
         else
         {
-            $error = "Sorry! Registration is not successfull.";
-            return $this->sendError($error, 401); 
+            $input = $request->all();
+            $input['password'] = bcrypt($input['password']);
+            $input['login_type'] = "email";
+            $input['email_token'] = md5(uniqid());
+
+            $user = User::create($input);
+            if($user)
+            {
+                $data = array('user_id' => $user->id);
+                $pro = Profile::create($data);
+                Mail::to($request->email)->send(new UserNotification($user));
+
+                $success['token'] =  $user->createToken('token')->accessToken;
+                $success['message'] = "Registration successfull..";
+                return $this->sendResponse($success);
+            }
+            else
+            {
+                $error = "Sorry! Registration is not successfull.";
+                return $this->sendError($error, 401); 
+            }
         }
-        
     }
     
     //login
@@ -67,23 +76,32 @@ class AuthController extends ResponseController
             return $this->sendError($validator->errors());       
         }
 
-        $credentials = request(['email', 'password']);
-        // dd($credentials);
-        if(!Auth::attempt($credentials)){
-            $error = "Unauthorized";
-            return $this->sendError($error, 401);
-        }
-        $user = $request->user();
-        $user_info = User::with('profile')->where('id',$user->id)->first();
+        $check_email = User::where('email',$request->email)->first();
+        if($check_email)
+        {
+            $credentials = request(['email', 'password']);
+            // dd($credentials);
+            if(!Auth::attempt($credentials)){
+                $success['status'] = '0';
+                $success['message'] = "Credentials done't match";
+                return $this->sendResponse($success);
+            }
+            $user = $request->user();
+            $user_info = User::with('profile')->where('id',$user->id)->first();
 
-        // $user_info = User::find($user->id);
-        // $profile = $user->profile()->first();
-        // $user_info->last_name = $profile->last_name;
-        // dd($user_info);
+            $success['status'] = '1';
+            $success['message'] = "Login Sucessfully";
+            $success['data'] = $user_info;
+            $success['token'] =  $user->createToken('token')->accessToken;
+            return $this->sendResponse($success);
+        }
+        else
+        {
+            $success['status'] = '0';
+            $success['message'] = "email not exist";
+            return $this->sendResponse($success);
+        }
         
-        $success['data'] = $user_info;
-        $success['token'] =  $user->createToken('token')->accessToken;
-        return $this->sendResponse($success);
     }
 
     //logout
@@ -149,36 +167,59 @@ class AuthController extends ResponseController
     function changePassword(Request $request)
     {
 		$data = $request->all();
-		$user = Auth::guard('api')->user();
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required',
+            'oldPassword' => 'required',
+            'newPassword' => 'required',
+        ]);
 
-		 //Changing the password only if is different of null
-		if( isset($data['oldPassword']) && !empty($data['oldPassword']) && $data['oldPassword'] !== "" && $data['oldPassword'] !=='undefined') 
-		{
-		    //checking the old password first
-		    $check  = Auth::guard('web')->attempt([
-		        'email' => $user->email,
-		        'password' => $data['oldPassword']
-		    ]);
-		    if($check && isset($data['newPassword']) && !empty($data['newPassword']) && $data['newPassword'] !== "" && $data['newPassword'] !=='undefined') 
-		    {
-		        $user->password = bcrypt($data['newPassword']);
-		        // $user->isFirstTime = false; //variable created by me to know if is the dummy password or generated by user.
-		        // $user->token()->revoke();
-		        // $token = $user->createToken('newToken')->accessToken;
+        if($validator->fails())
+        {
+            $success['status'] = '0';
+            $success['message'] = 'value is missing';
+            return $this->sendResponse($success);     
+        }
+        if($request->user()->id == $request->user_id)
+        {
+            $user = Auth::guard('api')->user();
+            // dd($user);
+             //Changing the password only if is different of null
+            if( isset($data['oldPassword']) && !empty($data['oldPassword']) && $data['oldPassword'] !== "" && $data['oldPassword'] !=='undefined') 
+            {
+                //checking the old password first
+                $check  = Auth::guard('web')->attempt([
+                    'email' => $user->email,
+                    'password' => $data['oldPassword']
+                ]);
+                if($check && isset($data['newPassword']) && !empty($data['newPassword']) && $data['newPassword'] !== "" && $data['newPassword'] !=='undefined') 
+                {
+                    $user->password = bcrypt($data['newPassword']);
+                    // $user->isFirstTime = false; //variable created by me to know if is the dummy password or generated by user.
+                    // $user->token()->revoke();
+                    // $token = $user->createToken('newToken')->accessToken;
 
-		        //Changing the type
-		        $a = $user->save();
-		        // dd($a);
-		        $success['status'] = '1';
-		        $success['message'] =  'password changed sucessfully';
-		        return $this->sendResponse($success); //sending the new token
-		    }
-		    else 
-		    {
-		        return "Wrong password information";
-		    }
-		}
-		return "Wrong password information";
+                    //Changing the type
+                    $a = $user->save();
+                    // dd($a);
+                    $success['status'] = '1';
+                    $success['message'] =  'password changed sucessfully';
+                    return $this->sendResponse($success); //sending the new token
+                }
+                else 
+                {
+                    $success['status'] = '0';
+                    $success['message'] =  'Old Password not matched';
+                    return $this->sendResponse($success); 
+                }
+            }
+            return "Wrong password information";
+        }
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+        }
 	}
 
 	public function otp(Request $request)
