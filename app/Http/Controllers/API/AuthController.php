@@ -25,7 +25,7 @@ class AuthController extends ResponseController
             'password' => 'required',
             'confirm_password' => 'required|same:password',
             'device_type' => 'required',
-            'device_token' => 'required|unique:users'
+            'device_token' => 'required'
         ]);
 
         if($validator->fails()){

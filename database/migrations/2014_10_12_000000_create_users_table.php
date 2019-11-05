@@ -19,11 +19,11 @@ class CreateUsersTable extends Migration
             $table->integer('role_id')->unsigned();
             // $table->foreign('role_id')->references('id')->on('role')->onDelete('cascade');
             $table->string('login_type');
-            $table->string('social_token')->unique();
+            $table->string('social_token');
             $table->integer('is_blocked')->default(false);
             $table->integer('is_featured')->default(false);
             $table->string('device_type');
-            $table->string('device_token')->unique();
+            $table->string('device_token');
             $table->integer('verify_status')->default(false);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');

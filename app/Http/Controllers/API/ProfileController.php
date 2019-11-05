@@ -33,7 +33,7 @@ class ProfileController extends ResponseController
 
     	$data = array();
     	$profile = User::find($input['user_id']);
-    	
+
     	if($profile->role_id == 1)
     	{
     		if($input['club_address'] != '' || $input['club_address'] != false)
