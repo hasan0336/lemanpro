@@ -54,6 +54,7 @@ class AuthController extends ResponseController
 
                 $success['token'] =  $user->createToken('token')->accessToken;
                 $success['status'] = '1';
+                $success['data']['user_id'] = $user->id;
                 $success['message'] = "Registration successfull..";
                 return $this->sendResponse($success);
             }
