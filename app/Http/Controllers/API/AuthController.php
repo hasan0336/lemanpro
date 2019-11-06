@@ -14,6 +14,7 @@ use App\Mail\UserNotification;
 use App\Mail\NewOtp;
 use App\Profile;
 use Hash;
+use URL;
 // use Illuminate\Support\Facades\Mail;
 class AuthController extends ResponseController
 {
