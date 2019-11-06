@@ -20,17 +20,52 @@ class AuthController extends ResponseController
     //create user
     public function signup(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email',
-            'password' => 'required',
-            'confirm_password' => 'required|same:password',
-            'device_type' => 'required',
-            'device_token' => 'required'
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'email' => 'required|string|email',
+        //     'password' => 'required',
+        //     'confirm_password' => 'required|same:password',
+        //     'device_type' => 'required',
+        //     'device_token' => 'required'
+        // ]);
 
-        if($validator->fails()){
-            return $this->sendError($validator->errors());       
+        // if($validator->fails()){
+        //     return $this->sendError($validator->errors());       
+        // }
+
+        if($request->email == "" || empty($request->email))
+        {
+            $success['status'] = '0';
+            $success['message'] = "Emailis missing";
+            return $this->sendResponse($success);
         }
+        elseif($request->password == "" || empty($request->password))
+        {
+            $success['status'] = '0';
+            $success['message'] = "Password is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->confirm_password == "" || empty($request->confirm_password))
+        {
+            $success['status'] = '0';
+            $success['message'] = "Confirm Password is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->device_type == "" || empty($request->device_type))
+        {
+            $success['status'] = '0';
+            $success['message'] = "Device type is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->device_token == "" || empty($request->device_token))
+        {
+            $success['status'] = '0';
+            $success['message'] = "Device token is missing";
+            return $this->sendResponse($success);   
+        }
+
+
+
+
         $check_email = User::where('email',$request->email)->first();
         if($check_email)
         {

@@ -85,20 +85,23 @@ class NewsController extends ResponseController
 
     public function edit_news(Request $request)
     {
-    	$validator = Validator::make($request->all(), [
-            'team_id' => 'required',
-            'news_id' => 'required',
-        ]);
-
-        if($validator->fails())
+        $data = array();
+        if($request->team_id == "" || empty($request->team_id))
         {
-        	
-            return $this->sendError($validator->errors());       
+            $success['status'] = '0';
+            $success['message'] = "team_id is missing";
+            return $this->sendResponse($success);
         }
 
-        $data = array();
+        elseif($request->news_id == "" || empty($request->news_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "news_id is missing";
+            return $this->sendResponse($success);   
+        }
         if($request->user()->id == $request->team_id)
-    	{
+    	{	
+    		$input = $request->all();
     		if($input['title'] != '' || $input['title'] != false)
     		{
     			$data['title'] = $input['title'];
@@ -119,6 +122,8 @@ class NewsController extends ResponseController
 					$check = in_array($extension,$allowedfileExtension);
 					if($check)
 					{
+						$check_mages = DB::table('news_images')->where('news_id',$request->news_id)->get();
+						dd($check_mages);
 						$name=time().'.'.$file->getClientOriginalExtension();
 						$file->move('news_image',$name);
 						$images[]=$name;
