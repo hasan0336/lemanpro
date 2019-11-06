@@ -43,6 +43,7 @@ class ProfileController extends ResponseController
         }
 
         $input = $request->all();
+        // dd($input);
         $imageName = time().'.'.request()->image->getClientOriginalExtension();
         request()->image->move(public_path('images/profile_images'), $imageName);
         $data = array();
@@ -150,6 +151,7 @@ class ProfileController extends ResponseController
     		}
     		
     	}
+    // 	dd($data);
     	$get_profile = User::find($input['user_id'])->profile;
     	if($get_profile->is_profile_complete == 0)
     	{
