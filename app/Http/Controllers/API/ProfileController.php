@@ -167,7 +167,7 @@ class ProfileController extends ResponseController
         		{
                     $user = $request->user();
                     $user_info = User::with('profile')->where('id',$user->id)->first();
-
+                    $user_info['profile']->image = URL::to('/public/images/profile_images/'.$user_info['profile']->image);
                     $success['status'] = '1';
                     $success['message'] = "Profile completed";
                     $success['data'] = $user_info;
@@ -211,8 +211,14 @@ class ProfileController extends ResponseController
     		$user = Profile::where('user_id',$input['user_id'])->update($data);
     		if($user == 1)
     		{
+
+                $user = $request->user();
+                $user_info = User::with('profile')->where('id',$user->id)->first();
+                // dd(URL::to('/public/images/profile_images/'.$user_info['profile']->image));
+                $user_info['profile']->image = URL::to('/public/images/profile_images/'.$user_info['profile']->image);
     			$success['status'] = "1";
 		       	$success['message'] = "User Profile is Updated";
+                $success['data'] = $user_info;
 		        return $this->sendResponse($success);	
     		}
     		else
