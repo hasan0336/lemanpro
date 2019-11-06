@@ -17,23 +17,36 @@ class ProfileController extends ResponseController
 {
     public function create_profile(Request $request)
     {
-    	$validator = Validator::make($request->all(), [
-            'user_id' => 'required',
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-        ]);
-        if($validator->fails()){
-            return $this->sendError($validator->errors());       
+        if($request->user_id == "" || empty($request->user_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "User id is missing";
+            return $this->sendResponse($success);
+        }
+        elseif($request->first_name == "" || empty($request->first_name))
+        {
+            $success['status'] = '0';
+            $success['message'] = "First name is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->last_name == "" || empty($request->last_name))
+        {
+            $success['status'] = '0';
+            $success['message'] = "Last name is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->image == "" || empty($request->image))
+        {
+            $success['status'] = '0';
+            $success['message'] = "Image is missing";
+            return $this->sendResponse($success);   
         }
 
-    	$input = $request->all();
-    	$imageName = time().'.'.request()->image->getClientOriginalExtension();
-    	request()->image->move(public_path('images/profile_images'), $imageName);
-
-    	$data = array();
-    	$profile = User::find($input['user_id']);
-
+        $input = $request->all();
+        $imageName = time().'.'.request()->image->getClientOriginalExtension();
+        request()->image->move(public_path('images/profile_images'), $imageName);
+        $data = array();
+        $profile = User::find($input['user_id']);
     	if($profile->role_id == 1)
     	{
     		if($input['club_address'] != '' || $input['club_address'] != false)
