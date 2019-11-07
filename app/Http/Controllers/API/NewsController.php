@@ -47,7 +47,7 @@ class NewsController extends ResponseController
 					if($check)
 					{
 						
-						$name=time().'.'.$file->getClientOriginalExtension();
+						$name=str_random(5)."-".date('his')."-".str_random(3).".".$file->getClientOriginalExtension();
 						$file->move('news_image',$name);
 						$images[]=$name;
 						/*Insert your data*/
@@ -78,6 +78,7 @@ class NewsController extends ResponseController
     	}
     	else
     	{
+    		$success['status'] = "0";
     		$success['message'] = "Unauthorized User";
             return $this->sendResponse($success);
     	}
@@ -102,6 +103,7 @@ class NewsController extends ResponseController
         if($request->user()->id == $request->team_id)
     	{	
     		$input = $request->all();
+    		// dd($input);
     		if($input['title'] != '' || $input['title'] != false)
     		{
     			$data['title'] = $input['title'];
@@ -111,20 +113,22 @@ class NewsController extends ResponseController
     			$data['description'] = $input['description'];
     		}
     		$news = DB::table('news')->where('id',$input['news_id'])->update($data);
-    		if($request->file('news_image') != '' || !empty($request->file('news_image')))
+    		$allowedfileExtension = ['jpeg','jpg','png','gif','svg'];
+			$files = $request->file('news_image');
+    		if($files != '' || !empty($files))
 			{	
-				$allowedfileExtension = ['jpeg','jpg','png','gif','svg'];
-				$files = $request->file('news_image');
-				
+				// dd(count($files));
 				foreach($files as $file)
 				{
 					$extension = $file->getClientOriginalExtension();
 					$check = in_array($extension,$allowedfileExtension);
 					if($check)
 					{
-						$check_mages = DB::table('news_images')->where('news_id',$request->news_id)->get();
-						dd($check_mages);
-						$name=time().'.'.$file->getClientOriginalExtension();
+						$check_images = DB::table('news_images')->where('news_id',$request->news_id)->get();
+						dd(count($check_images));
+						
+
+						$name=str_random(5)."-".date('his')."-".str_random(3).".".$file->getClientOriginalExtension();
 						$file->move('news_image',$name);
 						$images[]=$name;
 						/*Insert your data*/
@@ -133,21 +137,21 @@ class NewsController extends ResponseController
 										'news_id' => $input['news_id'],
 										]);
 					}
-				/*Insert your data*/
 					else
 					{
-						News::where('id',$news)->delete();
+						// News::where('id',$news)->delete();
 						$success['status'] = "1";
 				        $success['message'] = "Sorry Only Upload png, jpg, gif, jpeg, svg";
 				        return $this->sendResponse($success);
 					}
+				/*Insert your data*/
 				}
-				$success['status'] = "1";
-			    $success['message'] = "News Posted";
-			    return $this->sendResponse($success);
-			}
 
-    	}
+				$success['status'] = "1";
+	    		$success['message'] = "News Updated";
+	            return $this->sendResponse($success);
+			}
+		}
     	else
     	{
     		$success['status'] = "0";

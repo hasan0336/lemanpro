@@ -54,6 +54,7 @@ class GameController extends ResponseController
         }
         else
         {
+            $success['status'] = "0";
         	$success['message'] = "Unauthorized User";
             return $this->sendResponse($success);
         }
@@ -88,6 +89,7 @@ class GameController extends ResponseController
         }
         else
         {
+            $success['status'] = "0";
         	$success['message'] = "Unauthorized User";
             return $this->sendResponse($success);
         }
@@ -154,6 +156,7 @@ class GameController extends ResponseController
         }
         else
         {
+            $success['status'] = "0";
         	$success['message'] = "Unauthorized User";
             return $this->sendResponse($success);
         }
