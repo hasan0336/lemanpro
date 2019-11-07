@@ -42,7 +42,7 @@ class ProfileController extends ResponseController
             return $this->sendResponse($success);   
         }
 
-        if($request->user()->id == $request->team_id)
+        if($request->user()->id == $request->user_id)
         {
             $input = $request->all();
             $imageName = time().'.'.request()->image->getClientOriginalExtension();
