@@ -264,10 +264,18 @@ class ProfileController extends ResponseController
                 $profile->image = URL::to('/images/profile_image/').$profile->image; 
                 
                 $matches = Match::select(DB::raw('count(game_id) as game_id'),'player_id',DB::raw('SUM(yellow) as yellow'),DB::raw('SUM(red) as red'),DB::raw('SUM(goals) as goals'),DB::raw('SUM(trophies) as trophies'),DB::raw('SUM(time) as time'))->where('player_id',$request->user_id)->get();
-                $team_joined = Rosters::join('profiles','profiles.user_id','=','Rosters.team_id')->where('player_id',$request->user_id)->where('request',1)->select('team_name')->first();
-                $profile->team_name = $team_joined->team_name;
-                // dd($team_joined->team_name);
-                // $profile->game = count($matches);
+                $team_joined = Rosters::join('profiles','profiles.user_id','=','rosters.team_id')->where('player_id',$request->user_id)->where('request',1)->select('team_name')->first();
+                if($team_joined == null)
+                {
+                    $profile->team_name = "";
+                }
+                else
+                {
+                    $profile->team_name = $team_joined->team_name;
+                }
+                // // $profile->team_name = $team_joined->team_name;
+                // dd($team_joined);
+                // // $profile->game = count($matches);
                 foreach ($matches as $key => $value) 
                 {
                     // dd($value->yellow);
