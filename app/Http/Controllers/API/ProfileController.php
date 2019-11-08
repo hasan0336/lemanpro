@@ -13,6 +13,7 @@ use File;
 use App\Match;
 use URL;
 use DB;
+use App\Rosters;
 class ProfileController extends ResponseController
 {
     public function create_profile(Request $request)
@@ -259,11 +260,13 @@ class ProfileController extends ResponseController
             }
             else if($user->role_id == 2)
             {
-                $profile = Profile::select('team_name','coach_name','home_field_address','home_field_city','home_field_state','home_field_zipcode','website','facebook','instagram','twitter','image')->where('profiles.user_id',$request->user_id)->first();
+                $profile = Profile::select('first_name','last_name','dob','gender','cob','cop','height','weight','position','twitter','image')->where('profiles.user_id',$request->user_id)->first();
                 $profile->image = URL::to('/images/profile_image/').$profile->image; 
                 
                 $matches = Match::select(DB::raw('count(game_id) as game_id'),'player_id',DB::raw('SUM(yellow) as yellow'),DB::raw('SUM(red) as red'),DB::raw('SUM(goals) as goals'),DB::raw('SUM(trophies) as trophies'),DB::raw('SUM(time) as time'))->where('player_id',$request->user_id)->get();
-                // dd($matches);
+                $team_joined = Rosters::join('profiles','profiles.user_id','=','Rosters.team_id')->where('player_id',$request->user_id)->where('request',1)->select('team_name')->first();
+                $profile->team_name = $team_joined->team_name;
+                // dd($team_joined->team_name);
                 // $profile->game = count($matches);
                 foreach ($matches as $key => $value) 
                 {
