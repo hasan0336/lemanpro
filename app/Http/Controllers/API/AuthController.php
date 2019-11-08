@@ -282,6 +282,9 @@ class AuthController extends ResponseController
 			{
 				$user = User::where('email', '=', $request->email)->first();
 				Mail::to($request->email)->send(new NewOtp($new_pwd,$user));
+                $success['status'] = '1';
+                $success['message'] =  "One time password is sent to your email";
+                return $this->sendResponse($success);
 			}
 			else
 			{
