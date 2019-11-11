@@ -250,8 +250,8 @@ class ProfileController extends ResponseController
             $user = User::find($request->user_id);
             if($user->role_id == 1)
             {
-                $profile = Profile::select('team_name','coach_name','home_field_address','home_field_city','home_field_state','home_field_zipcode','website','facebook','instagram','twitter','image')->where('user_id',$request->user_id)->first();
-                $profile->image = URL::to('/images/profile_image/').$profile->image; 
+                $profile = Profile::select('team_name','coach_name','club_address','home_field_address','home_field_city','home_field_state','home_field_zipcode','website','facebook','instagram','twitter','image')->where('user_id',$request->user_id)->first();
+                $profile->image = URL::to('public/images/profile_image/').$profile->image; 
                 
                 $success['status'] = "1";
                 $success['message'] = "Team Profile";
@@ -273,9 +273,6 @@ class ProfileController extends ResponseController
                 {
                     $profile->team_name = $team_joined->team_name;
                 }
-                // // $profile->team_name = $team_joined->team_name;
-                // dd($team_joined);
-                // // $profile->game = count($matches);
                 foreach ($matches as $key => $value) 
                 {
                     // dd($value->yellow);
