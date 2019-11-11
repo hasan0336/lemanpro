@@ -113,6 +113,7 @@ class NewsController extends ResponseController
     			$data['description'] = $input['description'];
     		}
     		$news = DB::table('news')->where('id',$input['news_id'])->update($data);
+    		DB::table('news_images')->where('news_id', $input['news_id'])->delete();
     		$allowedfileExtension = ['jpeg','jpg','png','gif','svg'];
 			$files = $request->file('news_image');
     		if($files != '' || !empty($files))
@@ -125,8 +126,16 @@ class NewsController extends ResponseController
 					if($check)
 					{
 						$check_images = DB::table('news_images')->where('news_id',$request->news_id)->get();
-						dd(count($check_images));
-						
+						foreach($check_images as $key => $check_image)
+						{
+							// dd($check_image->news_image);
+							$destinationPath = public_path('/news_image/'.$check_image->news_image);
+							// dd($destinationPath);
+							if(file_exists($destinationPath))
+							{
+								unlink($destinationPath);								
+							}
+						}
 
 						$name=str_random(5)."-".date('his')."-".str_random(3).".".$file->getClientOriginalExtension();
 						$file->move('news_image',$name);

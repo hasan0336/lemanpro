@@ -18,6 +18,7 @@ class ProfileController extends ResponseController
 {
     public function create_profile(Request $request)
     {
+        $data = array();
         if($request->user_id == "" || empty($request->user_id))
         {
             $success['status'] = '0';
@@ -36,19 +37,42 @@ class ProfileController extends ResponseController
             $success['message'] = "Last name is missing";
             return $this->sendResponse($success);   
         }
-        elseif($request->image == "" || empty($request->image))
+        // elseif($request->image == "" || empty($request->image))
+        // {
+        //     $success['status'] = '0';
+        //     $success['message'] = "image is missing";
+        //     return $this->sendResponse($success);   
+        // }
+        $check_complete_profile = Profile::where('user_id',$request->user_id)->first();
+        $imageName = '' ;
+        if($check_complete_profile->is_profile_complete == 0)
         {
-            $success['status'] = '0';
-            $success['message'] = "Image is missing";
-            return $this->sendResponse($success);   
+            if($request->image == "" || empty($request->image))
+            {
+                $success['status'] = '0';
+                $success['message'] = "image is missing";
+                return $this->sendResponse($success);   
+            }
+            else
+            {
+                $imageName = time().'.'.request()->image->getClientOriginalExtension();
+                request()->image->move(public_path('images/profile_images'), $imageName);
+            }
         }
+        else
+        {
+            if($request->image != '' || $request->image != false)
+            {
+                $data['image'] = $request->image;
+                $imageName = time().'.'.request()->image->getClientOriginalExtension();
+                request()->image->move(public_path('images/profile_images'), $imageName);
+            }
+        }
+        // dd($check_complete_profile->is_profile_complete);
 
         if($request->user()->id == $request->user_id)
         {
             $input = $request->all();
-            $imageName = time().'.'.request()->image->getClientOriginalExtension();
-            request()->image->move(public_path('images/profile_images'), $imageName);
-            $data = array();
             $profile = User::find($input['user_id']);
             if($profile->role_id == 1)
             {
