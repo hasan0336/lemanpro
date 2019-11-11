@@ -298,10 +298,6 @@ class ProfileController extends ResponseController
                 {
                    $profile->team_name = $team_joined->team_name; 
                 }
-                // dd($team_joined);
-                // $profile->team_name = $team_joined->team_name;
-                // dd($team_joined->team_name);
-                // $profile->game = count($matches);
                 foreach ($matches as $key => $value) 
                 {
                     // dd($value->yellow);
