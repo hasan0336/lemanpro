@@ -134,7 +134,7 @@ class AuthController extends ResponseController
                 $user_info = User::with('profile')->where('id',$user->id)->first();
                 if($user_info['profile']->image != "" || !empty($user_info['profile']->image))
                 {
-                    $user_info['profile']->image = URL::to('/images/profile_images/'.$user_info['profile']->image);
+                    $user_info['profile']->image = URL::to('public/images/profile_images/'.$user_info['profile']->image);
                 }
                 $success['status'] = '1';
                 $success['message'] = "Login Sucessfully";
