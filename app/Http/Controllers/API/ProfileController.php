@@ -80,6 +80,10 @@ class ProfileController extends ResponseController
                 {
                     $data['club_address'] = $input['club_address'];
                 }
+                if($input['team_name'] != '' || $input['team_name'] != false)
+                {
+                    $data['team_name'] = $input['team_name'];
+                }
                 if($input['city'] != '' || $input['city'] != false)
                 {
                     $data['city'] = $input['city'];

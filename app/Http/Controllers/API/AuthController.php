@@ -168,8 +168,10 @@ class AuthController extends ResponseController
     //logout
     public function logout(Request $request)
     {
+        // dd($request->id);
         $data =array('device_token'=> '', 'device_type' => '');
-        $update_device_token = User::where('id', $request->id)->update($data);
+        $update_device_token = User::where('id', $request->user_id)->update($data);
+        // dd($update_device_token);
         $isUser = $request->user()->token()->revoke();
         if($isUser){
             $success['message'] = "Successfully logged out.";
