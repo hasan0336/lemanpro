@@ -49,8 +49,10 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 
 	Route::post('create_news','API\NewsController@create_news');
 	Route::post('edit_news','API\NewsController@edit_news');
+	Route::get('delete_news','API\NewsController@delete_news');
+	Route::get('news_listing','API\NewsController@news_listing');
 
-	
+
 	Route::post('logout','API\AuthController@logout');
 
 });
