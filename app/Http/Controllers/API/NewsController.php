@@ -168,4 +168,82 @@ class NewsController extends ResponseController
             return $this->sendResponse($success);
     	}
     }
+
+    public function delete_news(Request $request)
+    {
+    	if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team_id is missing";
+            return $this->sendResponse($success);
+        }
+        elseif($request->news_id == "" || empty($request->news_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "news_id is missing";
+            return $this->sendResponse($success);   
+        }
+        if($request->user()->id == $request->team_id)
+    	{
+    						DB::table("news_images")->where("news_id", $request->news_id)->delete();
+    		$delete_news = 	DB::table("news")->where("team_id", $request->team_id)->where("id", $request->news_id)->delete();
+    		if($delete_news)
+    		{
+    			$success['status'] = "1";
+	    		$success['message'] = "NEWS Deleed";
+	            return $this->sendResponse($success);
+    		}
+    	}
+    	else
+    	{
+    		$success['status'] = "0";
+    		$success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+    	}
+    }
+
+    public function news_listing(Request $request)
+    {
+    	if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team_id is missing";
+            return $this->sendResponse($success);
+        }
+        else
+        {
+        	if($request->user()->id == $request->team_id)
+    		{
+    			$news_result = News::join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$request->team_id)->groupBy('news_images.news_id')->get();
+    			// dd($news_result);
+    			$news_pics = array();
+    			foreach ($news_result as $key => $value) {
+    				// dd($value->news_id);
+    				$res = $this->get_news_pictures($value->news_id);
+    				$news_result[$key]['news_pics'] = isset($res) ? $res : "";
+    			}
+    			// $news_result['news_pics'] = $news_pics; 
+    			$success['status'] = "1";
+	    		$success['message'] = "All NEWS";
+	    		$success['data'] = $news_result;
+	            return $this->sendResponse($success);
+    		}
+    		else
+    		{
+    			$success['status'] = "0";
+	    		$success['message'] = "Unauthorized User";
+	            return $this->sendResponse($success);
+    		}
+        }
+    }
+
+    public function get_news_pictures($news_id)
+    {
+    	$res_news_images = DB::table('news_images')->where('news_id',$news_id)->get();
+    	$news_pic_data_arr = [];
+    	foreach ($res_news_images as $key => $value)
+    		
+    		$news_pic_data_arr[] =  URL::to('/public/news_image/'.$value->news_image);
+    	return isset($news_pic_data_arr) ? $news_pic_data_arr : false;
+    }
 }
