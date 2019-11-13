@@ -303,12 +303,12 @@ class ProfileController extends ResponseController
                 foreach ($matches as $key => $value) 
                 {
                     // dd($value->yellow);
-                    $profile->games = $value->game_id;
-                    $profile->yellow = $value->yellow;
-                    $profile->red = $value->red;
-                    $profile->goals = $value->goals;
-                    $profile->trophies = $value->trophies;
-                    $profile->time = $value->time;
+                    $profile->games = strval($value->game_id);
+                    $profile->yellow = strval($value->yellow);
+                    $profile->red = strval($value->red);
+                    $profile->goals = strval($value->goals);
+                    $profile->trophies = strval($value->trophies);
+                    $profile->time = strval($value->time);
                 }
                 $success['status'] = "1";
                 $success['message'] = "Player Profile";
