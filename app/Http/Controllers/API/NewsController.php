@@ -62,11 +62,13 @@ class NewsController extends ResponseController
 						News::where('id',$news)->delete();
 						$success['status'] = "1";
 				        $success['message'] = "Sorry Only Upload png, jpg, gif, jpeg, svg";
+				        $success['data'] = '';
 				        return $this->sendResponse($success);
 					}
 				}
 				$success['status'] = "1";
 			    $success['message'] = "News Posted";
+			    $success['data'] = '';
 			    return $this->sendResponse($success);
 			}
 			else
@@ -80,6 +82,7 @@ class NewsController extends ResponseController
     	{
     		$success['status'] = "0";
     		$success['message'] = "Unauthorized User";
+    		$success['data'] = '';
             return $this->sendResponse($success);
     	}
     }
@@ -151,6 +154,7 @@ class NewsController extends ResponseController
 						// News::where('id',$news)->delete();
 						$success['status'] = "1";
 				        $success['message'] = "Sorry Only Upload png, jpg, gif, jpeg, svg";
+				        $success['data'] = '';
 				        return $this->sendResponse($success);
 					}
 				/*Insert your data*/
@@ -158,6 +162,7 @@ class NewsController extends ResponseController
 
 				$success['status'] = "1";
 	    		$success['message'] = "News Updated";
+	    		$success['data'] = '';
 	            return $this->sendResponse($success);
 			}
 		}
@@ -165,6 +170,7 @@ class NewsController extends ResponseController
     	{
     		$success['status'] = "0";
     		$success['message'] = "Unauthorized User";
+    		$success['data'] = '';
             return $this->sendResponse($success);
     	}
     }
@@ -191,6 +197,7 @@ class NewsController extends ResponseController
     		{
     			$success['status'] = "1";
 	    		$success['message'] = "NEWS Deleed";
+	    		$success['data'] = '';
 	            return $this->sendResponse($success);
     		}
     	}
@@ -198,6 +205,7 @@ class NewsController extends ResponseController
     	{
     		$success['status'] = "0";
     		$success['message'] = "Unauthorized User";
+    		$success['data'] = '';
             return $this->sendResponse($success);
     	}
     }
@@ -232,6 +240,7 @@ class NewsController extends ResponseController
     		{
     			$success['status'] = "0";
 	    		$success['message'] = "Unauthorized User";
+	    		$success['data'] = '';
 	            return $this->sendResponse($success);
     		}
         }

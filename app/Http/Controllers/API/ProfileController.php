@@ -37,12 +37,6 @@ class ProfileController extends ResponseController
             $success['message'] = "Last name is missing";
             return $this->sendResponse($success);   
         }
-        // elseif($request->image == "" || empty($request->image))
-        // {
-        //     $success['status'] = '0';
-        //     $success['message'] = "image is missing";
-        //     return $this->sendResponse($success);   
-        // }
         $check_complete_profile = Profile::where('user_id',$request->user_id)->first();
         $imageName = '' ;
         if($check_complete_profile->is_profile_complete == 0)
@@ -207,6 +201,7 @@ class ProfileController extends ResponseController
                     {
                         $success['status'] = "0";
                         $success['message'] = "Profile is not completed";
+                        $success['data'] = '';
                         return $this->sendResponse($success);   
                     }
                 }
@@ -214,6 +209,7 @@ class ProfileController extends ResponseController
                 {
                     $success['status'] = "0";
                     $success['message'] = "User Profile is not complete";
+                    $success['data'] = '';
                     return $this->sendResponse($success);
                 }
                 
@@ -253,6 +249,7 @@ class ProfileController extends ResponseController
                 {
                     $success['status'] = "0";
                     $success['message'] = "User Profile is not Updated";
+                    $success['data'] = '';
                     return $this->sendResponse($success);   
                 }
             }
@@ -261,6 +258,7 @@ class ProfileController extends ResponseController
         {
             $success['status'] = '0';
             $success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
         }
         
@@ -324,6 +322,7 @@ class ProfileController extends ResponseController
         {
             $success['status'] = '0';
             $success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
         }
     }

@@ -43,12 +43,14 @@ class GameController extends ResponseController
         	{
         		$success['status'] = "1";
                 $success['message'] = "Game and Match has been created";
+                $success['data'] = '';
                 return $this->sendResponse($success);
         	}
         	else
         	{
         		$success['status'] = "1";
                 $success['message'] = "Game and Match not created";
+                $success['data'] = '';
                 return $this->sendResponse($success);	
         	}
         }
@@ -56,6 +58,7 @@ class GameController extends ResponseController
         {
             $success['status'] = "0";
         	$success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
         }
     }
@@ -78,12 +81,14 @@ class GameController extends ResponseController
 			{
 				$success['status'] = "1";
                 $success['message'] = "Game and Match deleted";
+                $success['data'] = '';
                 return $this->sendResponse($success);	
 			}
 			else
 			{
-				$success['status'] = "1";
+				$success['status'] = "0";
                 $success['message'] = "Game and Match not deleted";
+                $success['data'] = '';
                 return $this->sendResponse($success);	
 			}
         }
@@ -91,6 +96,7 @@ class GameController extends ResponseController
         {
             $success['status'] = "0";
         	$success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
         }
     }
@@ -145,12 +151,14 @@ class GameController extends ResponseController
         		Mail::to($user->email)->send(new PlayerReport($user));
         		$success['status'] = "1";
                 $success['message'] = "player score inserted";
+                $success['data'] = '';
                 return $this->sendResponse($success);
         	}
         	else
         	{
         		$success['status'] = "1";
                 $success['message'] = "player score not inserted";
+                $success['data'] = '';
                 return $this->sendResponse($success);
         	}
         }
@@ -158,6 +166,7 @@ class GameController extends ResponseController
         {
             $success['status'] = "0";
         	$success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
         }
     }
