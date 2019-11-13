@@ -96,8 +96,10 @@ class AuthController extends ResponseController
             }
             else
             {
-                $error = "Sorry! Registration is not successfull.";
-                return $this->sendError($error, 401); 
+                $success['status'] = '0';
+                $success['data'] = '';
+                $success['message'] = "Registration is not successfull..";
+                return $this->sendResponse($success);
             }
         }
     }
@@ -137,7 +139,8 @@ class AuthController extends ResponseController
             {
                 $credentials = request(['email', 'password']);
                 // dd($credentials);
-                if(!Auth::attempt($credentials)){
+                if(!Auth::attempt($credentials))
+                {
                     $success['status'] = '0';
                     $success['message'] = "Credentials done't match";
                     return $this->sendResponse($success);
@@ -160,6 +163,7 @@ class AuthController extends ResponseController
             {
                 $success['status'] = '0';
                 $success['message'] = "email not exist";
+                $success['data'] = '';
                 return $this->sendResponse($success);
             }
         }
@@ -174,11 +178,16 @@ class AuthController extends ResponseController
         // dd($update_device_token);
         $isUser = $request->user()->token()->revoke();
         if($isUser){
+            $success['status'] = '0';
             $success['message'] = "Successfully logged out.";
+            $success['data'] = '';
             return $this->sendResponse($success);
         }
-        else{
-            $error = "Something went wrong.";
+        else
+        {
+            $success['status'] = '0';
+            $success['message'] = "Something went wrong.";
+            $success['data'] = '';
             return $this->sendResponse($error);
         }  
     }
@@ -267,21 +276,27 @@ class AuthController extends ResponseController
                     // dd($a);
                     $success['status'] = '1';
                     $success['message'] =  'password changed sucessfully';
+                    $success['data'] = '';
                     return $this->sendResponse($success); //sending the new token
                 }
                 else 
                 {
                     $success['status'] = '0';
                     $success['message'] =  'Old Password not matched';
+                    $success['data'] = '';
                     return $this->sendResponse($success); 
                 }
             }
-            return "Wrong password information";
+            $success['status'] = '0';
+            $success['message'] =  'Wrong password information';
+            $success['data'] = '';
+            return $this->sendResponse($success); 
         }
         else
         {
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
         }
 	}
@@ -301,19 +316,22 @@ class AuthController extends ResponseController
 				Mail::to($request->email)->send(new NewOtp($new_pwd,$user));
                 $success['status'] = '1';
                 $success['message'] =  "One time password is sent to your email";
+                $success['data'] = '';
                 return $this->sendResponse($success);
 			}
 			else
 			{
 				$success['status'] = '0';
 	        	$success['message'] =  "Password doesn't updated";
+                $success['data'] = '';
 	        	return $this->sendResponse($success);	
 			}
 		}
 		else
 		{
-			$success['status'] = '1';
+			$success['status'] = '0';
 	        $success['message'] =  "Email doesn't exist";
+            $success['data'] = '';
 	        return $this->sendResponse($success);
 		}
 		// dd();

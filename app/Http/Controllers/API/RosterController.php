@@ -30,12 +30,14 @@ class RosterController extends ResponseController
     		$rosters = Rosters::create($request->all());
     		$success['status'] = "1";
     		$success['message'] = "Request send to player";
+            $success['data'] = '';
             return $this->sendResponse($success);
     	}
     	else
     	{
             $success['status'] = "0";
     		$success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
     	}
     }
@@ -71,6 +73,7 @@ class RosterController extends ResponseController
         {
             $success['status'] = "0";
         	$success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
         }
 
@@ -97,6 +100,7 @@ class RosterController extends ResponseController
     			$res = Rosters::where('id', $request->roster_id)->where('player_id', $request->player_id)->update(array('request'=> 1));	
     			$success['status'] = "1";
     			$success['message'] = "Request accepted";
+                $success['data'] = '';
     			return $this->sendResponse($success);
     		}
     		else if ($action == 'reject') 
@@ -105,18 +109,22 @@ class RosterController extends ResponseController
     			$res = Rosters::where('id', $request->roster_id)->where('player_id', $request->player_id)->update(array('request'=> 2));	
     			$success['status'] = "1";
     			$success['message'] = "Request Rejected";
+                $success['data'] = '';
     			return $this->sendResponse($success);
     		}
     		else
     		{
     			$success['status'] = "0";
     			$success['message'] = "Request not updated";
+                $success['data'] = '';
+                return $this->sendResponse($success);
     		}
     	}
     	else
     	{
             $success['status'] = "0";
     		$success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
     	}
     }
@@ -150,6 +158,7 @@ class RosterController extends ResponseController
     	{
             $success['status'] = "0";
     		$success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
     	}
     }
@@ -173,12 +182,14 @@ class RosterController extends ResponseController
             {
                 $success['status'] = "1";
                 $success['message'] = "sucessfully deleted";
+                $success['data'] = '';
                 return $this->sendResponse($success);
             }
             else
             {
                 $success['status'] = "1";
                 $success['message'] = "not exist";
+                $success['data'] = '';
                 return $this->sendResponse($success);
             }
         }
@@ -186,6 +197,7 @@ class RosterController extends ResponseController
         {
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
         }
     }

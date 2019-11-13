@@ -34,12 +34,14 @@ class TryoutController extends ResponseController
 
     		$success['status'] = "1";
     		$success['message'] = "Tryout created";
+            $success['data'] = '';
             return $this->sendResponse($success);
     	}
     	else
     	{
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
     	}
     }
@@ -87,12 +89,14 @@ class TryoutController extends ResponseController
 	        {
 	        	$success['status'] = "1";
 	    		$success['message'] = "Tryout Updated";
+                $success['data'] = '';
 	            return $this->sendResponse($success);
 	        }
 	        else
 	        {
 	        	$success['status'] = "0";
 	    		$success['message'] = "Tryout not updated";
+                $success['data'] = '';
 	            return $this->sendResponse($success);	
 	        }
     	}
@@ -100,6 +104,7 @@ class TryoutController extends ResponseController
     	{
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
     	}
     }
@@ -136,6 +141,7 @@ class TryoutController extends ResponseController
 	    	{
 	    		$success['status'] = "1";
 		    	$success['message'] = "No Tryouts available";
+                $success['data'] = '';
 		        return $this->sendResponse($success);
 	    	}
     	}
@@ -143,6 +149,7 @@ class TryoutController extends ResponseController
     	{
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
     	}
     }
@@ -158,12 +165,14 @@ class TryoutController extends ResponseController
 	    	{
 	    		$success['status'] = "1";
 		    	$success['message'] = "Tryout deleted";
+                $success['data'] = '';
 		        return $this->sendResponse($success);
 	    	}
 	    	else
 	    	{
 	    		$success['status'] = "1";
 		    	$success['message'] = "Tryout not present";
+                $success['data'] = '';
 		        return $this->sendResponse($success);
 	    	}
     	}
@@ -171,6 +180,7 @@ class TryoutController extends ResponseController
     	{
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
     	}
     }
@@ -193,6 +203,7 @@ class TryoutController extends ResponseController
 
     			$success['status'] = "1";
 		    	$success['message'] = "You have already joined this tryout.";
+                $success['data'] = '';
 		        return $this->sendResponse($success);
     		}
     		else
@@ -203,12 +214,14 @@ class TryoutController extends ResponseController
                     DB::table('stripe')->insert($card_data);
 	    			$success['status'] = "1";
 			    	$success['message'] = "Player joins tryout";
+                    $success['data'] = '';
 			        return $this->sendResponse($success);
 	    		}
 	    		else
 	    		{
 	    			$success['status'] = "1";
 			    	$success['message'] = "Some Problem occur";
+                    $success['data'] = '';
 			        return $this->sendResponse($success);
 	    		}
     		}
@@ -217,6 +230,7 @@ class TryoutController extends ResponseController
     	{
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
+            $success['data'] = '';
             return $this->sendResponse($success);
     	}
 
