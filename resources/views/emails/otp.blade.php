@@ -7,7 +7,7 @@
 <body>
 <h2>Hi <b>{{$user['email']}}</b></h2>
 <br/>
-Your one time password is {{$password}}.
+Your one time password is {{$password}}
 </body>
 
 </html>
