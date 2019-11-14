@@ -32,16 +32,18 @@ class TryoutController extends ResponseController
     	{
     		$tryout = Tryout::create($request->all());
 
+            
     		$success['status'] = "1";
     		$success['message'] = "Tryout created";
-            $success['data'] = '';
+            
             return $this->sendResponse($success);
     	}
     	else
     	{
+            
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
-            $success['data'] = '';
+            
             return $this->sendResponse($success);
     	}
     }
@@ -87,24 +89,27 @@ class TryoutController extends ResponseController
 	        $update_tryout = Tryout::where('team_id', $request->team_id)->where('id', $request->tryout_id)->update($data);
 	        if($update_tryout)
 	        {
+                
 	        	$success['status'] = "1";
 	    		$success['message'] = "Tryout Updated";
-                $success['data'] = '';
+                
 	            return $this->sendResponse($success);
 	        }
 	        else
 	        {
+                
 	        	$success['status'] = "0";
 	    		$success['message'] = "Tryout not updated";
-                $success['data'] = '';
+                
 	            return $this->sendResponse($success);	
 	        }
     	}
     	else
     	{
+            
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
-            $success['data'] = '';
+            
             return $this->sendResponse($success);
     	}
     }
@@ -139,17 +144,19 @@ class TryoutController extends ResponseController
 	    	}
 	    	else
 	    	{
+                
 	    		$success['status'] = "1";
 		    	$success['message'] = "No Tryouts available";
-                $success['data'] = '';
+                
 		        return $this->sendResponse($success);
 	    	}
     	}
     	else
     	{
+            
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
-            $success['data'] = '';
+            
             return $this->sendResponse($success);
     	}
     }
@@ -163,24 +170,27 @@ class TryoutController extends ResponseController
     		$del_res = Tryout::where('team_id',$input['team_id'])->where('id',$input['tryout_id'])->delete();
 	    	if($del_res)
 	    	{
+                
 	    		$success['status'] = "1";
 		    	$success['message'] = "Tryout deleted";
-                $success['data'] = '';
+                
 		        return $this->sendResponse($success);
 	    	}
 	    	else
 	    	{
+                
 	    		$success['status'] = "1";
 		    	$success['message'] = "Tryout not present";
-                $success['data'] = '';
+                
 		        return $this->sendResponse($success);
 	    	}
     	}
     	else
     	{
+            
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
-            $success['data'] = '';
+            
             return $this->sendResponse($success);
     	}
     }
@@ -200,10 +210,10 @@ class TryoutController extends ResponseController
             $card_data = array('user_id' => $request->player_id,'stripe_id' => $request->stripe_id, 'card_brand' => $request->card_brand, 'card_last_four' => $request->card_last_four, 'trial_ends_at' => $request->trial_ends_at );
     		if($check_player != null || !empty($check_player))
     		{
-
+                
     			$success['status'] = "1";
 		    	$success['message'] = "You have already joined this tryout.";
-                $success['data'] = '';
+                
 		        return $this->sendResponse($success);
     		}
     		else
@@ -212,25 +222,28 @@ class TryoutController extends ResponseController
 	    		if($join_player)
 	    		{
                     DB::table('stripe')->insert($card_data);
+                    
 	    			$success['status'] = "1";
 			    	$success['message'] = "Player joins tryout";
-                    $success['data'] = '';
+                    
 			        return $this->sendResponse($success);
 	    		}
 	    		else
 	    		{
+                    
 	    			$success['status'] = "1";
 			    	$success['message'] = "Some Problem occur";
-                    $success['data'] = '';
+                    
 			        return $this->sendResponse($success);
 	    		}
     		}
     	}
     	else
     	{
+            
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
-            $success['data'] = '';
+            
             return $this->sendResponse($success);
     	}
 

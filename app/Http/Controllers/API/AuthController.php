@@ -21,114 +21,69 @@ class AuthController extends ResponseController
     //create user
     public function signup(Request $request)
     {
-        if ($request->social_token == '' || empty($request->social_token)) 
+        if($request->email == "" || empty($request->email))
         {
-            if($request->email == "" || empty($request->email))
-            {
-                $success['status'] = '0';
-                $success['message'] = "Emailis missing";
-                return $this->sendResponse($success);
-            }
-            elseif($request->password == "" || empty($request->password))
-            {
-                $success['status'] = '0';
-                $success['message'] = "Password is missing";
-                return $this->sendResponse($success);   
-            }
-            elseif($request->confirm_password == "" || empty($request->confirm_password))
-            {
-                $success['status'] = '0';
-                $success['message'] = "Confirm Password is missing";
-                return $this->sendResponse($success);   
-            }
-            elseif($request->device_type == "" || empty($request->device_type))
-            {
-                $success['status'] = '0';
-                $success['message'] = "Device type is missing";
-                return $this->sendResponse($success);   
-            }
-            elseif($request->device_token == "" || empty($request->device_token))
-            {
-                $success['status'] = '0';
-                $success['message'] = "Device token is missing";
-                return $this->sendResponse($success);   
-            }
+            $success['status'] = '0';
+            $success['message'] = "Emailis missing";
+            return $this->sendResponse($success);
+        }
+        elseif($request->password == "" || empty($request->password))
+        {
+            $success['status'] = '0';
+            $success['message'] = "Password is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->confirm_password == "" || empty($request->confirm_password))
+        {
+            $success['status'] = '0';
+            $success['message'] = "Confirm Password is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->device_type == "" || empty($request->device_type))
+        {
+            $success['status'] = '0';
+            $success['message'] = "Device type is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->device_token == "" || empty($request->device_token))
+        {
+            $success['status'] = '0';
+            $success['message'] = "Device token is missing";
+            return $this->sendResponse($success);   
+        }
 
-            $check_email = User::where('email',$request->email)->first();
-            if($check_email)
+        $check_email = User::where('email',$request->email)->first();
+        if($check_email)
+        {
+            $success['status'] = '0';
+            $success['message'] = "email already exist";
+            return $this->sendResponse($success);
+        }
+        else
+        {
+            $input = $request->all();
+            $input['password'] = bcrypt($input['password']);
+            $input['login_type'] = "email";
+            $input['email_token'] = md5(uniqid());
+
+            $user = User::create($input);
+            if($user)
             {
-                $success['status'] = '0';
-                $success['message'] = "email already exist";
+                $data = array('user_id' => $user->id);
+                $pro = Profile::create($data);
+                Mail::to($request->email)->send(new UserNotification($user));
+
+                $success['token'] =  $user->createToken('token')->accessToken;
+                $success['status'] = '1';
+                $success['data']['id'] = $user->id;
+                $success['message'] = "Registration successfull..";
                 return $this->sendResponse($success);
             }
             else
             {
-                $input = $request->all();
-                $input['password'] = bcrypt($input['password']);
-                $input['login_type'] = "email";
-                $input['email_token'] = md5(uniqid());
-
-                $user = User::create($input);
-                if($user)
-                {
-                    $data = array('user_id' => $user->id);
-                    $pro = Profile::create($data);
-                    Mail::to($request->email)->send(new UserNotification($user));
-
-                    $success['token'] =  $user->createToken('token')->accessToken;
-                    $success['status'] = '1';
-                    $success['data']['id'] = $user->id;
-                    $success['message'] = "Registration successfull..";
-                    return $this->sendResponse($success);
-                }
-                else
-                {
-                    $success['status'] = '0';
-                    $success['data'] = '';
-                    $success['message'] = "Registration is not successfull..";
-                    return $this->sendResponse($success);
-                }
-            }
-        }
-        else
-        {
-            if($request->social_token != '' || !empty($request->social_token))
-            {
-                $check_social_token = User::where('social_token',$request->social_token)->first();
-                if($check_social_token == null || empty($check_social_token))
-                {
-                    
-                    $email          = $request->email;
-                    $social_token   = $request->social_token;
-                    $name           = $request->name;
-                    $image          = $request->image;
-                    $device_type    = $request->device_type;
-                    $device_token   = $request->device_token;
-                    $login_type     = $request->login_type;
-                    $user_data = array(
-                        'social_token' => $social_token,
-                        'verify_status' => 1,
-                        'device_type' => $device_type,
-                        'device_token' => $device_token,
-                        'login_type' => $login_type
-                    );
-                    if($email != '' || !empty($email))
-                    {
-                        $user_data['email'] = $email;
-                    }
-                    if($name != '' || !empty($name))
-                    {
-                        $user_data['name'] = $name;
-                    }
-                    if($image != '' || !empty($image))
-                    {
-                        $user_data['image'] = $image;
-                    }
-                    
-                    dd($user_data);
-                    $user = User::create($input);
-                }
-                dd($check_social_token);
+                $success['status'] = '0';
+                $success['message'] = "Registration is not successfull..";
+                return $this->sendResponse($success);
             }
         }
     }
@@ -189,10 +144,8 @@ class AuthController extends ResponseController
             }
             else
             {
-                $data =  (object)[];
                 $success['status'] = '0';
                 $success['message'] = "email not exist";
-                $success['data'] = $data;
                 return $this->sendResponse($success);
             }
         }
@@ -207,17 +160,14 @@ class AuthController extends ResponseController
         // dd($update_device_token);
         $isUser = $request->user()->token()->revoke();
         if($isUser){
-            $success['status'] = '0';
+            $success['status'] = '1';
             $success['message'] = "Successfully logged out.";
-            $success['data'] = '';
             return $this->sendResponse($success);
         }
         else
         {
-            $data =  (object)[];
             $success['status'] = '0';
             $success['message'] = "Something went wrong.";
-            $success['data'] = $data;
             return $this->sendResponse($error);
         }  
     }
@@ -238,10 +188,6 @@ class AuthController extends ResponseController
 
     public function verify($token)
     {
-        // The verified method has been added to the user model and chained here
-        // for better readability
-
-
         $user = User::where('email_token','=',$token)->get();
 
         if(count($user)>0)
@@ -304,33 +250,28 @@ class AuthController extends ResponseController
                     //Changing the type
                     $a = $user->save();
                     // dd($a);
-                    $empty_data =  (object)[];
+                    
                     $success['status'] = '1';
                     $success['message'] =  'password changed sucessfully';
-                    $success['data'] =$empty_data ;
                     return $this->sendResponse($success); //sending the new token
                 }
                 else 
                 {
-                    $empty_data =  (object)[];
+                    
                     $success['status'] = '0';
                     $success['message'] =  'Old Password not matched';
-                    $success['data'] = $empty_data;
+                    
                     return $this->sendResponse($success); 
                 }
             }
-            $empty_data =  (object)[];
             $success['status'] = '0';
             $success['message'] =  'Wrong password information';
-            $success['data'] = $empty_data;
             return $this->sendResponse($success); 
         }
         else
         {
-            $empty_data =  (object)[];
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
-            $success['data'] = $empty_data;
             return $this->sendResponse($success);
         }
 	}
@@ -349,27 +290,23 @@ class AuthController extends ResponseController
 			{
 				$user = User::where('email', '=', $request->email)->first();
 				Mail::to($request->email)->send(new NewOtp($new_pwd,$user));
-                $empty_data =  (object)[];
+                
                 $success['status'] = '1';
                 $success['message'] =  "One time password is sent to your email";
-                $success['data'] = $empty_data ;
                 return $this->sendResponse($success);
 			}
 			else
 			{
-                $empty_data =  (object)[];
+                
 				$success['status'] = '0';
 	        	$success['message'] =  "Password doesn't updated";
-                $success['data'] = $empty_data;
 	        	return $this->sendResponse($success);	
 			}
 		}
 		else
 		{
-            $empty_data =  (object)[];
 			$success['status'] = '0';
 	        $success['message'] =  "Email doesn't exist";
-            $success['data'] = $empty_data ;
 	        return $this->sendResponse($success);
 		}
 		// dd();

@@ -199,17 +199,18 @@ class ProfileController extends ResponseController
                     }
                     else
                     {
+                        
                         $success['status'] = "0";
                         $success['message'] = "Profile is not completed";
-                        $success['data'] = '';
+                        
                         return $this->sendResponse($success);   
                     }
                 }
                 else
                 {
+                    
                     $success['status'] = "0";
                     $success['message'] = "User Profile is not complete";
-                    $success['data'] = '';
                     return $this->sendResponse($success);
                 }
                 
@@ -247,18 +248,19 @@ class ProfileController extends ResponseController
                 }
                 else
                 {
+                    
                     $success['status'] = "0";
                     $success['message'] = "User Profile is not Updated";
-                    $success['data'] = '';
+                    
                     return $this->sendResponse($success);   
                 }
             }
         }
         else
         {
+            
             $success['status'] = '0';
             $success['message'] = "Unauthorized User";
-            $success['data'] = '';
             return $this->sendResponse($success);
         }
         
@@ -320,9 +322,9 @@ class ProfileController extends ResponseController
         }
         else
         {
+            
             $success['status'] = '0';
             $success['message'] = "Unauthorized User";
-            $success['data'] = '';
             return $this->sendResponse($success);
         }
     }
