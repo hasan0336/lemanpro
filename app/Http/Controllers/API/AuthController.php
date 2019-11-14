@@ -281,7 +281,28 @@ class AuthController extends ResponseController
 		$user = User::where('email', '=', $request->email)->first();
 		if(!empty($user) || $user !== null)
 		{
-			$new_pwd = str_random(10);
+            //Sample@123
+            $len = 9;
+            $sets = array();
+            $sets[] = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+            $sets[] = 'abcdefghjkmnpqrstuvwxyz';
+            $sets[] = '23456789';
+            $sets[]  = '~!@#$%^&*(){}[],./?';
+            $password = '';
+            //append a character from each set - gets first 4 characters
+            foreach ($sets as $set) {
+                $password .= $set[array_rand(str_split($set))];
+            }
+            //use all characters to fill up to $len
+            while(strlen($password) < $len) {
+                //get a random set
+                $randomSet = $sets[array_rand($sets)];
+                
+                //add a random char from the random set
+                $password .= $randomSet[array_rand(str_split($randomSet))]; 
+            }
+            //shuffle the password string before returning!
+            $new_pwd = str_shuffle($password);
 			$token_key = bcrypt($new_pwd);
 			$update_password = array('password' => $token_key);
 			$user_update = User::where('email',$request->email)->update($update_password);
