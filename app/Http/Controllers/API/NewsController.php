@@ -14,6 +14,7 @@ use App\Match;
 use URL;
 use DB;
 use App\News;
+use App\Rosters;
 
 class NewsController extends ResponseController
 {
@@ -233,6 +234,64 @@ class NewsController extends ResponseController
     			// $news_result['news_pics'] = $news_pics; 
     			$success['status'] = "1";
 	    		$success['message'] = "All NEWS";
+	    		$success['data'] = $news_result;
+	            return $this->sendResponse($success);
+    		}
+    		else
+    		{
+    			$success['status'] = "0";
+	    		$success['message'] = "Unauthorized User";
+	    		$success['data'] = '';
+	            return $this->sendResponse($success);
+    		}
+        }
+    }
+
+
+    public function player_news_listing(Request $request)
+    {
+    	if($request->player_id == "" || empty($request->player_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "Player ID is missing";
+            return $this->sendResponse($success);
+        }
+        else
+        {
+        	if($request->user()->id == $request->player_id)
+    		{
+
+    			$rosters = Rosters::where('player_id',$request->player_id)->get();
+    			// dd($rosters);
+    			// $news_result = array();
+    			foreach ($rosters as $key => $value) 
+    			{
+    				$news_result2 = News::join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$value->team_id)->groupBy('news_images.news_id')->get();
+    				if(count($news_result2) > 0)
+    				{
+    					$news_result[] = $news_result2;
+    				}
+    				// dd($news_result);	
+    			}
+    			// dd($news_result);
+    			// $news_result = News::join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$request->team_id)->groupBy('news_images.news_id')->get();
+    			// // dd($news_result);
+    			$news_pics = array();
+    			$res = array();
+    			foreach ($news_result[0] as $key => $value) 
+    			{
+    				// dd($value->news_id);
+    				$res[] = $this->get_news_pictures($value->news_id);
+    				// $news_result[$key]['news_pics'] = isset($res) ? $res : "";
+    			}
+    			foreach ($res as $key => $res_val) 
+    			{
+
+    				$news_result[0][$key]['news_pics'] = $res_val;
+    			}
+    			// $news_result['news_pics'] = $news_pics; 
+    			$success['status'] = "1";
+	    		$success['message'] = "All NEWS of Your Team";
 	    		$success['data'] = $news_result;
 	            return $this->sendResponse($success);
     		}
