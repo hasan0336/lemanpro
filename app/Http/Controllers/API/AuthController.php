@@ -106,6 +106,7 @@ class AuthController extends ResponseController
                     $device_type    = $request->device_type;
                     $device_token   = $request->device_token;
                     $login_type     = $request->login_type;
+                    $role_id        = $request->role_id;
                     $check_social_email = User::where('email',$email)->first();
                     if($check_social_email != null || !empty($check_social_email))
                     {
@@ -124,6 +125,7 @@ class AuthController extends ResponseController
                             'device_type' => $device_type,
                             'device_token' => $device_token,
                             'login_type' => $login_type,
+                            'role_id' => $role_id
                         );
 
                         if($email != '' || !empty($email))
