@@ -78,7 +78,7 @@ class AuthController extends ResponseController
                     $success['token'] =  $user->createToken('token')->accessToken;
                     $success['status'] = '1';
                     $success['data']['id'] = $user->id;
-                    $success['message'] = "Registration successfull..";
+                    $success['message'] = "A verification email with instructions has been sent to your email address.";
                     return $this->sendResponse($success);
                 }
                 else
@@ -94,9 +94,8 @@ class AuthController extends ResponseController
         {
             if($request->social_token != '' || !empty($request->social_token))
             {
-                // dd($request->social_token);
                 $check_social_token = User::where('social_token',$request->social_token)->first();
-                // dd($check_social_token);
+                
                 if($check_social_token == null || empty($check_social_token))
                 {
                     
@@ -107,46 +106,206 @@ class AuthController extends ResponseController
                     $device_type    = $request->device_type;
                     $device_token   = $request->device_token;
                     $login_type     = $request->login_type;
-                    $role_id        = $request->role_id;
-                    // dd($social_token);
-                    $user_data = array(
-                        'social_token' => $social_token,
-                        'verify_status' => 1,
-                        'device_type' => $device_type,
-                        'device_token' => $device_token,
-                        'login_type' => $login_type,
-                        'role_id' => $role_id,
-                    );
+                    $check_social_email = User::where('email',$email)->first();
+                    if($check_social_email != null || !empty($check_social_email))
+                    {
+                        $success['status'] = '0';
+                        // $success['data'] = $user->id;
+                        $success['message'] = "Social email already exist";
+                        return $this->sendResponse($success);
+                    }
+                    else
+                    {
+                        // $role_id        = $request->role_id;
+                        // dd($social_token);
+                        $user_data = array(
+                            'social_token' => $social_token,
+                            'verify_status' => 1,
+                            'device_type' => $device_type,
+                            'device_token' => $device_token,
+                            'login_type' => $login_type,
+                        );
 
-                    if($email != '' || !empty($email))
-                    {
-                        $user_data['email'] = $email;
+                        if($email != '' || !empty($email))
+                        {
+                            $user_data['email'] = $email;
+                        }
+                        if($name != '' || !empty($name))
+                        {
+                            $user_data['name'] = $name;
+                        }
+                        if($image != '' || !empty($image))
+                        {
+                            $user_data['image'] = $image;
+                        }
+                        // dd($user_data);
+                        $user = User::create($user_data);
+                        $profile_data = array(
+                            'user_id' => $user->id,
+                        );
+                        if($name != '' || !empty($name))
+                        {
+                            $profile_data['first_name'] = $name;
+                        }
+                        if($image != '' || !empty($image))
+                        {
+                            $profile_data['image'] = $image;
+                        }
+                        $profile = Profile::create($profile_data);
+                        $success['token'] =  $user->createToken('token')->accessToken;
+                        $success['status'] = '1';
+                        $success['data'] = $user->id;
+                        $success['message'] = "A verification email with instructions has been sent to your email address.";
+                        return $this->sendResponse($success);
                     }
-                    if($name != '' || !empty($name))
+                }
+                else
+                {
+                    $user_info = User::with('profile')->where('social_token',$request->social_token)->first();
+                    $data =array('device_token'=> $request->device_token, 'device_type' => $request->device_type);
+                    $update_device_token = User::where('social_token', $request->social_token)->update($data);
+                    if($user_info['profile']->image != "" || !empty($user_info['profile']->image))
                     {
-                        $user_data['name'] = $name;
+                        // dd($user_info['profile']->image);
+                        if (filter_var($user_info['profile']->image, FILTER_VALIDATE_URL))
+                        { 
+                            $user_info['profile']->image = $user_info['profile']->image;
+                        }
+                        else
+                        {
+                            $user_info['profile']->image = URL::to('public/images/profile_images/'.$user_info['profile']->image);
+                        }
                     }
-                    if($image != '' || !empty($image))
-                    {
-                        $user_data['image'] = $image;
-                    }
-                    // dd($user_data);
-                    $user = User::create($user_data);
-                    $profile_data = array(
-                        'user_id' => $user->id,
-                    );
-                    if($name != '' || !empty($name))
-                    {
-                        $profile_data['first_name'] = $name;
-                    }
-                    if($image != '' || !empty($image))
-                    {
-                        $profile_data['image'] = $image;
-                    }
-                    $profile = Profile::create($profile_data);
-                    $success['token'] =  $user->createToken('token')->accessToken;
                     $success['status'] = '1';
-                    $success['data']['id'] = $user->id;
+                    $success['message'] = "Socail Login Sucessfully";
+                    $success['data'] = $user_info;
+                    $success['token'] =  $user_info->createToken('token')->accessToken;
+                    return $this->sendResponse($success);
+                }
+            }
+        }
+    }
+    
+    //login
+    public function login(Request $request)
+    {
+        if ($request->social_token == '' || empty($request->social_token)) 
+        {
+            if($request->email == "" || empty($request->email))
+            {
+                $success['status'] = '0';
+                $success['message'] = "Email is missing";
+                return $this->sendResponse($success);
+            }
+            elseif($request->password == "" || empty($request->password))
+            {
+                $success['status'] = '0';
+                $success['message'] = "Password is missing";
+                return $this->sendResponse($success);   
+            }
+            elseif($request->device_token == "" || empty($request->device_token))
+            {
+                $success['status'] = '0';
+                $success['message'] = "Device token is missing";
+                return $this->sendResponse($success);   
+            }
+            elseif($request->device_type == "" || empty($request->device_type))
+            {
+                $success['status'] = '0';
+                $success['message'] = "Device type is missing";
+                return $this->sendResponse($success);   
+            }
+            else
+            {
+                $check_email = User::where('email',$request->email)->first();
+                if($check_email)
+                {
+                    $credentials = request(['email', 'password']);
+                    // dd($credentials);
+                    if(!Auth::attempt($credentials))
+                    {
+                        $success['status'] = '0';
+                        $success['message'] = "incorrect email or password";
+                        return $this->sendResponse($success);
+                    }
+                    $user = $request->user();
+                    $user_info = User::with('profile')->where('id',$user->id)->first();
+                    $data =array('device_token'=> $request->device_token, 'device_type' => $request->device_type);
+                    $update_device_token = User::where('id', $user->id)->update($data);
+                    if($user_info['profile']->image != "" || !empty($user_info['profile']->image))
+                    {
+                        $user_info['profile']->image = URL::to('public/images/profile_images/'.$user_info['profile']->image);
+                    }
+                    $success['status'] = '1';
+                    $success['message'] = "Login Sucessfully";
+                    $success['data'] = $user_info;
+                    $success['token'] =  $user->createToken('token')->accessToken;
+                    return $this->sendResponse($success);
+                }
+                else
+                {
+                    $success['status'] = '0';
+                    $success['message'] = "email not exist";
+                    return $this->sendResponse($success);
+                }
+            }
+        }
+        else
+        {
+            if($request->social_token != '' || !empty($request->social_token))
+            {
+                // dd($request->social_token);
+                $check_social_token = User::where('social_token',$request->social_token)->first();
+                // dd($check_social_token);
+                if($check_social_token == null || empty($check_social_token))
+                {
+                    
+                    // $email          = $request->email;
+                    // $social_token   = $request->social_token;
+                    // $name           = $request->name;
+                    // $image          = $request->image;
+                    // $device_type    = $request->device_type;
+                    // $device_token   = $request->device_token;
+                    // $login_type     = $request->login_type;
+                    // // $role_id        = $request->role_id;
+                    // // dd($social_token);
+                    // $user_data = array(
+                    //     'social_token' => $social_token,
+                    //     'verify_status' => 1,
+                    //     'device_type' => $device_type,
+                    //     'device_token' => $device_token,
+                    //     'login_type' => $login_type,
+                    // );
+
+                    // if($email != '' || !empty($email))
+                    // {
+                    //     $user_data['email'] = $email;
+                    // }
+                    // if($name != '' || !empty($name))
+                    // {
+                    //     $user_data['name'] = $name;
+                    // }
+                    // if($image != '' || !empty($image))
+                    // {
+                    //     $user_data['image'] = $image;
+                    // }
+                    // // dd($user_data);
+                    // $user = User::create($user_data);
+                    // $profile_data = array(
+                    //     'user_id' => $user->id,
+                    // );
+                    // if($name != '' || !empty($name))
+                    // {
+                    //     $profile_data['first_name'] = $name;
+                    // }
+                    // if($image != '' || !empty($image))
+                    // {
+                    //     $profile_data['image'] = $image;
+                    // }
+                    // $profile = Profile::create($profile_data);
+                    // $success['token'] =  $user->createToken('token')->accessToken;
+                    $success['status'] = '1';
+                    $success['data']['is_social'] = '0';
                     $success['message'] = "A verification email with instructions has been sent to your email address.";
                     return $this->sendResponse($success);
                 }
@@ -168,74 +327,11 @@ class AuthController extends ResponseController
                         }
                     }
                     $success['status'] = '1';
-                    $success['message'] = "Login Sucessfully";
+                    $success['message'] = "Socail Login Sucessfully";
                     $success['data'] = $user_info;
                     $success['token'] =  $user_info->createToken('token')->accessToken;
                     return $this->sendResponse($success);
                 }
-            }
-        }
-    }
-    
-    //login
-    public function login(Request $request)
-    {
-        if($request->email == "" || empty($request->email))
-        {
-            $success['status'] = '0';
-            $success['message'] = "Email is missing";
-            return $this->sendResponse($success);
-        }
-        elseif($request->password == "" || empty($request->password))
-        {
-            $success['status'] = '0';
-            $success['message'] = "Password is missing";
-            return $this->sendResponse($success);   
-        }
-        elseif($request->device_token == "" || empty($request->device_token))
-        {
-            $success['status'] = '0';
-            $success['message'] = "Device token is missing";
-            return $this->sendResponse($success);   
-        }
-        elseif($request->device_type == "" || empty($request->device_type))
-        {
-            $success['status'] = '0';
-            $success['message'] = "Device type is missing";
-            return $this->sendResponse($success);   
-        }
-        else
-        {
-            $check_email = User::where('email',$request->email)->first();
-            if($check_email)
-            {
-                $credentials = request(['email', 'password']);
-                // dd($credentials);
-                if(!Auth::attempt($credentials))
-                {
-                    $success['status'] = '0';
-                    $success['message'] = "incorrect username or password";
-                    return $this->sendResponse($success);
-                }
-                $user = $request->user();
-                $user_info = User::with('profile')->where('id',$user->id)->first();
-                $data =array('device_token'=> $request->device_token, 'device_type' => $request->device_type);
-                $update_device_token = User::where('id', $user->id)->update($data);
-                if($user_info['profile']->image != "" || !empty($user_info['profile']->image))
-                {
-                    $user_info['profile']->image = URL::to('public/images/profile_images/'.$user_info['profile']->image);
-                }
-                $success['status'] = '1';
-                $success['message'] = "Login Sucessfully";
-                $success['data'] = $user_info;
-                $success['token'] =  $user->createToken('token')->accessToken;
-                return $this->sendResponse($success);
-            }
-            else
-            {
-                $success['status'] = '0';
-                $success['message'] = "email not exist";
-                return $this->sendResponse($success);
             }
         }
     }
