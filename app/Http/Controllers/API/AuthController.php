@@ -147,7 +147,7 @@ class AuthController extends ResponseController
                     $success['token'] =  $user->createToken('token')->accessToken;
                     $success['status'] = '1';
                     $success['data']['id'] = $user->id;
-                    $success['message'] = "Registration successfull..";
+                    $success['message'] = "A verification email with instructions has been sent to your email address.";
                     return $this->sendResponse($success);
                 }
                 else
@@ -393,7 +393,7 @@ class AuthController extends ResponseController
             //shuffle the password string before returning!
             $new_pwd = str_shuffle($password);
 			$token_key = bcrypt($new_pwd);
-			$update_password = array('password' => $token_key);
+			$update_password = array('password' => $token_key,'otp' => 1);
 			$user_update = User::where('email',$request->email)->update($update_password);
 			
             if($user_update == 1)
