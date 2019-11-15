@@ -157,7 +157,7 @@ class AuthController extends ResponseController
                         $success['token'] =  $user->createToken('token')->accessToken;
                         $success['status'] = '1';
                         $success['data']['id'] = $user->id;
-                        $success['message'] = "A verification email with instructions has been sent to your email address.";
+                        $success['message'] = "Social user not exist";
                         return $this->sendResponse($success);
                     }
                 }
