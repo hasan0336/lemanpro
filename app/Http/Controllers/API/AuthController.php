@@ -156,7 +156,7 @@ class AuthController extends ResponseController
                         $profile = Profile::create($profile_data);
                         $success['token'] =  $user->createToken('token')->accessToken;
                         $success['status'] = '1';
-                        $success['data'] = $user->id;
+                        $success['data']['id'] = $user->id;
                         $success['message'] = "A verification email with instructions has been sent to your email address.";
                         return $this->sendResponse($success);
                     }
