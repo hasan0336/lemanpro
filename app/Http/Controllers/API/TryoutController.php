@@ -35,7 +35,6 @@ class TryoutController extends ResponseController
             
     		$success['status'] = "1";
     		$success['message'] = "Tryout created";
-            
             return $this->sendResponse($success);
     	}
     	else
@@ -43,7 +42,6 @@ class TryoutController extends ResponseController
             
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
-            
             return $this->sendResponse($success);
     	}
     }
@@ -58,8 +56,6 @@ class TryoutController extends ResponseController
             return $this->sendError($validator->errors());       
         }
         $data = array();
-        
-
         if($request->user()->id == $request->team_id)
     	{
     		if($request->street != null || !empty($request->street))
@@ -92,7 +88,6 @@ class TryoutController extends ResponseController
                 
 	        	$success['status'] = "1";
 	    		$success['message'] = "Tryout Updated";
-                
 	            return $this->sendResponse($success);
 	        }
 	        else
@@ -100,7 +95,6 @@ class TryoutController extends ResponseController
                 
 	        	$success['status'] = "0";
 	    		$success['message'] = "Tryout not updated";
-                
 	            return $this->sendResponse($success);	
 	        }
     	}
@@ -109,7 +103,6 @@ class TryoutController extends ResponseController
             
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
-            
             return $this->sendResponse($success);
     	}
     }
@@ -126,14 +119,13 @@ class TryoutController extends ResponseController
     		$player_profile = array();
     		foreach($tryout_player as $key => $value)
     		{
-    			foreach ($value['tryoutplayers'] as $key => $value) {
+    			foreach ($value['tryoutplayers'] as $key => $value)
+                {
     				$player_info = User::where('id',$value['player_id'])->first();
     				$player_profile[$key] =  $player_info;
     			}
     		}
     		$tryout_player['players_info'] = $player_profile;
-    		// dd($player_profile);
-    		// dd($tryout_player);
     		
 	    	if(count($tryout_player) > 0)
 	    	{
@@ -144,19 +136,15 @@ class TryoutController extends ResponseController
 	    	}
 	    	else
 	    	{
-                
 	    		$success['status'] = "1";
 		    	$success['message'] = "No Tryouts available";
-                
 		        return $this->sendResponse($success);
 	    	}
     	}
     	else
     	{
-            
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
-            
             return $this->sendResponse($success);
     	}
     }
@@ -170,27 +158,21 @@ class TryoutController extends ResponseController
     		$del_res = Tryout::where('team_id',$input['team_id'])->where('id',$input['tryout_id'])->delete();
 	    	if($del_res)
 	    	{
-                
 	    		$success['status'] = "1";
 		    	$success['message'] = "Tryout deleted";
-                
 		        return $this->sendResponse($success);
 	    	}
 	    	else
 	    	{
-                
 	    		$success['status'] = "1";
 		    	$success['message'] = "Tryout not present";
-                
 		        return $this->sendResponse($success);
 	    	}
     	}
     	else
     	{
-            
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
-            
             return $this->sendResponse($success);
     	}
     }
@@ -213,7 +195,6 @@ class TryoutController extends ResponseController
                 
     			$success['status'] = "1";
 		    	$success['message'] = "You have already joined this tryout.";
-                
 		        return $this->sendResponse($success);
     		}
     		else
@@ -225,49 +206,22 @@ class TryoutController extends ResponseController
                     
 	    			$success['status'] = "1";
 			    	$success['message'] = "Player joins tryout";
-                    
 			        return $this->sendResponse($success);
 	    		}
 	    		else
 	    		{
-                    
 	    			$success['status'] = "1";
 			    	$success['message'] = "Some Problem occur";
-                    
 			        return $this->sendResponse($success);
 	    		}
     		}
     	}
     	else
     	{
-            
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
-            
             return $this->sendResponse($success);
     	}
 
     }
-
-    // public function tryout_players_list(Request $request)
-    // {
-    // 	$validator = Validator::make($request->all(), [
-    //         'team_id' => 'required',
-    //         'tryout_id' => 'required',
-    //     ]);
-    //     if($validator->fails()){
-    //         return $this->sendError($validator->errors());       
-    //     }
-    //     if($request->user()->id == $request->team_id)
-    // 	{
-    // 		// dd($request->tryout_id);
-    // 		$tryout_players = Tryout::find($request->tryout_id)->tryoutplayers;
-    // 		dd($tryout_players);
-    // 	}
-    // 	else
-    // 	{
-    // 		dd(111111);
-    // 	}
-
-    // }
 }
