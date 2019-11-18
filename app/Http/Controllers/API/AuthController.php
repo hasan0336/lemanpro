@@ -262,50 +262,6 @@ class AuthController extends ResponseController
                 if($check_social_token == null || empty($check_social_token))
                 {
                     
-                    // $email          = $request->email;
-                    // $social_token   = $request->social_token;
-                    // $name           = $request->name;
-                    // $image          = $request->image;
-                    // $device_type    = $request->device_type;
-                    // $device_token   = $request->device_token;
-                    // $login_type     = $request->login_type;
-                    // // $role_id        = $request->role_id;
-                    // // dd($social_token);
-                    // $user_data = array(
-                    //     'social_token' => $social_token,
-                    //     'verify_status' => 1,
-                    //     'device_type' => $device_type,
-                    //     'device_token' => $device_token,
-                    //     'login_type' => $login_type,
-                    // );
-
-                    // if($email != '' || !empty($email))
-                    // {
-                    //     $user_data['email'] = $email;
-                    // }
-                    // if($name != '' || !empty($name))
-                    // {
-                    //     $user_data['name'] = $name;
-                    // }
-                    // if($image != '' || !empty($image))
-                    // {
-                    //     $user_data['image'] = $image;
-                    // }
-                    // // dd($user_data);
-                    // $user = User::create($user_data);
-                    // $profile_data = array(
-                    //     'user_id' => $user->id,
-                    // );
-                    // if($name != '' || !empty($name))
-                    // {
-                    //     $profile_data['first_name'] = $name;
-                    // }
-                    // if($image != '' || !empty($image))
-                    // {
-                    //     $profile_data['image'] = $image;
-                    // }
-                    // $profile = Profile::create($profile_data);
-                    // $success['token'] =  $user->createToken('token')->accessToken;
                     $success['status'] = '1';
                     $success['data']['is_social'] = '0';
                     $success['message'] = "Social user not exist";
@@ -318,7 +274,6 @@ class AuthController extends ResponseController
                     $update_device_token = User::where('social_token', $request->social_token)->update($data);
                     if($user_info['profile']->image != "" || !empty($user_info['profile']->image))
                     {
-                        // dd($user_info['profile']->image);
                         if (filter_var($user_info['profile']->image, FILTER_VALIDATE_URL))
                         { 
                             $user_info['profile']->image = $user_info['profile']->image;
