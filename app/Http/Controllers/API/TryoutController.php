@@ -11,52 +11,89 @@ use App\Profile;
 use App\Tryout;
 use App\TryoutPlayers;
 use DB;
+use Stripe\Error\Card;
+// use Cartalyst\Stripe\Stripe;
+use Stripe;
 class TryoutController extends ResponseController
 {
     public function create_tryout(Request $request)
     {
-    	$validator = Validator::make($request->all(), [
-            'team_id' => 'required',
-            'street' => 'required',
-            'state' => 'required',
-            'zipcode' => 'required',
-            'timeoftryout' => 'required',
-            'dateoftryout' => 'required',
-            'costoftryout' => 'required'
-        ]);
-
-        if($validator->fails()){
-            return $this->sendError($validator->errors());       
+      if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team_id is missing";
+            return $this->sendResponse($success);
         }
-    	if($request->user()->id == $request->team_id)
-    	{
-    		$tryout = Tryout::create($request->all());
+        elseif($request->street == "" || empty($request->street))
+        {
+            $success['status'] = '0';
+            $success['message'] = "street is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->state == "" || empty($request->state))
+        {
+            $success['status'] = '0';
+            $success['message'] = "state is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->zipcode == "" || empty($request->zipcode))
+        {
+            $success['status'] = '0';
+            $success['message'] = "zipcode is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->timeoftryout == "" || empty($request->timeoftryout))
+        {
+            $success['status'] = '0';
+            $success['message'] = "time of try out is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->dateoftryout == "" || empty($request->dateoftryout))
+        {
+            $success['status'] = '0';
+            $success['message'] = "date of try out is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->costoftryout == "" || empty($request->costoftryout))
+        {
+            $success['status'] = '0';
+            $success['message'] = "cost of try out is missing";
+            return $this->sendResponse($success);   
+        }
+      	elseif($request->user()->id == $request->team_id)
+      	{
+      		$tryout = Tryout::create($request->all());
 
-            
-    		$success['status'] = "1";
-    		$success['message'] = "Tryout created";
-            return $this->sendResponse($success);
-    	}
-    	else
-    	{
-            
-            $success['status'] = "0";
-            $success['message'] = "Unauthorized User";
-            return $this->sendResponse($success);
-    	}
+              
+      		$success['status'] = "1";
+      		$success['message'] = "Tryout created";
+              return $this->sendResponse($success);
+      	}
+      	else
+      	{
+              
+              $success['status'] = "0";
+              $success['message'] = "Unauthorized User";
+              return $this->sendResponse($success);
+      	}
     }
 
     public function update_tryout(Request $request)
     {
-    	$validator = Validator::make($request->all(), [
-            'team_id' => 'required',
-            'tryout_id' => 'required',
-        ]);
-        if($validator->fails()){
-            return $this->sendError($validator->errors());       
+        if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team_id is missing";
+            return $this->sendResponse($success);
+        }
+        elseif($request->tryout_id == "" || empty($request->tryout_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "tryout_id is missing";
+            return $this->sendResponse($success);   
         }
         $data = array();
-        if($request->user()->id == $request->team_id)
+      if($request->user()->id == $request->team_id)
     	{
     		if($request->street != null || !empty($request->street))
 	        {
@@ -87,15 +124,14 @@ class TryoutController extends ResponseController
 	        {
                 
 	        	$success['status'] = "1";
-	    		$success['message'] = "Tryout Updated";
-	            return $this->sendResponse($success);
+	    		  $success['message'] = "Tryout Updated";
+	          return $this->sendResponse($success);
 	        }
 	        else
 	        {
-                
 	        	$success['status'] = "0";
-	    		$success['message'] = "Tryout not updated";
-	            return $this->sendResponse($success);	
+	    		  $success['message'] = "Tryout not updated";
+	          return $this->sendResponse($success);	
 	        }
     	}
     	else
@@ -179,48 +215,117 @@ class TryoutController extends ResponseController
 
     public function join_tryout(Request $request)
     {
-    	$input['tryout_id'] = $request->tryout_id;
-    	$input['player_id'] = $request->player_id;
-        $input['stripe_id'] = $request->stripe_id;
-        $input['card_brand'] = $request->card_brand;
-        $input['card_last_four'] = $request->card_last_four;
-        $input['trial_ends_at'] = $request->trial_ends_at;
-    	if($request->user()->id == $request->player_id)
+      if($request->tryout_id == "" || empty($request->tryout_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "tryout_id is missing";
+            return $this->sendResponse($success);
+        }
+      elseif($request->player_id == "" || empty($request->player_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player_id is missing";
+            return $this->sendResponse($success);   
+        }
+      elseif($request->card_no == "" || empty($request->card_no))
+        {
+            $success['status'] = '0';
+            $success['message'] = "card_no is missing";
+            return $this->sendResponse($success);   
+        }
+      elseif($request->exp_month == "" || empty($request->exp_month))
+        {
+            $success['status'] = '0';
+            $success['message'] = "exp_month is missing";
+            return $this->sendResponse($success);   
+        }
+      elseif($request->cvc == "" || empty($request->cvc))
+        {
+            $success['status'] = '0';
+            $success['message'] = "cvc is missing";
+            return $this->sendResponse($success);   
+        }
+      elseif($request->amount == "" || empty($request->amount))
+        {
+            $success['status'] = '0';
+            $success['message'] = "amount is missing";
+            return $this->sendResponse($success);   
+        }
+    	elseif($request->user()->id == $request->player_id)
     	{
-    		$check_player =TryoutPlayers::where('player_id',$request->player_id)->where('tryout_id',$request->tryout_id)->first();
-            $data = array('tryout_id' => $request->tryout_id, 'player_id' => $request->player_id );
-            $card_data = array('user_id' => $request->player_id,'stripe_id' => $request->stripe_id, 'card_brand' => $request->card_brand, 'card_last_four' => $request->card_last_four, 'trial_ends_at' => $request->trial_ends_at );
+        $input['tryout_id'] = $request->tryout_id;
+        $input['player_id'] = $request->player_id;
+        $input['number'] = $request->card_no;
+        $input['exp_month'] = $request->exp_month;
+        $input['exp_year'] = $request->exp_year;
+        $input['cvc'] = $request->cvc;
+        $input['amount'] = $request->amount;
+    		$check_player =TryoutPlayers::where('player_id',$input['player_id'])->where('tryout_id',$input['tryout_id'])->first();
+        // dd($check_player);
     		if($check_player != null || !empty($check_player))
     		{
                 
     			$success['status'] = "1";
 		    	$success['message'] = "You have already joined this tryout.";
-		        return $this->sendResponse($success);
+		      return $this->sendResponse($success);
     		}
     		else
     		{ 
-	    		$join_player = TryoutPlayers::create($data);
-	    		if($join_player)
-	    		{
-                    DB::table('stripe')->insert($card_data);
-                    
-	    			$success['status'] = "1";
-			    	$success['message'] = "Player joins tryout";
-			        return $this->sendResponse($success);
-	    		}
-	    		else
-	    		{
-	    			$success['status'] = "1";
-			    	$success['message'] = "Some Problem occur";
-			        return $this->sendResponse($success);
-	    		}
+          $stripe = Stripe::setApiKey(env('STRIPE_SECRET'));
+          $token = $stripe->tokens()->create
+          ([
+            'card' => 
+              [
+                'number' => $input['number'],
+                'exp_month' => $input['exp_month'],
+                'exp_year' => $input['exp_year'],
+                'cvc' => $input['cvc'],
+              ],
+          ]);
+          if (!isset($token['id'])) 
+          {
+              $success['status'] = "0";
+              $success['message'] = "Card details failed.";
+              return $this->sendResponse($success);
+          }
+          $charge = $stripe->charges()->create
+          ([
+              'card' => $token['id'],
+              'currency' => 'USD',
+              'amount' => $input['amount'],
+              'description' => 'wallet',
+          ]);
+          if($charge['status'] == 'succeeded') 
+          {
+              $card_brand = $charge['payment_method_details']['card']['brand'];
+              $card_last_four_digit = $charge['payment_method_details']['card']['last4'];
+              $card_expiry = $charge['payment_method_details']['card']['exp_month'].'/'.$charge['payment_method_details']['card']['exp_year'];
+              $data = array('tryout_id' => $request->tryout_id, 'player_id' => $request->player_id );
+              $join_player = TryoutPlayers::create($data);
+              if($join_player)
+              {
+                  $card_data = array('user_id' => $request->player_id,'stripe_id' => $token['id'], 'card_brand' => $card_brand, 'card_last_four' => $card_last_four_digit, 'trial_ends_at' => $card_expiry );
+                  DB::table('stripe')->insert($card_data);
+              }
+              else
+              {
+                  $success['status'] = "0";
+                  $success['message'] = "Some Problem occur";
+                  return $this->sendResponse($success);
+              }
+              $success['status'] = "1";
+              $success['message'] = "Player joins tryout";
+              $success['data'] = $charge;
+              return $this->sendResponse($success);
+              // return redirect()->route('addmoney.paymentstripe');
+          } 
     		}
     	}
     	else
     	{
-            $success['status'] = "0";
-            $success['message'] = "Unauthorized User";
-            return $this->sendResponse($success);
+        $success['status'] = "0";
+        $success['message'] = "Unauthorized User";
+        return $this->sendResponse($success);
     	}
 
     }

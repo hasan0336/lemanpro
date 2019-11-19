@@ -33,5 +33,9 @@ return [
     'sparkpost' => [
         'secret' => env('SPARKPOST_SECRET'),
     ],
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET'),
+        'version' => '2019-02-19',
+    ],
 
 ];
