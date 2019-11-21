@@ -14,6 +14,7 @@ use DB;
 use Stripe\Error\Card;
 // use Cartalyst\Stripe\Stripe;
 use Stripe;
+use URL;
 class TryoutController extends ResponseController
 {
     public function create_tryout(Request $request)
@@ -145,36 +146,43 @@ class TryoutController extends ResponseController
 
     public function tryout_listing(Request $request)
     {
+      if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team_id is missing";
+            return $this->sendResponse($success);
+        }
     	$input['team_id'] = $request->team_id;
     	if($request->user()->id == $request->team_id)
     	{
-    		$tryout = User::find($request->team_id)->tryout();
-    		// dd($tryout->get());
-    		$tryout_player = $tryout->with(['tryoutplayers'])->get()->toArray();
-    		// dd($tryout_player);
-    		$player_profile = array();
-    		foreach($tryout_player as $key => $value)
-    		{
-    			foreach ($value['tryoutplayers'] as $key => $value)
-                {
-    				$player_info = User::where('id',$value['player_id'])->first();
-    				$player_profile[$key] =  $player_info;
-    			}
-    		}
-    		$tryout_player['players_info'] = $player_profile;
+        $tryout_listing = Tryout::where('team_id',$input['team_id'])->get();
+    		// $tryout = User::find($request->team_id)->tryout();
+    		// // dd($tryout->get());
+    		// $tryout_player = $tryout->with(['tryoutplayers'])->get()->toArray();
+    		// // dd($tryout_player);
+    		// $player_profile = array();
+    		// foreach($tryout_player as $key => $value)
+    		// {
+    		// 	foreach ($value['tryoutplayers'] as $key => $value)
+      //           {
+    		// 		$player_info = User::where('id',$value['player_id'])->first();
+    		// 		$player_profile[$key] =  $player_info;
+    		// 	}
+    		// }
+    		// $tryout_player['players_info'] = $player_profile;
     		
-	    	if(count($tryout_player) > 0)
+	    	if(count($tryout_listing) > 0)
 	    	{
 	    		$success['status'] = "1";
 		    	$success['message'] = "Tryout Listing";
-		    	$success['data'] = $tryout_player;
-		        return $this->sendResponse($success);
+		    	$success['data'] = $tryout_listing;
+		      return $this->sendResponse($success);
 	    	}
 	    	else
 	    	{
 	    		$success['status'] = "1";
 		    	$success['message'] = "No Tryouts available";
-		        return $this->sendResponse($success);
+		      return $this->sendResponse($success);
 	    	}
     	}
     	else
@@ -183,6 +191,26 @@ class TryoutController extends ResponseController
             $success['message'] = "Unauthorized User";
             return $this->sendResponse($success);
     	}
+    }
+
+    public function single_tryout_info(Request $request)
+    {
+      $input['team_id'] = $request->team_id;
+      $input['tryout_id'] = $request->tryout_id;
+      if($request->user()->id == $request->team_id)
+      {
+        $tryout_info = Tryout::where('team_id',$input['team_id'])->where('id',$input['tryout_id'])->first();
+        $success['status'] = "1";
+        $success['message'] = "Tryout data";
+        $success['data'] = $tryout_info;
+        return $this->sendResponse($success);
+      }
+      else
+      {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+      }
     }
 
     public function del_tryout(Request $request)
@@ -211,6 +239,43 @@ class TryoutController extends ResponseController
             $success['message'] = "Unauthorized User";
             return $this->sendResponse($success);
     	}
+    }
+
+    public function tryout_participants(Request $request)
+    {
+      $input['team_id'] = $request->team_id;
+      $input['tryout_id'] = $request->tryout_id;
+      if($request->user()->id == $request->team_id)
+      {
+        $tryout_participants = TryoutPlayers::join('profiles','tryout_players.player_id','=','profiles.user_id')->select('profiles.user_id as player_id','profiles.image',DB::raw('CONCAT('."profiles.first_name".'," ",'."profiles.last_name".') AS display_name'))->where('tryout_id',$input['tryout_id'])->get();
+        if(count($tryout_participants) > 0)
+        {
+          $participants_info = array();
+          foreach($tryout_participants as $key => $tryout_participant)
+          {
+            $tryout_participant['image'] = URL::to('public/images/profile_images/'.$tryout_participant['image']);
+            $participants_info[] = $tryout_participant;
+          }
+          // dd($tryout_participants);
+          $success['status'] = "1";
+          $success['message'] = "All Participants";
+          $success['data'] = $participants_info;
+          return $this->sendResponse($success);
+        }
+        else
+        {
+          $success['status'] = "1";
+          $success['message'] = "No Participants Available";
+          return $this->sendResponse($success);          
+        }
+      }
+      else
+      {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+      }
+
     }
 
     public function join_tryout(Request $request)

@@ -16,12 +16,17 @@ class RosterController extends ResponseController
     //team sends request to player
     public function send_request(Request $request)
     {
-    	$validator = Validator::make($request->all(), [
-            'team_id' => 'required',
-            'player_id' => 'required',
-        ]);
-    	if($validator->fails()){
-            return $this->sendError($validator->errors());       
+    	if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team_id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->player_id == "" || empty($request->player_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player_id is missing";
+            return $this->sendResponse($success);
         }
     	$team_id = $request->input('team_id');
     	$player_id = $request->input('player_id');
@@ -45,11 +50,11 @@ class RosterController extends ResponseController
     // player will have listings of teams sending requests
     public function roster_requests(Request $request)
     {
-    	$validator = Validator::make($request->all(), [
-            'player_id' => 'required',
-        ]);
-    	if($validator->fails()){
-            return $this->sendError($validator->errors());       
+    	if($request->player_id == "" || empty($request->player_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player_id is missing";
+            return $this->sendResponse($success);
         }
         $player_id = $request->player_id;
         if($request->user()->id == $player_id)
@@ -82,14 +87,18 @@ class RosterController extends ResponseController
     // player can accept or reject team request
     public function action_request(Request $request)
     {
-    	$validator = Validator::make($request->all(),[
-    		'player_id' => 'required',
-    		'roster_id' => 'required',
-    	]);
-    	if($validator->fails())
-    	{
-    		return $this->sendError($validator->error());
-    	}
+        if($request->roster_id == "" || empty($request->roster_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "roster_id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->player_id == "" || empty($request->player_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player_id is missing";
+            return $this->sendResponse($success);
+        }
     	$player_id = $request->input('player_id');
     	$action = $request->input('action');
     	// dd($action);
@@ -132,13 +141,12 @@ class RosterController extends ResponseController
     // listing of accepted request players in rosters
     public function roster_listing(Request $request)
     {
-    	$validator = Validator::make($request->all(),[
-    		'team_id' => 'required'
-    	]);
-    	if($validator->fails())
-    	{
-    		return $this->sendError($validator->error());
-    	}
+    	if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team_id is missing";
+            return $this->sendResponse($success);
+        }
     	$team_id = $request->input('team_id');
     	if($request->user()->id == $team_id )
     	{
@@ -146,11 +154,11 @@ class RosterController extends ResponseController
     		$players_data = array();
     		foreach ($players as $key => $value) 
     		{
-    			$players_data[$key] = User::join('profiles','users.id','profiles.user_id')->select('users.id as user_id','profiles.id as player_profile_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),'image')->where('users.id',$value['player_id'])->first();
+    			$players_data[$key] = User::join('profiles','users.id','profiles.user_id')->select('users.id as player_id','profiles.id as player_profile_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),'image')->where('users.id',$value['player_id'])->first();
     			$players_data[$key]['image'] = URL::to('/').'/images/profile_images/'.$players_data[$key]['image']; 
     		}
     		$success['status'] = "1";
-    		$success['message'] = "Request Rejected";
+    		$success['message'] = "Players in the team";
     		$success['data'] = $players_data;
     		return $this->sendResponse($success);
     	}
@@ -166,16 +174,19 @@ class RosterController extends ResponseController
     // delete player from team
     public function delete_player(Request $request)
     {
-        $validator = Validator::make($request->all(),[
-            'team_id' => 'required',
-            'player_id' => 'required'
-        ]);
-        if($validator->fails())
+        if($request->team_id == "" || empty($request->team_id))
         {
-            return $this->sendError($validator->error());
+            $success['status'] = '0';
+            $success['message'] = "team_id is missing";
+            return $this->sendResponse($success);
         }
-
-        if($request->user()->id == $request->team_id )
+        if($request->player_id == "" || empty($request->player_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player_id is missing";
+            return $this->sendResponse($success);
+        }
+        elseif($request->user()->id == $request->team_id )
         {
             $res = DB::table('rosters')->where('team_id', $request->team_id)->where('player_id', $request->player_id)->delete();
             if($res == 1)
