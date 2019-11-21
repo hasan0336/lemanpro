@@ -11,6 +11,7 @@ use Validator;
 use App\Rosters;
 use DB;
 use URL;
+use App\Notification;
 class RosterController extends ResponseController
 {
     //team sends request to player
@@ -33,9 +34,34 @@ class RosterController extends ResponseController
     	if($request->user()->id == $team_id)
     	{
     		$rosters = Rosters::create($request->all());
-    		$success['status'] = "1";
-    		$success['message'] = "Request send to player";
-            $success['data'] = '';
+            if($rosters->id)
+            {
+                $notify = array(
+                    'roster_id'=>$rosters->id,
+                    'to'=>$player_id,
+                    'from'=>$team_id,
+                    'type'=>env('NOTIFICATION_TYPE_SEND_ROSTER_REQUEST'),
+                    'title'=>'Rosters',
+                    'message'=>'Accept Rosters Request',
+                );
+                $res_notify = Notification::create($notify);
+
+                $token[] = $request->user()->device_token;
+                $data = array(
+                    'title' => $notify['title'],
+                    'message' => $notify['message'],
+                    'notification_type' => env('NOTIFICATION_TYPE_SEND_ROSTER_REQUEST')
+                );
+                $data['device_tokens'] = $token;
+                $data['device_type'] = $request->user()->device_type;
+
+                push_notification($data);
+
+
+                $success['status'] = "1";
+                $success['message'] = "Request send to player";
+            }
+    		
             return $this->sendResponse($success);
     	}
     	else
