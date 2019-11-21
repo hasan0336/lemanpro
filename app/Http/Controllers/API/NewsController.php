@@ -15,7 +15,8 @@ use URL;
 use DB;
 use App\News;
 use App\Rosters;
-
+use App\HelpFeedback;
+use App\HelpFeedbackImage;
 class NewsController extends ResponseController
 {
     public function create_news(Request $request)
@@ -380,16 +381,14 @@ class NewsController extends ResponseController
                 {   
                     $allowedfileExtension = ['jpeg','jpg','png','gif','svg'];
                     $files = $request->file('hf_image');
-                    $help_feedback = DB::table('help_feedbacks')->insertGetId($data);
+                    $help_feedback = HelpFeedback::create($data);
                     // dd($files);
-                    if(!empty($help_feedback))
+                    if($files != '' || !empty($files))
                     {
                         foreach($files as $file)
                         {
-                            dd(333);
                             $extension = $file->getClientOriginalExtension();
                             $check=in_array($extension,$allowedfileExtension);
-                            dd($check);
                             if($check)
                             {
                                 
@@ -397,14 +396,11 @@ class NewsController extends ResponseController
                                 $file->move('help_feedback_images',$name);
                                 $images[]=$name;
                                 /*Insert your data*/
-                                $news_image = DB::table('help_feedback_images')->insert([
-                                                'help_feedback_image' => $name,
-                                                'help_feedback_id' => $help_feedback,
-                                                ]);
-                                $success['status'] = "1";
-                                $success['message'] = "Help and Feedback Posted";
-                                $success['data'] = '';
-                                return $this->sendResponse($success);
+                                $help_feedback_images = array(
+                                    'help_feedback_image' => $name,
+                                    'help_feedback_id' => $help_feedback->id
+                                );
+                                $news_image = HelpFeedbackImage::insert($help_feedback_images);
                             }
                         /*Insert your data*/
                             else
@@ -415,6 +411,9 @@ class NewsController extends ResponseController
                                 return $this->sendResponse($success);
                             }
                         }
+                        $success['status'] = "1";
+                        $success['message'] = "Help and Feedback Posted";
+                        return $this->sendResponse($success);
                     }
                     else
                     {
@@ -425,8 +424,9 @@ class NewsController extends ResponseController
                 }
                 else
                 {
+                    HelpFeedback::create($data);
                     $success['status'] = "1";
-                    $success['message'] = "Image is required";
+                    $success['message'] = "Help and Feedback Posted";
                     return $this->sendResponse($success);
                 }
             }

@@ -15,11 +15,13 @@ use Illuminate\Http\Request;
 
 
 
-
+ 
 
 Route::post('login', 'API\AuthController@login');
+
 Route::post('signup', 'API\AuthController@signup');
 Route::post('otp', 'API\AuthController@otp');
+
 Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 
 	Route::post('create_profile', 'API\ProfileController@create_profile');
@@ -62,6 +64,7 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 	Route::post('logout','API\AuthController@logout');
 
 });
+
 // Route::middleware(['auth:api','client.credentials'])->get('/user', function (Request $request) {
 
 // 	Route::post('create_profile', 'API\ProfileController@create_profile');
