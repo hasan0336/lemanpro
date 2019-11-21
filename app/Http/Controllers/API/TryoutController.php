@@ -31,10 +31,22 @@ class TryoutController extends ResponseController
             $success['message'] = "street is missing";
             return $this->sendResponse($success);   
         }
-        elseif($request->state == "" || empty($request->state))
+        elseif($request->latitude == "" || empty($request->latitude))
         {
             $success['status'] = '0';
-            $success['message'] = "state is missing";
+            $success['message'] = "street is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->street == "" || empty($request->street))
+        {
+            $success['status'] = '0';
+            $success['message'] = "latitude is missing";
+            return $this->sendResponse($success);   
+        }
+        elseif($request->longitude == "" || empty($request->longitude))
+        {
+            $success['status'] = '0';
+            $success['message'] = "longitude is missing";
             return $this->sendResponse($success);   
         }
         elseif($request->zipcode == "" || empty($request->zipcode))
@@ -68,7 +80,7 @@ class TryoutController extends ResponseController
               
       		$success['status'] = "1";
       		$success['message'] = "Tryout created";
-              return $this->sendResponse($success);
+          return $this->sendResponse($success);
       	}
       	else
       	{
@@ -97,43 +109,51 @@ class TryoutController extends ResponseController
       if($request->user()->id == $request->team_id)
     	{
     		if($request->street != null || !empty($request->street))
-	        {
-	        	$data['street'] = $request->street;
-	        }
-	        if($request->state != null || !empty($request->state))
-	        {
-	        	$data['state'] = $request->state;
-	        }
-	        if($request->zipcode != null || !empty($request->zipcode))
-	        {
-	        	$data['zipcode'] = $request->zipcode;
-	        }
-	        if($request->timeoftryout != null || !empty($request->timeoftryout))
-	        {
-	        	$data['timeoftryout'] = $request->timeoftryout;
-	        }
-	        if($request->dateoftryout != null || !empty($request->dateoftryout))
-	        {
-	        	$data['dateoftryout'] = $request->dateoftryout;
-	        }
-	        if($request->costoftryout != null || !empty($request->costoftryout))
-	        {
-	        	$data['costoftryout'] = $request->costoftryout;
-	        }
-	        $update_tryout = Tryout::where('team_id', $request->team_id)->where('id', $request->tryout_id)->update($data);
-	        if($update_tryout)
-	        {
-                
-	        	$success['status'] = "1";
-	    		  $success['message'] = "Tryout Updated";
-	          return $this->sendResponse($success);
-	        }
-	        else
-	        {
-	        	$success['status'] = "0";
-	    		  $success['message'] = "Tryout not updated";
-	          return $this->sendResponse($success);	
-	        }
+        {
+        	$data['street'] = $request->street;
+        }
+        if($request->latitude != null || !empty($request->latitude))
+        {
+          $data['latitude'] = $request->latitude;
+        }
+        if($request->longitude != null || !empty($request->longitude))
+        {
+          $data['longitude'] = $request->longitude;
+        }
+        if($request->state != null || !empty($request->state))
+        {
+        	$data['state'] = $request->state;
+        }
+        if($request->zipcode != null || !empty($request->zipcode))
+        {
+        	$data['zipcode'] = $request->zipcode;
+        }
+        if($request->timeoftryout != null || !empty($request->timeoftryout))
+        {
+        	$data['timeoftryout'] = $request->timeoftryout;
+        }
+        if($request->dateoftryout != null || !empty($request->dateoftryout))
+        {
+        	$data['dateoftryout'] = $request->dateoftryout;
+        }
+        if($request->costoftryout != null || !empty($request->costoftryout))
+        {
+        	$data['costoftryout'] = $request->costoftryout;
+        }
+        $update_tryout = Tryout::where('team_id', $request->team_id)->where('id', $request->tryout_id)->update($data);
+        if($update_tryout)
+        {
+              
+        	$success['status'] = "1";
+    		  $success['message'] = "Tryout Updated";
+          return $this->sendResponse($success);
+        }
+        else
+        {
+        	$success['status'] = "0";
+    		  $success['message'] = "Tryout not updated";
+          return $this->sendResponse($success);	
+        }
     	}
     	else
     	{

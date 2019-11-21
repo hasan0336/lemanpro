@@ -61,10 +61,16 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 	Route::get('content','API\NewsController@content');
 
 
+	
+	
+
+
+
+
 	Route::post('logout','API\AuthController@logout');
 
 });
-
+Route::get('search_player','API\SearchController@search_player');
 // Route::middleware(['auth:api','client.credentials'])->get('/user', function (Request $request) {
 
 // 	Route::post('create_profile', 'API\ProfileController@create_profile');
