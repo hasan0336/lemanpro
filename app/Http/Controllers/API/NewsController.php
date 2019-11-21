@@ -20,16 +20,23 @@ class NewsController extends ResponseController
 {
     public function create_news(Request $request)
     {
-    	$validator = Validator::make($request->all(), [
-            'team_id' => 'required',
-            'title' => 'required',
-            'description' => 'required',
-            // 'news_image[]' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-        ]);
-
-        if($validator->fails())
+        if($request->team_id == "" || empty($request->team_id))
         {
-            return $this->sendError($validator->errors());       
+            $success['status'] = '0';
+            $success['message'] = "team_id ID is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->title == "" || empty($request->title))
+        {
+            $success['status'] = '0';
+            $success['message'] = "title is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->description == "" || empty($request->description))
+        {
+            $success['status'] = '0';
+            $success['message'] = "description is missing";
+            return $this->sendResponse($success);
         }
         if($request->user()->id == $request->team_id)
     	{
@@ -313,5 +320,116 @@ class NewsController extends ResponseController
     		
     		$news_pic_data_arr[] =  URL::to('/public/news_image/'.$value->news_image);
     	return isset($news_pic_data_arr) ? $news_pic_data_arr : false;
+    }
+
+    public function content(Request $request)
+    {
+        $content_type = $request->content_type;
+        if($content_type == "tc")
+        {
+            $get_content = DB::table('contents')->where('content_type', 'tc')->first();
+            $success['status'] = "1";
+            $success['message'] = "Terms and Conditions";
+            $success['data'] = $get_content;
+            return $this->sendResponse($success);
+        }
+        elseif($content_type == "pp")
+        {
+            $get_content = DB::table('contents')->where('content_type', 'pp')->first();
+            $success['status'] = "1";
+            $success['message'] = "Privacy Policy";
+            $success['data'] = $get_content;
+            return $this->sendResponse($success);
+        }
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Nothing";
+            return $this->sendResponse($success);
+        }
+    }
+
+    public function help_feedback(Request $request)
+    {
+        if($request->user_id == "" || empty($request->user_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "user_id ID is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->subject == "" || empty($request->subject))
+        {
+            $success['status'] = '0';
+            $success['message'] = "subject is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->description == "" || empty($request->description))
+        {
+            $success['status'] = '0';
+            $success['message'] = "description is missing";
+            return $this->sendResponse($success);
+        }
+         else
+        {
+            if($request->user()->id == $request->user_id)
+            {
+                $input = $request->all();
+                $data = array('user_id'=> $input['user_id'], 'subject' => $input['subject'], 'description'=> $input['description']);
+                $images=array();
+                if($request->file('hf_image') != '' || !empty($request->file('hf_image')))
+                {   
+                    $allowedfileExtension = ['jpeg','jpg','png','gif','svg'];
+                    $files = $request->file('hf_image');
+                    $help_feedback = DB::table('help_feedbacks')->insertGetId($data);
+                    // dd($files);
+                    if(!empty($help_feedback))
+                    {
+                        foreach($files as $file)
+                        {
+                            dd(333);
+                            $extension = $file->getClientOriginalExtension();
+                            $check=in_array($extension,$allowedfileExtension);
+                            dd($check);
+                            if($check)
+                            {
+                                
+                                $name=str_random(5)."-".date('his')."-".str_random(3).".".$file->getClientOriginalExtension();
+                                $file->move('help_feedback_images',$name);
+                                $images[]=$name;
+                                /*Insert your data*/
+                                $news_image = DB::table('help_feedback_images')->insert([
+                                                'help_feedback_image' => $name,
+                                                'help_feedback_id' => $help_feedback,
+                                                ]);
+                                $success['status'] = "1";
+                                $success['message'] = "Help and Feedback Posted";
+                                $success['data'] = '';
+                                return $this->sendResponse($success);
+                            }
+                        /*Insert your data*/
+                            else
+                            {
+                                DB::table('help_feedbacks')->where('id',$help_feedback)->delete();
+                                $success['status'] = "1";
+                                $success['message'] = "Sorry Only Upload png, jpg, gif, jpeg, svg";
+                                return $this->sendResponse($success);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        $success['status'] = "0";
+                        $success['message'] = "Sorry";
+                        return $this->sendResponse($success);
+                    }
+                }
+                else
+                {
+                    $success['status'] = "1";
+                    $success['message'] = "Image is required";
+                    return $this->sendResponse($success);
+                }
+            }
+        }
     }
 }
