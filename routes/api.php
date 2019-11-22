@@ -42,6 +42,7 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 	Route::get('action_request','API\RosterController@action_request');
 	Route::get('roster_listing','API\RosterController@roster_listing');
 	Route::get('delete_player','API\RosterController@delete_player');
+	Route::get('get_notification_list','API\RosterController@get_notification_list');
 
 
 
@@ -70,7 +71,7 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 	Route::post('logout','API\AuthController@logout');
 
 });
-Route::get('search_player','API\SearchController@search_player');
+Route::get('search_tryout','API\SearchController@search_tryout');
 // Route::middleware(['auth:api','client.credentials'])->get('/user', function (Request $request) {
 
 // 	Route::post('create_profile', 'API\ProfileController@create_profile');
