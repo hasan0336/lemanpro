@@ -18,8 +18,8 @@ class SearchController extends ResponseController
     	$longitude = $request->longtude;
     	$latitude = $request->latitude;
     	$miles = $request->miles;
-    	$gender = $request->gender;
-    	$age = $request->age;
+    	// $gender = $request->gender;
+    	// $age = $request->age;
 
     	// $longitude = "";
     	// $latitude = ""; 
