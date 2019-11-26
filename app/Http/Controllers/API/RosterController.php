@@ -181,7 +181,7 @@ class RosterController extends ResponseController
     		foreach ($players as $key => $value) 
     		{
     			$players_data[$key] = User::join('profiles','users.id','profiles.user_id')->select('users.id as player_id','profiles.id as player_profile_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),'image')->where('users.id',$value['player_id'])->first();
-    			$players_data[$key]['image'] = URL::to('/').'/images/profile_images/'.$players_data[$key]['image']; 
+    			$players_data[$key]['image'] = URL::to('/').'/public/images/profile_images/'.$players_data[$key]['image']; 
     		}
     		$success['status'] = "1";
     		$success['message'] = "Players in the team";
