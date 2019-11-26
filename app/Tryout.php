@@ -8,7 +8,7 @@ class Tryout extends Model
 {
     protected $primaryKey = 'id';
     protected $fillable = [
-        'team_id', 'street', 'state','zipcode','timeoftryout','dateoftryout','costoftryout',
+        'team_id', 'street', 'state','zipcode','timeoftryout','dateoftryout','costoftryout','longitude','latitude'
     ];
 
     public function user()
