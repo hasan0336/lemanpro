@@ -34,12 +34,6 @@ class TryoutController extends ResponseController
         elseif($request->latitude == "" || empty($request->latitude))
         {
             $success['status'] = '0';
-            $success['message'] = "street is missing";
-            return $this->sendResponse($success);   
-        }
-        elseif($request->street == "" || empty($request->street))
-        {
-            $success['status'] = '0';
             $success['message'] = "latitude is missing";
             return $this->sendResponse($success);   
         }

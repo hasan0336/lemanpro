@@ -238,4 +238,32 @@ class RosterController extends ResponseController
             return $this->sendResponse($success);
         }
     }
+
+    public function get_notification_list(Request $request)
+    {
+        if($request->user_id == "" || empty($request->user_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "user_id is missing";
+            return $this->sendResponse($success);
+        }
+        elseif($request->user()->id == $request->user_id )
+        {
+            $res = Notification::where('to', $request->user_id)->get();
+            if(count($res) > 0 )
+            {
+                $success['status'] = "1";
+                $success['message'] = "Notification list";
+                $success['data'] = $res;
+                return $this->sendResponse($success);
+            }
+            else
+            {
+                $success['status'] = "1";
+                $success['message'] = "not exist";
+                return $this->sendResponse($success);
+            }
+        }
+
+    }
 }
