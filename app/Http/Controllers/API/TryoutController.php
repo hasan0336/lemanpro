@@ -169,7 +169,7 @@ class TryoutController extends ResponseController
     	$input['team_id'] = $request->team_id;
     	if($request->user()->id == $request->team_id)
     	{
-        $tryout_listing = Tryout::where('team_id',$input['team_id'])->get();
+        $tryout_listing = Tryout::select('profiles.first_name','profiles.last_name','profiles.team_name','tryouts.id','tryouts.team_id','tryouts.street','tryouts.state','tryouts.zipcode','tryouts.timeoftryout','tryouts.dateoftryout','tryouts.costoftryout','tryouts.latitude','tryouts.longitude','tryouts.created_at')->join('profiles','profiles.user_id','=','tryouts.team_id')->where('team_id',$input['team_id'])->get();
     		// $tryout = User::find($request->team_id)->tryout();
     		// // dd($tryout->get());
     		// $tryout_player = $tryout->with(['tryoutplayers'])->get()->toArray();
@@ -213,7 +213,7 @@ class TryoutController extends ResponseController
       $input['tryout_id'] = $request->tryout_id;
       if($request->user()->id == $request->team_id)
       {
-        $tryout_info = Tryout::where('team_id',$input['team_id'])->where('id',$input['tryout_id'])->first();
+        $tryout_info = Tryout::select('profiles.first_name','profiles.last_name','profiles.team_name','tryouts.id','tryouts.team_id','tryouts.street','tryouts.state','tryouts.zipcode','tryouts.timeoftryout','tryouts.dateoftryout','tryouts.costoftryout','tryouts.latitude','tryouts.longitude','tryouts.created_at')->join('profiles','profiles.user_id','=','tryouts.team_id')->where('team_id',$input['team_id'])->where('tryouts.id',$input['tryout_id'])->first();
         $success['status'] = "1";
         $success['message'] = "Tryout data";
         $success['data'] = $tryout_info;
