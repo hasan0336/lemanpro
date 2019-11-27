@@ -170,21 +170,6 @@ class TryoutController extends ResponseController
     	if($request->user()->id == $request->team_id)
     	{
         $tryout_listing = Tryout::select('profiles.first_name','profiles.last_name','profiles.team_name','tryouts.id','tryouts.team_id','tryouts.street','tryouts.state','tryouts.zipcode','tryouts.timeoftryout','tryouts.dateoftryout','tryouts.costoftryout','tryouts.latitude','tryouts.longitude','tryouts.created_at')->join('profiles','profiles.user_id','=','tryouts.team_id')->where('team_id',$input['team_id'])->get();
-    		// $tryout = User::find($request->team_id)->tryout();
-    		// // dd($tryout->get());
-    		// $tryout_player = $tryout->with(['tryoutplayers'])->get()->toArray();
-    		// // dd($tryout_player);
-    		// $player_profile = array();
-    		// foreach($tryout_player as $key => $value)
-    		// {
-    		// 	foreach ($value['tryoutplayers'] as $key => $value)
-      //           {
-    		// 		$player_info = User::where('id',$value['player_id'])->first();
-    		// 		$player_profile[$key] =  $player_info;
-    		// 	}
-    		// }
-    		// $tryout_player['players_info'] = $player_profile;
-    		
 	    	if(count($tryout_listing) > 0)
 	    	{
 	    		$success['status'] = "1";

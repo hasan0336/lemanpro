@@ -82,7 +82,7 @@ class NewsController extends ResponseController
 			}
 			else
 			{
-				$success['status'] = "1";
+				$success['status'] = "0";
 			    $success['message'] = "Image is required";
 			    return $this->sendResponse($success);
 			}

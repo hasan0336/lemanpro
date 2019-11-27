@@ -54,10 +54,7 @@ class RosterController extends ResponseController
                 );
                 $data['device_tokens'] = $token;
                 $data['device_type'] = $request->user()->device_type;
-
                 push_notification($data);
-
-
                 $success['status'] = "1";
                 $success['message'] = "Request send to player";
             }
