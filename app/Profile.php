@@ -26,4 +26,9 @@ class Profile extends Model
     {
         return $this->hasmany('App\match','palyer_id');
     }
+
+    public function roster()
+    {
+        return $this->hasmany('App\Rosters');
+    }
 }
