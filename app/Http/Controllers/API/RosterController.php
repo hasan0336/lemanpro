@@ -42,7 +42,7 @@ class RosterController extends ResponseController
                     'from'=>$team_id,
                     'type'=>env('NOTIFICATION_TYPE_SEND_ROSTER_REQUEST'),
                     'title'=>'Rosters',
-                    'message'=>'Accept Rosters Request',
+                    'message'=>'Add to Rosters Request',
                 );
                 $res_notify = Notification::create($notify);
 
