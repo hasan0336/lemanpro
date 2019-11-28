@@ -75,6 +75,8 @@ class NewsController extends ResponseController
 				        return $this->sendResponse($success);
 					}
 				}
+                // $get_players = Rosters::with('profile')->where('team_id',$request->team_id)->get();
+                // dd($get_players);
 				$success['status'] = "1";
 			    $success['message'] = "News Posted";
 			    $success['data'] = '';
