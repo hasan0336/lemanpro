@@ -17,6 +17,7 @@ use App\News;
 use App\Rosters;
 use App\HelpFeedback;
 use App\HelpFeedbackImage;
+use App\Notification;
 class NewsController extends ResponseController
 {
     public function create_news(Request $request)
@@ -75,11 +76,35 @@ class NewsController extends ResponseController
 				        return $this->sendResponse($success);
 					}
 				}
-                // $get_players = Rosters::with('profile')->where('team_id',$request->team_id)->get();
-                // dd($get_players);
+                $get_players = Rosters::where('team_id',$request->team_id)->get();
+                foreach ($get_players as $key => $player) 
+                {
+                    // dd($news);
+                    // dd($player['player_id']);
+                    $notify = array(
+                    'news_id'=>$news,
+                    'to'=>$player['player_id'],
+                    'from'=>$request->team_id,
+                    'type'=>env('NOTIFICATION_TYPE_SEND_NEWS_ALERT_REQUEST'),
+                    'title'=>'News',
+                    'message'=>'News from Team',
+                );
+                    // dd($notify);
+                $res_notify = Notification::create($notify);
+
+                $token[] = $request->user()->device_token;
+                $data = array(
+                    'title' => $notify['title'],
+                    'message' => $notify['message'],
+                    'notification_type' => env('NOTIFICATION_TYPE_SEND_NEWS_ALERT_REQUEST')
+                );
+                $data['device_tokens'] = $token;
+                $data['device_type'] = $request->user()->device_type;
+                push_notification($data);
+                }
 				$success['status'] = "1";
 			    $success['message'] = "News Posted";
-			    $success['data'] = '';
+			    $success['data'] = $get_players;
 			    return $this->sendResponse($success);
 			}
 			else

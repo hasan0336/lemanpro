@@ -16,8 +16,12 @@ class Rosters extends Model
     	return $this->belongsTo('App\User');
     }
     
-    public function profile()
-    {
-    	return $this->belongsTo('App\Profile');
-    }
+    // public function profile()
+    // {
+    // 	return $this->belongsTo('App\Profile');
+    // }
+    // public function user()
+    // {
+    // 	return $this->belongsTo('App\User','player_id');
+    // }
 }
