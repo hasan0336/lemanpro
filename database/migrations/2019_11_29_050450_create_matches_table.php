@@ -15,15 +15,18 @@ class CreateMatchesTable extends Migration
     {
         Schema::create('matches', function (Blueprint $table) {
             $table->bigIncrements('id');
-             $table->unsignedBigInteger('game_id')->unsigned();
+            $table->unsignedBigInteger('game_id')->unsigned();
             $table->foreign('game_id')->references('id')->on('games')->onDelete('cascade');
             $table->unsignedBigInteger('player_id')->unsigned();
             $table->foreign('player_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('team_assign');
             $table->string('yellow');
             $table->string('red');
             $table->string('goals');
             $table->string('trophies');
             $table->string('time');
+            $table->string('player_start_time');
+            $table->string('player_end_time');
             $table->timestamps();
             $table->softDeletes();
         });
