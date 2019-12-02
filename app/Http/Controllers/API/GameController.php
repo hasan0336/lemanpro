@@ -21,22 +21,25 @@ class GameController extends ResponseController
 {
     public function create_game(Request $request)
     {
-    	$validator = Validator::make($request->all(), [
-            'team_id' => 'required',
-        ]);
-        if($validator->fails())
+    	if($request->team_id == "" || empty($request->team_id))
         {
-            return $this->sendError($validator->errors());       
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
         }
-        if($request->user()->id == $request->team_id)
+        elseif($request->user()->id == $request->team_id)
         {
+            // dd($request->teams);
         	$game = Game::create(array('team_id' => $request->team_id));
         	$match_players = explode(',',$request->players);
+            $players_team = explode(',',$request->team_assign);
         	$matches = array();
         	$mytime = Carbon::now();
-        	foreach ($match_players as $key => $value) 
+        	foreach(array_combine($match_players, $players_team) as $match_player => $player_team)
         	{
-        		$matches[] = array('game_id'=>$game->id,'player_id'=>$value,'created_at'=>$mytime->toDateTimeString(),'updated_at'=>$mytime->toDateTimeString());
+                // dd($match_player);
+                // dd($player_team);
+        		$matches[] = array('game_id'=>$game->id,'player_id'=>$match_player,'team_assign'=>$player_team,'created_at'=>$mytime->toDateTimeString(),'updated_at'=>$mytime->toDateTimeString());
         	}
         	$matches2 = MAtch::insert($matches);
         	if($matches2 == 1)
@@ -65,13 +68,17 @@ class GameController extends ResponseController
 
     public function delete_game(Request $request)
     {
-    	$validator = Validator::make($request->all(), [
-            'team_id' => 'required',
-            'game_id' => 'required'
-        ]);
-        if($validator->fails())
+        if($request->team_id == "" || empty($request->team_id))
         {
-            return $this->sendError($validator->errors());       
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->game_id == "" || empty($request->game_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "game id is missing";
+            return $this->sendResponse($success);
         }
         if($request->user()->id == $request->team_id)
         {
@@ -103,14 +110,23 @@ class GameController extends ResponseController
 
     public function add_score_sheet(Request $request)
     {
-    	$validator = Validator::make($request->all(), [
-            'team_id' => 'required',
-            'player_id' => 'required',
-            'game_id'=>'required',
-        ]);
-        if($validator->fails())
+        if($request->team_id == "" || empty($request->team_id))
         {
-            return $this->sendError($validator->errors());       
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->game_id == "" || empty($request->game_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "game id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->player_id == "" || empty($request->player_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player id is missing";
+            return $this->sendResponse($success);
         }
         if($request->user()->id == $request->team_id)
         {
@@ -173,13 +189,17 @@ class GameController extends ResponseController
 
     public function report_to_manager(Request $request)
     {
-    	$validator = Validator::make($request->all(), [
-            'team_id' => 'required',
-            'game_id'=>'required',
-        ]);
-        if($validator->fails())
+        if($request->team_id == "" || empty($request->team_id))
         {
-            return $this->sendError($validator->errors());       
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->game_id == "" || empty($request->game_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "game id is missing";
+            return $this->sendResponse($success);
         }
         if($request->user()->id == $request->team_id)
         {
@@ -193,4 +213,60 @@ class GameController extends ResponseController
             return $this->sendResponse($success);
         }
     }
+
+    public function players_team_list(Request $request)
+    {
+        if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->team_assign == "" || empty($request->team_assign))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team_assign is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->game_id == "" || empty($request->game_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "game id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->user()->id == $request->team_id)
+        {
+            if($request->team_assign == 'a')
+            {
+                $team_a = Match::select('profiles.user_id','profiles.first_name','profiles.last_name')->join('profiles','profiles.user_id','=','matches.player_id')->where('game_id',$request->game_id)->where('team_assign','a')->get();
+                $success['status'] = "1";
+                $success['message'] = "TEam A";
+                $success['data'] = $team_a;
+            }
+            if($request->team_assign == 'b')
+            {
+                $team_b = Match::select('profiles.user_id','profiles.first_name','profiles.last_name')->join('profiles','profiles.user_id','=','matches.player_id')->where('game_id',$request->game_id)->where('team_assign','b')->get();
+                $success['status'] = "1";
+                $success['message'] = "TEam B";
+                $success['data'] = $team_b;
+            } 
+            return $this->sendResponse($success);
+        }
+    }
+
+    // public function start_match()
+    // {
+    //     if($request->game_id == "" || empty($request->game_id))
+    //     {
+    //         $success['status'] = '0';
+    //         $success['message'] = "game id is missing";
+    //         return $this->sendResponse($success);
+    //     }
+    //     if($request->playing_player == "" || empty($request->playing_player))
+    //     {
+    //         $success['status'] = '0';
+    //         $success['message'] = "player id is missing";
+    //         return $this->sendResponse($success);
+    //     }
+    // }
 }
