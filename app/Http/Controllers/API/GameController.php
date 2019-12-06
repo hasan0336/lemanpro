@@ -46,14 +46,13 @@ class GameController extends ResponseController
         	{
         		$success['status'] = "1";
                 $success['message'] = "Game and Match has been created";
-
+                $success['data'] = array('game_id'=>$game->id);
                 return $this->sendResponse($success);
         	}
         	else
         	{
         		$success['status'] = "1";
                 $success['message'] = "Game and Match not created";
-
                 return $this->sendResponse($success);	
         	}
         }
