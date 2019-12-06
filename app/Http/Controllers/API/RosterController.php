@@ -250,7 +250,7 @@ class RosterController extends ResponseController
             // $players_image = array();
             foreach ($res as $key => $value) 
             {
-                $res[$key]['image'] = URL::to('/').'/images/profile_images/'.$value['image']; 
+                $res[$key]['image'] = URL::to('/').'public/images/profile_images/'.$value['image']; 
             }
             if(count($res) > 0 )
             {
