@@ -246,7 +246,7 @@ class RosterController extends ResponseController
         }
         elseif($request->user()->id == $request->user_id )
         {
-            $res = Notification::where('to', $request->user_id)->get();
+            $res = Notification::select('id','roster_id','type','title','message','is_read','created_at','updated_at','news_id','to as receiver_id','from as sender_id')->where('to', $request->user_id)->get();
             if(count($res) > 0 )
             {
                 $success['status'] = "1";

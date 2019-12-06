@@ -46,14 +46,14 @@ class GameController extends ResponseController
         	{
         		$success['status'] = "1";
                 $success['message'] = "Game and Match has been created";
-                $success['data'] = '';
+
                 return $this->sendResponse($success);
         	}
         	else
         	{
         		$success['status'] = "1";
                 $success['message'] = "Game and Match not created";
-                $success['data'] = '';
+
                 return $this->sendResponse($success);	
         	}
         }
@@ -61,7 +61,6 @@ class GameController extends ResponseController
         {
             $success['status'] = "0";
         	$success['message'] = "Unauthorized User";
-            $success['data'] = '';
             return $this->sendResponse($success);
         }
     }
@@ -88,14 +87,14 @@ class GameController extends ResponseController
 			{
 				$success['status'] = "1";
                 $success['message'] = "Game and Match deleted";
-                $success['data'] = '';
+
                 return $this->sendResponse($success);	
 			}
 			else
 			{
 				$success['status'] = "0";
                 $success['message'] = "Game and Match not deleted";
-                $success['data'] = '';
+
                 return $this->sendResponse($success);	
 			}
         }
@@ -103,7 +102,6 @@ class GameController extends ResponseController
         {
             $success['status'] = "0";
         	$success['message'] = "Unauthorized User";
-            $success['data'] = '';
             return $this->sendResponse($success);
         }
     }
@@ -167,14 +165,14 @@ class GameController extends ResponseController
         		Mail::to($user->email)->send(new PlayerReport($user));
         		$success['status'] = "1";
                 $success['message'] = "player score inserted";
-                $success['data'] = '';
+
                 return $this->sendResponse($success);
         	}
         	else
         	{
         		$success['status'] = "1";
                 $success['message'] = "player score not inserted";
-                $success['data'] = '';
+
                 return $this->sendResponse($success);
         	}
         }
@@ -182,7 +180,6 @@ class GameController extends ResponseController
         {
             $success['status'] = "0";
         	$success['message'] = "Unauthorized User";
-            $success['data'] = '';
             return $this->sendResponse($success);
         }
     }
@@ -210,6 +207,12 @@ class GameController extends ResponseController
         	$success['status'] = "1";
             $success['message'] = "Report sent to Manager";
             $success['data'] = $game;
+            return $this->sendResponse($success);
+        }
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
             return $this->sendResponse($success);
         }
     }
@@ -252,21 +255,169 @@ class GameController extends ResponseController
             } 
             return $this->sendResponse($success);
         }
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+        }
     }
 
-    // public function start_match()
-    // {
-    //     if($request->game_id == "" || empty($request->game_id))
-    //     {
-    //         $success['status'] = '0';
-    //         $success['message'] = "game id is missing";
-    //         return $this->sendResponse($success);
-    //     }
-    //     if($request->playing_player == "" || empty($request->playing_player))
-    //     {
-    //         $success['status'] = '0';
-    //         $success['message'] = "player id is missing";
-    //         return $this->sendResponse($success);
-    //     }
-    // }
+    public function start_match(Request $request)
+    {
+        if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->game_id == "" || empty($request->game_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "game id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->user()->id == $request->team_id)
+        {
+            $mytime = Carbon::now();
+            $start_time = $mytime->toDateTimeString();
+            $match = Game::where('id',$request->game_id)->update(['game_start_time' => $start_time]);
+            $playing_player = explode(',',$request->playing_player);
+            $starting_player = array();
+            // $result = '';
+            foreach($playing_player as $players)
+            {
+                // dd($players);
+                $starting_player = array('playing_player' => '1','player_start_time' => $start_time);
+                $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$players)->update($starting_player);
+            }
+            if($result == 1)
+            {
+                $success['status'] = '1';
+                $success['message'] = "game started";
+                return $this->sendResponse($success);
+            }
+            else
+            {
+                $success['status'] = '0';
+                $success['message'] = "game not started";
+                return $this->sendResponse($success);
+            }
+        }
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+        }
+    }
+
+    public function substitute_player(Request $request)
+    {
+        if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->game_id == "" || empty($request->game_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "match id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->player_in_id == "" || empty($request->player_in_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player in id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->player_out_id == "" || empty($request->player_out_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player out id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->user()->id == $request->team_id)
+        {
+            $mytime = Carbon::now();
+            $start_time = $mytime->toDateTimeString();
+            $starting_player = array('playing_player' => '1','player_start_time' => $start_time);
+            $result_start = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_in_id)->update($starting_player);
+            $ending_player = array('playing_player' => '0','player_end_time' => $start_time);
+            $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->update($ending_player);
+            if($result_start == '1' && $result_end == '1')
+            {
+                $get_playing_time = Match::select('player_start_time','player_end_time')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->first();
+                $start_time = Carbon::parse($get_playing_time->player_start_time)->format('h:i:s');
+
+                
+                $end_time = Carbon::parse($get_playing_time->player_end_time)->format('h:i:s');
+                $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
+                $player_time = array('time' => $get_minutes);
+                $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->update($player_time);
+                // dd($get_minutes);
+                $success['status'] = '1';
+                $success['message'] = "player Substitute";
+                return $this->sendResponse($success);
+            }
+            else
+            {
+                $success['status'] = '1';
+                $success['message'] = "player not Substitute";
+                return $this->sendResponse($success);   
+            }
+        }
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+        }
+    }
+
+    public function end_match(Request $request)
+    {
+        if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->game_id == "" || empty($request->game_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "match id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->user()->id == $request->team_id)
+        {
+
+            $mytime = Carbon::now();
+            $start_time = $mytime->toDateTimeString();
+            $ending_player = array('player_end_time' => $start_time);
+            $result_end_match = DB::table('matches')->where('game_id',$request->game_id)->where('playing_player',1)->update($ending_player);
+            $ending_game = array('game_end_time' => $start_time);
+            $result_end_game = DB::table('games')->where('id',$request->game_id)->update($ending_game);
+            $get_playing_time = Match::select('player_id','player_start_time','player_end_time')->where('game_id',$request->game_id)->where('playing_player','1')->get();
+
+            foreach ($get_playing_time as $key => $value) 
+            {
+                $end_time = Carbon::parse($value->player_end_time)->format('h:i:s');
+                $start_time = Carbon::parse($value->player_start_time)->format('h:i:s');
+                $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
+                $player_time = array('time' => number_format((float)$get_minutes, 0, '.', ''));
+                $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$value->player_id)->update($player_time);
+            }
+            $success['status'] = '1';
+            $success['message'] = "match is finished";
+            return $this->sendResponse($success);
+        }
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+        }
+    }
 }
