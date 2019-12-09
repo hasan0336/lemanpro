@@ -35,6 +35,7 @@ class GameController extends ResponseController
             $players_team = explode(',',$request->team_assign);
         	$matches = array();
         	$mytime = Carbon::now();
+            //multiple variable foreach loop
         	foreach(array_combine($match_players, $players_team) as $match_player => $player_team)
         	{
                 // dd($match_player);
@@ -276,19 +277,40 @@ class GameController extends ResponseController
             $success['message'] = "game id is missing";
             return $this->sendResponse($success);
         }
+        if($request->player_players_team_a == "" || empty($request->player_players_team_a))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player players team_a id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->player_players_team_b == "" || empty($request->player_players_team_b))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player players team_b id is missing";
+            return $this->sendResponse($success);
+        }
         if($request->user()->id == $request->team_id)
         {
             $mytime = Carbon::now();
             $start_time = $mytime->toDateTimeString();
             $match = Game::where('id',$request->game_id)->update(['game_start_time' => $start_time]);
-            $playing_player = explode(',',$request->playing_player);
+            $player_players_team_a = explode(',',$request->player_players_team_a);
+            $playing_positions_team_a = explode(',',$request->playing_positions_team_a);
+            $player_players_team_b = explode(',',$request->player_players_team_b);
+            $playing_positions_team_b = explode(',',$request->playing_positions_team_b);
             $starting_player = array();
             // $result = '';
-            foreach($playing_player as $players)
+            foreach(array_combine($player_players_team_a, $playing_positions_team_a) as $player_team_a => $player_pos_team_a)
             {
                 // dd($players);
-                $starting_player = array('playing_player' => '1','player_start_time' => $start_time);
-                $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$players)->update($starting_player);
+                $starting_player = array('playing_player' => '1','player_start_time' => $start_time, 'playing_pos' => $player_pos_team_a);
+                $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$player_team_a)->where('team_assign','a')->update($starting_player);
+            }
+            foreach(array_combine($player_players_team_b, $playing_positions_team_b) as $player_team_b => $player_pos_team_b)
+            {
+                // dd($players);
+                $starting_player = array('playing_player' => '1','player_start_time' => $start_time, 'playing_pos' => $player_pos_team_b);
+                $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$player_team_b)->where('team_assign','b')->update($starting_player);
             }
             if($result == 1)
             {
