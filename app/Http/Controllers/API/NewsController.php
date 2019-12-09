@@ -258,7 +258,7 @@ class NewsController extends ResponseController
         {
         	if($request->user()->id == $request->team_id)
     		{
-    			$news_result = News::join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$request->team_id)->groupBy('news_images.news_id')->get();
+    			$news_result = News::select('news.id','news_images.news_id','news.team_id','news.title','news.description','news.created_at')->join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$request->team_id)->groupBy('news_images.news_id')->get();
     			// dd($news_result);
     			$news_pics = array();
     			foreach ($news_result as $key => $value) {
