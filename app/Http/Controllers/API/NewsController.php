@@ -346,7 +346,7 @@ class NewsController extends ResponseController
     	$news_pic_data_arr = [];
     	foreach ($res_news_images as $key => $value)
     		
-    		$news_pic_data_arr[] =  URL::to('/public/news_image/'.$value->news_image);
+    		$news_pic_data_arr[] =  URL::to('/news_image/'.$value->news_image);
     	return isset($news_pic_data_arr) ? $news_pic_data_arr : false;
     }
 
