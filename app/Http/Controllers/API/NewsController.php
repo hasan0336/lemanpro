@@ -104,7 +104,7 @@ class NewsController extends ResponseController
                 }
 				$success['status'] = "1";
 			    $success['message'] = "News Posted";
-			    // $success['data'] = $get_players;
+			    $success['data'] = $get_players;
 			    return $this->sendResponse($success);
 			}
 			else
@@ -258,7 +258,7 @@ class NewsController extends ResponseController
         {
         	if($request->user()->id == $request->team_id)
     		{
-    			$news_result = News::select('news.id','news_images.news_id','news.team_id','news.title','news.description','news.created_at')->join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$request->team_id)->groupBy('news_images.news_id')->get();
+    			$news_result = News::join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$request->team_id)->groupBy('news_images.news_id')->get();
     			// dd($news_result);
     			$news_pics = array();
     			foreach ($news_result as $key => $value) {
@@ -346,7 +346,7 @@ class NewsController extends ResponseController
     	$news_pic_data_arr = [];
     	foreach ($res_news_images as $key => $value)
     		
-    		$news_pic_data_arr[] =  URL::to('public/news_image/'.$value->news_image);
+    		$news_pic_data_arr[] =  URL::to('/public/news_image/'.$value->news_image);
     	return isset($news_pic_data_arr) ? $news_pic_data_arr : false;
     }
 
