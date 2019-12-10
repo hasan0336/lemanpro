@@ -165,10 +165,6 @@ class ProfileController extends ResponseController
                 {
                     $data['height'] = $input['height'];
                 }
-                if($input['height'] != '' || $input['height'] != false)
-                {
-                    $data['height'] = $input['height'];
-                }
                 if($input['position'] != '' || $input['position'] != false)
                 {
                     $data['position'] = $input['position'];

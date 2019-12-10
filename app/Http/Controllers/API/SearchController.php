@@ -45,4 +45,20 @@ class SearchController extends ResponseController
         $success['data'] = $results;
         return $this->sendResponse($success);
     }
+
+    public function search_player(Request $request)
+    {
+        $longitude = $request->longtude;
+        $latitude = $request->latitude;
+        $miles = $request->miles;
+        $gender = $request->gender;
+        $age = $request->age;
+
+        
+        $longitude = "";
+        $latitude = ""; 
+        $miles = 150;
+        $gender = "male";
+        $age = 24;
+    }
 }

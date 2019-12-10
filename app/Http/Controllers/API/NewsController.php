@@ -104,7 +104,7 @@ class NewsController extends ResponseController
                 }
 				$success['status'] = "1";
 			    $success['message'] = "News Posted";
-			    $success['data'] = $get_players;
+			    // $success['data'] = $get_players;
 			    return $this->sendResponse($success);
 			}
 			else
