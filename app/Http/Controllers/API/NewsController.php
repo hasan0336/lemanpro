@@ -48,7 +48,7 @@ class NewsController extends ResponseController
 			if($request->file('news_image') != '' || !empty($request->file('news_image')))
 			{	
 				$allowedfileExtension = ['jpeg','jpg','png','gif','svg'];
-				$files = $request->file('news_image');
+				$files = $request->file('public/news_image');
 				$news = DB::table('news')->insertGetId($data);
 				foreach($files as $file)
 				{
