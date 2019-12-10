@@ -173,6 +173,22 @@ class ProfileController extends ResponseController
                 {
                     $data['position'] = $input['position'];
                 }
+                if($input['city'] != '' || $input['city'] != false)
+                {
+                    $data['city'] = $input['city'];
+                }
+                if($input['state'] != '' || $input['state'] != false)
+                {
+                    $data['state'] = $input['state'];
+                }
+                if($input['zip_code'] != '' || $input['zip_code'] != false)
+                {
+                    $data['zip_code'] = $input['zip_code'];
+                }
+                if($input['address'] != '' || $input['address'] != false)
+                {
+                    $data['address'] = $input['address'];
+                }
                 
             }
             $get_profile = User::find($input['user_id'])->profile;
