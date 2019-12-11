@@ -299,31 +299,40 @@ class NewsController extends ResponseController
     		{
 
     			$rosters = Rosters::where('player_id',$request->player_id)->get();
-    			foreach ($rosters as $key => $value) 
-    			{
-    				$news_result2 = News::join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$value->team_id)->groupBy('news_images.news_id')->get();
-    				if(count($news_result2) > 0)
-    				{
-    					$news_result[] = $news_result2;
-    				}	
-    			}
-    			$news_pics = array();
-    			$res = array();
-    			foreach ($news_result[0] as $key => $value) 
-    			{
-    				// dd($value->news_id);
-    				$res[] = $this->get_news_pictures($value->news_id);
-    				// $news_result[$key]['news_pics'] = isset($res) ? $res : "";
-    			}
-    			foreach ($res as $key => $res_val) 
-    			{
+                if(count($rosters) > 0)
+                {
+                    foreach ($rosters as $key => $value) 
+                    {
+                        $news_result2 = News::join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$value->team_id)->groupBy('news_images.news_id')->get();
+                        if(count($news_result2) > 0)
+                        {
+                            $news_result[] = $news_result2;
+                        }   
+                    }
+                    $news_pics = array();
+                    $res = array();
+                    foreach ($news_result[0] as $key => $value) 
+                    {
+                        // dd($value->news_id);
+                        $res[] = $this->get_news_pictures($value->news_id);
+                        // $news_result[$key]['news_pics'] = isset($res) ? $res : "";
+                    }
+                    foreach ($res as $key => $res_val) 
+                    {
 
-    				$news_result[0][$key]['news_pics'] = $res_val;
-    			} 
-    			$success['status'] = "1";
-	    		$success['message'] = "All NEWS of Your Team";
-	    		$success['data'] = $news_result;
-	            return $this->sendResponse($success);
+                        $news_result[0][$key]['news_pics'] = $res_val;
+                    } 
+                    $success['status'] = "1";
+                    $success['message'] = "All NEWS of Your Team";
+                    $success['data'] = $news_result;
+                    return $this->sendResponse($success);
+                }
+                else
+                {
+                    $success['status'] = "1";
+                    $success['message'] = "No news Posted";
+                    return $this->sendResponse($success);
+                }
     		}
     		else
     		{
