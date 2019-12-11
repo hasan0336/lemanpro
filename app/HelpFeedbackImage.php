@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class HelpFeedbackImage extends Model
 {
+	protected $table = 'help_feedback_images';
 	protected $fillable = [
         'help_feedback_id','help_feedback_image',
     ];

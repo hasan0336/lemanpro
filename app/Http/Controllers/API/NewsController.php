@@ -18,6 +18,8 @@ use App\Rosters;
 use App\HelpFeedback;
 use App\HelpFeedbackImage;
 use App\Notification;
+use Mail;
+use App\Mail\Help_Feedback;
 class NewsController extends ResponseController
 {
     public function create_news(Request $request)
@@ -427,7 +429,11 @@ class NewsController extends ResponseController
                                     'help_feedback_image' => $name,
                                     'help_feedback_id' => $help_feedback->id
                                 );
-                                $news_image = HelpFeedbackImage::insert($help_feedback_images);
+                                $news_image = HelpFeedbackImage::insertGetId($help_feedback_images);
+                                // $help_feedback = HelpFeedback::join('help_feedback_images','help_feedback_images.help_feedback_id','=','help_feedbacks.id')->where('help_feedbacks.id',$news_image)->get();
+                                // print_r($help_feedback);
+                                // exit();
+                                // Mail::to($user->email)->send(new PlayerReport($user));
                             }
                         /*Insert your data*/
                             else
