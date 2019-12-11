@@ -299,20 +299,14 @@ class NewsController extends ResponseController
     		{
 
     			$rosters = Rosters::where('player_id',$request->player_id)->get();
-    			// dd($rosters);
-    			// $news_result = array();
     			foreach ($rosters as $key => $value) 
     			{
     				$news_result2 = News::join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$value->team_id)->groupBy('news_images.news_id')->get();
     				if(count($news_result2) > 0)
     				{
     					$news_result[] = $news_result2;
-    				}
-    				// dd($news_result);	
+    				}	
     			}
-    			// dd($news_result);
-    			// $news_result = News::join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$request->team_id)->groupBy('news_images.news_id')->get();
-    			// // dd($news_result);
     			$news_pics = array();
     			$res = array();
     			foreach ($news_result[0] as $key => $value) 
@@ -325,8 +319,7 @@ class NewsController extends ResponseController
     			{
 
     				$news_result[0][$key]['news_pics'] = $res_val;
-    			}
-    			// $news_result['news_pics'] = $news_pics; 
+    			} 
     			$success['status'] = "1";
 	    		$success['message'] = "All NEWS of Your Team";
 	    		$success['data'] = $news_result;
