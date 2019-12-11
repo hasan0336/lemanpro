@@ -68,6 +68,7 @@ class ProfileController extends ResponseController
         {
             $input = $request->all();
             $profile = User::find($input['user_id']);
+            // dd($request->all());
             if($profile->role_id == 1)
             {
                 if($input['club_address'] != '' || $input['club_address'] != false)
@@ -161,10 +162,6 @@ class ProfileController extends ResponseController
                 {
                     $data['weight'] = $input['weight'];
                 }
-                if($input['height'] != '' || $input['height'] != false)
-                {
-                    $data['height'] = $input['height'];
-                }
                 if($input['position'] != '' || $input['position'] != false)
                 {
                     $data['position'] = $input['position'];
@@ -185,7 +182,14 @@ class ProfileController extends ResponseController
                 {
                     $data['address'] = $input['address'];
                 }
-                
+                if($input['longitude'] != '' || $input['longitude'] != false)
+                {
+                    $data['longitude'] = $input['longitude'];
+                }
+                if($input['latitude'] != '' || $input['latitude'] != false)
+                {
+                    $data['latitude'] = $input['latitude'];
+                }
             }
             $get_profile = User::find($input['user_id'])->profile;
             if($get_profile->is_profile_complete == 0)
