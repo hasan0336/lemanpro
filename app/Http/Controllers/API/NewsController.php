@@ -303,7 +303,7 @@ class NewsController extends ResponseController
                 {
                     foreach ($rosters as $key => $value) 
                     {
-                        $news_result2 = News::join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$value->team_id)->groupBy('news_images.news_id')->get();
+                        $news_result2 = News::select('news.id','news.team_id','news.title','news.description','news.created_at','news_images.news_id','news_images.news_image')->join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$value->team_id)->groupBy('news_images.news_id')->orderBy('news.created_at','desc')->get();
                         if(count($news_result2) > 0)
                         {
                             $news_result = $news_result2;
