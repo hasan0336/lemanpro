@@ -306,12 +306,12 @@ class NewsController extends ResponseController
                         $news_result2 = News::join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$value->team_id)->groupBy('news_images.news_id')->get();
                         if(count($news_result2) > 0)
                         {
-                            $news_result[] = $news_result2;
+                            $news_result = $news_result2;
                         }   
                     }
                     $news_pics = array();
                     $res = array();
-                    foreach ($news_result[0] as $key => $value) 
+                    foreach ($news_result as $key => $value) 
                     {
                         // dd($value->news_id);
                         $res[] = $this->get_news_pictures($value->news_id);
@@ -320,7 +320,7 @@ class NewsController extends ResponseController
                     foreach ($res as $key => $res_val) 
                     {
 
-                        $news_result[0][$key]['news_pics'] = $res_val;
+                        $news_result[$key]['news_pics'] = $res_val;
                     } 
                     $success['status'] = "1";
                     $success['message'] = "All NEWS of Your Team";
