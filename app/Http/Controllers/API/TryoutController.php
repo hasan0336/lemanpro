@@ -87,18 +87,18 @@ class TryoutController extends ResponseController
 
     public function update_tryout(Request $request)
     {
-        if($request->team_id == "" || empty($request->team_id))
-        {
-            $success['status'] = '0';
-            $success['message'] = "team_id is missing";
-            return $this->sendResponse($success);
-        }
-        elseif($request->tryout_id == "" || empty($request->tryout_id))
-        {
-            $success['status'] = '0';
-            $success['message'] = "tryout_id is missing";
-            return $this->sendResponse($success);   
-        }
+      if($request->team_id == "" || empty($request->team_id))
+      {
+          $success['status'] = '0';
+          $success['message'] = "team_id is missing";
+          return $this->sendResponse($success);
+      }
+      elseif($request->tryout_id == "" || empty($request->tryout_id))
+      {
+          $success['status'] = '0';
+          $success['message'] = "tryout_id is missing";
+          return $this->sendResponse($success);   
+      }
         $data = array();
       if($request->user()->id == $request->team_id)
     	{
@@ -195,20 +195,50 @@ class TryoutController extends ResponseController
     public function single_tryout_info(Request $request)
     {
       $input['team_id'] = $request->team_id;
+      $input['player_id'] = $request->player_id;
       $input['tryout_id'] = $request->tryout_id;
-      if($request->user()->id == $request->team_id)
+      if($input['player_id'] == null || empty($input['player_id']))
       {
-        $tryout_info = Tryout::select('profiles.first_name','profiles.last_name','profiles.team_name','tryouts.id','tryouts.team_id','tryouts.street','tryouts.state','tryouts.zipcode','tryouts.timeoftryout','tryouts.dateoftryout','tryouts.costoftryout','tryouts.latitude','tryouts.longitude','tryouts.created_at')->join('profiles','profiles.user_id','=','tryouts.team_id')->where('team_id',$input['team_id'])->where('tryouts.id',$input['tryout_id'])->first();
-        $success['status'] = "1";
-        $success['message'] = "Tryout data";
-        $success['data'] = $tryout_info;
-        return $this->sendResponse($success);
+        if($request->user()->id == $request->team_id)
+        {
+          $tryout_info = Tryout::select('profiles.first_name','profiles.last_name','profiles.team_name','tryouts.id','tryouts.team_id','tryouts.street','tryouts.state','tryouts.zipcode','tryouts.timeoftryout','tryouts.dateoftryout','tryouts.costoftryout','tryouts.latitude','tryouts.longitude','tryouts.created_at')->join('profiles','profiles.user_id','=','tryouts.team_id')->where('team_id',$input['team_id'])->where('tryouts.id',$input['tryout_id'])->first();
+          $success['status'] = "1";
+          $success['message'] = "Tryout data";
+          $success['data'] = $tryout_info;
+          return $this->sendResponse($success);
+        }
+        else
+        {
+              $success['status'] = "0";
+              $success['message'] = "Unauthorized User";
+              return $this->sendResponse($success);
+        }
+      }
+      elseif($input['team_id'] == null || empty($input['team_id']))
+      {
+        //tryout price screen
+        if($request->user()->id == $request->player_id)
+        {
+          $tryout_info = Tryout::select('profiles.first_name','profiles.last_name','profiles.team_name','tryouts.id','tryouts.team_id','tryouts.street','tryouts.state','tryouts.zipcode','tryouts.timeoftryout','tryouts.dateoftryout','tryouts.costoftryout','tryouts.latitude','tryouts.longitude','tryouts.created_at')->join('profiles','profiles.user_id','=','tryouts.team_id')->where('tryouts.id',$input['tryout_id'])->first();
+          $leman_pro_fees = DB::table('lemanpro_fees')->first();
+          $tryout_info['lemanpro_fees'] = $leman_pro_fees->lemanpro_fee;
+          $success['status'] = "1";
+          $success['message'] = "Tryout data";
+          $success['data'] = $tryout_info;
+          return $this->sendResponse($success);
+        }
+        else
+        {
+              $success['status'] = "0";
+              $success['message'] = "Unauthorized User";
+              return $this->sendResponse($success);
+        }
       }
       else
       {
-            $success['status'] = "0";
-            $success['message'] = "Unauthorized User";
-            return $this->sendResponse($success);
+        $success['status'] = "0";
+        $success['message'] = "error";
+        return $this->sendResponse($success);
       }
     }
 
@@ -335,6 +365,8 @@ class TryoutController extends ResponseController
     		}
     		else
     		{ 
+          $leman_pro_fees = DB::table('lemanpro_fees')->first();
+          $input['amount'] = $input['amount'] + $leman_pro_fees->lemanpro_fee;
           $stripe = Stripe::setApiKey(env('STRIPE_SECRET'));
           $token = $stripe->tokens()->create
           ([
