@@ -31,14 +31,26 @@ class SearchController extends ResponseController
     	if($search_team_name && $latitude == null && $longitude == null )
     	{
     		$results = Tryout::select('team_id','tryouts.id as tryout_id','team_name','costoftryout','dateoftryout','timeoftryout','tryouts.latitude as latitude','tryouts.longitude as longitude','street')->join('profiles','profiles.user_id','=','tryouts.team_id')->where('profiles.team_name', 'LIKE', "%{$search_team_name}%")->get();
+            foreach ($results as $key => $value) {
+                $leman_pro_fees = DB::table('lemanpro_fees')->first();
+                $results[$key]['lemanpro_fees'] = $leman_pro_fees->lemanpro_fee;
+            }
     	}
     	elseif($search_team_name && $latitude && $longitude)
     	{
     		$results = DB::select(DB::raw('SELECT team_id,tryouts.id as tryout_id,team_name,costoftryout,dateoftryout,timeoftryout,tryouts.latitude as latitude,tryouts.longitude as longitude,street, ( 3959 * acos( cos( radians(' . $latitude . ') ) * cos( radians( tryouts.latitude ) ) * cos( radians( tryouts.longitude ) - radians(' . $longitude . ') ) + sin( radians(' . $latitude .') ) * sin( radians(tryouts.latitude) ) ) ) AS distance FROM tryouts join profiles on profiles.user_id = tryouts.team_id where profiles.team_name LIKE "%'.$search_team_name.'%" HAVING distance < ' . $miles . ' ORDER BY distance') );
+            foreach ($results as $key => $value) {
+                $leman_pro_fees = DB::table('lemanpro_fees')->first();
+                $results[$key]['lemanpro_fees'] = $leman_pro_fees->lemanpro_fee;
+            }
     	}
     	else
     	{
     		$results = DB::select(DB::raw('SELECT team_id,tryouts.id as tryout_id,team_name,costoftryout,dateoftryout,timeoftryout,tryouts.latitude as latitude,tryouts.longitude as longitude,street, ( 3959 * acos( cos( radians(' . $latitude . ') ) * cos( radians( tryouts.latitude ) ) * cos( radians( tryouts.longitude ) - radians(' . $longitude . ') ) + sin( radians(' . $latitude .') ) * sin( radians(tryouts.latitude) ) ) ) AS distance FROM tryouts join profiles on profiles.user_id = tryouts.team_id HAVING distance < ' . $miles . ' ORDER BY distance') );
+            foreach ($results as $key => $value) {
+                $leman_pro_fees = DB::table('lemanpro_fees')->first();
+                $results[$key]['lemanpro_fees'] = $leman_pro_fees->lemanpro_fee;
+            }
 
     	}
         $success['status'] = "1";

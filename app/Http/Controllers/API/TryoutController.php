@@ -170,12 +170,6 @@ class TryoutController extends ResponseController
     	if($request->user()->id == $request->team_id)
     	{
         $tryout_listing = Tryout::select('profiles.first_name','profiles.last_name','profiles.team_name','tryouts.id','tryouts.team_id','tryouts.street','tryouts.state','tryouts.zipcode','tryouts.timeoftryout','tryouts.dateoftryout','tryouts.costoftryout','tryouts.latitude','tryouts.longitude','tryouts.created_at')->join('profiles','profiles.user_id','=','tryouts.team_id')->where('team_id',$input['team_id'])->get();
-        foreach ($tryout_listing as $key => $value) {
-          $leman_pro_fees = DB::table('lemanpro_fees')->first();
-          $tryout_listing[$key]['lemanpro_fees'] = $leman_pro_fees->lemanpro_fee;
-        }
-        // $leman_pro_fees = DB::table('lemanpro_fees')->first();
-        // $tryout_listing['lemanpro_fees'] = $leman_pro_fees->lemanpro_fee;
 	    	if(count($tryout_listing) > 0)
 	    	{
 	    		$success['status'] = "1";
