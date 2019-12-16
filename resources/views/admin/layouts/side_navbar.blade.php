@@ -32,7 +32,7 @@
          <ul class="treeview-menu">
             <li class="artist_management">
                <a href="{{route('palyer_management')}}">
-                  <i class="fa fa-circle-o"></i> <span>Playes's Management</span>
+                  <i class="fa fa-circle-o"></i> <span>Player's Management</span>
                </a>
             </li>
             <li class="artLover_management">

@@ -14,11 +14,11 @@
             <!-- Content Header (Page header) -->
             <section class="content-header">
                <h1 class="title">
-                  Artist Management
+                  Player's Management
                   <!-- <small></small> -->
                </h1>
                <ol class="breadcrumb">
-                  <li><a href=""><i class="fa fa-dashboard"></i> Artist Management</a></li>
+                  <li><a href=""><i class="fa fa-dashboard"></i> Player's Management</a></li>
                   <!-- <li class="active"></li> -->
                </ol>
             </section>
