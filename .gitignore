@@ -3,6 +3,7 @@
 /public/storage
 /public/news_image/*.*
 /public/images/profile_images/*.*
+/public/admin/bower_components/
 /storage/*.key
 /vendor
 .env

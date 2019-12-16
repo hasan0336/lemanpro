@@ -4,7 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
-
+use Illuminate\Http\Request;
+use Session;
+use Auth;
+use Redirect;
+use DB;
 class LoginController extends Controller
 {
     /*
@@ -25,7 +29,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/admin/dashboard';
 
     /**
      * Create a new controller instance.
@@ -35,5 +39,20 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+    protected function authenticated(Request $request, $user)
+    {
+       $admin_profile = DB::table('profiles')->where('user_id',Auth::user()->id)->first();
+                // dd($admin_profile);
+        Session::put('admin_profile', $admin_profile);
+    }
+
+    public function logout(Request $request)
+    {
+        // dd($request->session());
+        Auth::logout();
+        return Redirect::to('/admin');
+    //   return redirect('/login');
     }
 }
