@@ -20,6 +20,7 @@ class SearchController extends ResponseController
     	$longitude = $request->longitude;
     	$latitude = $request->latitude;
     	$miles = $request->miles;
+
     	$search_team_name = $request->search_team_name;
         if($request->player_id == "" || empty($request->player_id))
         {
@@ -34,6 +35,10 @@ class SearchController extends ResponseController
         if($longitude == 0)
         {
             $longitude = null;   
+        }
+        if($miles == null || $miles == 0)
+        {
+            $miles = 1;
         }
     	if($search_team_name && $latitude == null && $longitude == null )
     	{
