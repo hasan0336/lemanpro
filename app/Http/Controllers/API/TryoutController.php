@@ -412,7 +412,7 @@ class TryoutController extends ResponseController
               }
               $success['status'] = "1";
               $success['message'] = "Player joins tryout";
-              $success['data'] = $charge;
+              // $success['data'] = $charge;
               return $this->sendResponse($success);
               // return redirect()->route('addmoney.paymentstripe');
           // } 
