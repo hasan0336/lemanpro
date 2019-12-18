@@ -367,35 +367,36 @@ class TryoutController extends ResponseController
     		{ 
           $leman_pro_fees = DB::table('lemanpro_fees')->first();
           $input['amount'] = $input['amount'] + $leman_pro_fees->lemanpro_fee;
-          $stripe = Stripe::setApiKey(env('STRIPE_SECRET'));
-          $token = $stripe->tokens()->create
-          ([
-            'card' => 
-              [
-                'number' => $input['number'],
-                'exp_month' => $input['exp_month'],
-                'exp_year' => $input['exp_year'],
-                'cvc' => $input['cvc'],
-              ],
-          ]);
-          if (!isset($token['id'])) 
-          {
-              $success['status'] = "0";
-              $success['message'] = "Card details failed.";
-              return $this->sendResponse($success);
-          }
-          $charge = $stripe->charges()->create
-          ([
-              'card' => $token['id'],
-              'currency' => 'USD',
-              'amount' => $input['amount'],
-              'description' => 'wallet',
-          ]);
-          if($charge['status'] == 'succeeded') 
-          {
-              $card_brand = $charge['payment_method_details']['card']['brand'];
-              $card_last_four_digit = $charge['payment_method_details']['card']['last4'];
-              $card_expiry = $charge['payment_method_details']['card']['exp_month'].'/'.$charge['payment_method_details']['card']['exp_year'];
+          // $stripe = Stripe::setApiKey(env('STRIPE_SECRET'));
+          // $token = $stripe->tokens()->create
+          // ([
+          //   'card' => 
+          //     [
+          //       'number' => $input['number'],
+          //       'exp_month' => $input['exp_month'],
+          //       'exp_year' => $input['exp_year'],
+          //       'cvc' => $input['cvc'],
+          //     ],
+          // ]);
+          // if (!isset($token['id'])) 
+          // {
+          //     $success['status'] = "0";
+          //     $success['message'] = "Card details failed.";
+          //     return $this->sendResponse($success);
+          // }
+          // $charge = $stripe->charges()->create
+          // ([
+          //     'card' => $token['id'],
+          //     'currency' => 'USD',
+          //     'amount' => $input['amount'],
+          //     'description' => 'wallet',
+          // ]);
+          // if($charge['status'] == 'succeeded') 
+          // {
+              $card_brand = 'visa';//$charge['payment_method_details']['card']['brand'];
+              $card_last_four_digit = $request->card_no; //$charge['payment_method_details']['card']['last4'];
+              $card_expiry = '05/23';//$charge['payment_method_details']['card']['exp_month'].'/'.$charge['payment_method_details']['card']['exp_year'];
+              $token['id'] ='43543554353535';
               $data = array('tryout_id' => $request->tryout_id, 'player_id' => $request->player_id );
               $join_player = TryoutPlayers::create($data);
               if($join_player)
@@ -414,7 +415,7 @@ class TryoutController extends ResponseController
               $success['data'] = $charge;
               return $this->sendResponse($success);
               // return redirect()->route('addmoney.paymentstripe');
-          } 
+          // } 
     		}
     	}
     	else
