@@ -13,6 +13,7 @@ use App\Notification;
 use App\Tryout;
 use App\Profile;
 use App\TryoutPlayers;
+
 class SearchController extends ResponseController
 {
     public function search_tryout(Request $request)
@@ -108,6 +109,17 @@ class SearchController extends ResponseController
         $gender = $request->gender;
         $age = $request->age;
         $dob  = date('Y', strtotime($age . ' years ago'));
+        if($miles == null || $miles == 0)
+        {
+            $miles = 1;
+        }
+        if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
+        }
+
         if($latitude == 0)
         {
             $latitude = null;   
@@ -118,25 +130,106 @@ class SearchController extends ResponseController
         }
         if($gender && $latitude == null && $longitude == null && $age == null )
         {
-            $results = Profile::select('user_id','first_name','last_name',DB::raw("CONCAT('".URL::to('/images/profile_images/')."/',image) AS imageurl"))->where('gender', 'LIKE', "%{$gender}%")->get();
+            $results = Profile::select('user_id as player_id','first_name','last_name',DB::raw("CONCAT('".URL::to('/images/profile_images/')."/',image) AS imageurl"))->where('gender', 'LIKE', "%{$gender}%")->get();
+            foreach ($results as $key => $value) 
+            {
+                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
+                if($player_roster == null)
+                {
+                    $results[$key]->team_member = '0';   
+                }  
+                if($player_roster['request'] == 1)
+                {
+                    $results[$key]->team_member = '1';
+                }
+                elseif($player_roster['request'] == 2)
+                {
+                    $results[$key]->team_member = '2';
+                }
+            }
         }
         elseif($age && $gender == null && $latitude == null && $longitude == null)
         {
-            $results = Profile::select('user_id','first_name','last_name',DB::raw("CONCAT('".URL::to('/images/profile_images/')."/',image) AS imageurl"))->whereyear('dob','=',$dob)->get();
+            $results = Profile::select('user_id as player_id','first_name','last_name',DB::raw("CONCAT('".URL::to('/images/profile_images/')."/',image) AS imageurl"))->whereyear('dob','=',$dob)->get();
+            foreach ($results as $key => $value) 
+            {
+                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
+                if($player_roster == null)
+                {
+                    $results[$key]->team_member = '0';   
+                }  
+                if($player_roster['request'] == 1)
+                {
+                    $results[$key]->team_member = '1';
+                }
+                elseif($player_roster['request'] == 2)
+                {
+                    $results[$key]->team_member = '2';
+                }
+            }
         }
         elseif($gender && $latitude && $longitude && $age)
         {
             // dd(33);
             $results = DB::select(DB::raw('SELECT id,user_id as player_id,first_name,last_name,latitude,longitude,image, ( 3959 * acos( cos( radians('.$latitude.') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians('.$longitude.') ) + sin( radians('.$latitude.') ) * sin( radians(latitude) ) ) ) AS distance FROM profiles where profiles.gender LIKE "%'.$gender.'%" AND year(profiles.dob)  = '.$dob.' HAVING distance < ' . $miles . ' ORDER BY distance') );
+            foreach ($results as $key => $value) 
+            {
+                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
+                if($player_roster == null)
+                {
+                    $results[$key]->team_member = '0';   
+                }  
+                if($player_roster['request'] == 1)
+                {
+                    $results[$key]->team_member = '1';
+                }
+                elseif($player_roster['request'] == 2)
+                {
+                    $results[$key]->team_member = '2';
+                }
+            }
         }
         elseif($gender && $age)
         {
             
-            $results = Profile::select('user_id','first_name','last_name',DB::raw("CONCAT('".URL::to('/images/profile_images/')."/',image) AS imageurl"))->where('gender', 'LIKE', "%{$gender}%")->whereyear('dob','=',$dob)->get();
+            $results = Profile::select('user_id as player_id','first_name','last_name',DB::raw("CONCAT('".URL::to('/images/profile_images/')."/',image) AS imageurl"))->where('gender', 'LIKE', "%{$gender}%")->whereyear('dob','=',$dob)->get();
+            foreach ($results as $key => $value) 
+            {
+                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
+                if($player_roster == null)
+                {
+                    $results[$key]->team_member = '0';   
+                }  
+                if($player_roster['request'] == 1)
+                {
+                    $results[$key]->team_member = '1';
+                }
+                elseif($player_roster['request'] == 2)
+                {
+                    $results[$key]->team_member = '2';
+                }
+            }
         }
         else
         {
             $results = DB::select(DB::raw('SELECT id,user_id as player_id,first_name,last_name,latitude,longitude,image, ( 3959 * acos( cos( radians('.$latitude.') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians('.$longitude.') ) + sin( radians('.$latitude.') ) * sin( radians(latitude) ) ) ) AS distance FROM profiles HAVING distance < 150 ORDER BY distance') );
+
+            foreach ($results as $key => $value) 
+            {
+                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
+                if($player_roster == null)
+                {
+                    $results[$key]->team_member = '0';   
+                }  
+                if($player_roster['request'] == 1)
+                {
+                    $results[$key]->team_member = '1';
+                }
+                elseif($player_roster['request'] == 2)
+                {
+                    $results[$key]->team_member = '2';
+                }
+            }
         }
         if(count($results) > 0)
         {
