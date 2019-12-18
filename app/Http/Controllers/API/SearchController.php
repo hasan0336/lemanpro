@@ -12,6 +12,7 @@ use URL;
 use App\Notification;
 use App\Tryout;
 use App\Profile;
+use App\TryoutPlayers;
 class SearchController extends ResponseController
 {
     public function search_tryout(Request $request)
@@ -20,6 +21,12 @@ class SearchController extends ResponseController
     	$latitude = $request->latitude;
     	$miles = $request->miles;
     	$search_team_name = $request->search_team_name;
+        if($request->player_id == "" || empty($request->player_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player id is missing";
+            return $this->sendResponse($success);
+        }
         if($latitude == 0)
         {
             $latitude = null;   
@@ -33,23 +40,52 @@ class SearchController extends ResponseController
     		$results = Tryout::select('team_id','tryouts.id as tryout_id','team_name','costoftryout','dateoftryout','timeoftryout','tryouts.latitude as latitude','tryouts.longitude as longitude','street')->join('profiles','profiles.user_id','=','tryouts.team_id')->where('profiles.team_name', 'LIKE', "%{$search_team_name}%")->get();
             foreach ($results as $key => $value) {
                 $leman_pro_fees = DB::table('lemanpro_fees')->first();
+                $player_tryout = TryoutPlayers::where('tryout_id',$value->tryout_id)->where('player_id',$request->player_id)->first();
+                if($player_tryout != null)
+                {
+                    $results[$key]['join_tryout'] = '1';
+                }
+                else
+                {
+                    $results[$key]['join_tryout'] = '0';   
+                }
                 $results[$key]['lemanpro_fees'] = $leman_pro_fees->lemanpro_fee;
             }
     	}
     	elseif($search_team_name && $latitude && $longitude)
     	{
     		$results = DB::select(DB::raw('SELECT team_id,tryouts.id as tryout_id,team_name,costoftryout,dateoftryout,timeoftryout,tryouts.latitude as latitude,tryouts.longitude as longitude,street, ( 3959 * acos( cos( radians(' . $latitude . ') ) * cos( radians( tryouts.latitude ) ) * cos( radians( tryouts.longitude ) - radians(' . $longitude . ') ) + sin( radians(' . $latitude .') ) * sin( radians(tryouts.latitude) ) ) ) AS distance FROM tryouts join profiles on profiles.user_id = tryouts.team_id where profiles.team_name LIKE "%'.$search_team_name.'%" HAVING distance < ' . $miles . ' ORDER BY distance') );
-            foreach ($results as $key => $value) {
+            foreach ($results as $key => $value) 
+            {
                 $leman_pro_fees = DB::table('lemanpro_fees')->first();
-                $results[$key]['lemanpro_fees'] = $leman_pro_fees->lemanpro_fee;
+                $player_tryout = TryoutPlayers::where('tryout_id',$value->tryout_id)->where('player_id',$request->player_id)->first();
+                if($player_tryout != null)
+                {
+                    $results[$key]->join_tryout = '1';
+                }
+                else
+                {
+                    $results[$key]->join_tryout = '0';   
+                }
+                $results[$key]->lemanpro_fees = $leman_pro_fees->lemanpro_fee;
             }
     	}
     	else
     	{
     		$results = DB::select(DB::raw('SELECT team_id,tryouts.id as tryout_id,team_name,costoftryout,dateoftryout,timeoftryout,tryouts.latitude as latitude,tryouts.longitude as longitude,street, ( 3959 * acos( cos( radians(' . $latitude . ') ) * cos( radians( tryouts.latitude ) ) * cos( radians( tryouts.longitude ) - radians(' . $longitude . ') ) + sin( radians(' . $latitude .') ) * sin( radians(tryouts.latitude) ) ) ) AS distance FROM tryouts join profiles on profiles.user_id = tryouts.team_id HAVING distance < ' . $miles . ' ORDER BY distance') );
-            foreach ($results as $key => $value) {
+            foreach ($results as $key => $value) 
+            {
                 $leman_pro_fees = DB::table('lemanpro_fees')->first();
-                $results[$key]['lemanpro_fees'] = $leman_pro_fees->lemanpro_fee;
+                $player_tryout = TryoutPlayers::where('tryout_id',$value->tryout_id)->where('player_id',$request->player_id)->first();
+                if($player_tryout != null)
+                {
+                    $results[$key]->join_tryout = '1';
+                }
+                else
+                {
+                    $results[$key]->join_tryout = '0';   
+                }
+                $results[$key]->lemanpro_fees = $leman_pro_fees->lemanpro_fee;
             }
 
     	}
