@@ -4,7 +4,7 @@
       <!-- mini logo for sidebar mini 50x50 pixels -->
       <span class="logo-mini"><b>R</b>LE</span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><img src="{{asset('public/admin/bower_components/images/logo.png')}}" class="logo-pic" height="45" alt="Releasur Logo"><b>Releasur</b></span>
+      <span class="logo-lg"><img src="{{asset('public/admin/bower_components/images/logo.png')}}" class="logo-pic" height="45" alt="Releasur Logo"><b>Leman Pro</b></span>
     </a>
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top">

@@ -81,8 +81,6 @@ class NewsController extends ResponseController
                 $get_players = Rosters::where('team_id',$request->team_id)->get();
                 foreach ($get_players as $key => $player) 
                 {
-                    // dd($news);
-                    // dd($player['player_id']);
                     $notify = array(
                     'news_id'=>$news,
                     'to'=>$player['player_id'],
