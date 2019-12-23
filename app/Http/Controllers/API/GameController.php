@@ -17,6 +17,7 @@ use App\Mail\PlayerReport;
 use App\Mail\MatchReport;
 use App\User;
 use Mail;
+use App\Notification;
 class GameController extends ResponseController
 {
     public function create_game(Request $request)
@@ -31,11 +32,14 @@ class GameController extends ResponseController
         {
             // dd($request->teams);
         	$game = Game::create(array('team_id' => $request->team_id));
+            
         	$match_players = explode(',',$request->players);
             $players_team = explode(',',$request->team_assign);
         	$matches = array();
         	$mytime = Carbon::now();
+            // dd($match_players);
             //multiple variable foreach loop
+
         	foreach(array_combine($match_players, $players_team) as $match_player => $player_team)
         	{
                 // dd($match_player);
@@ -43,9 +47,33 @@ class GameController extends ResponseController
         		$matches[] = array('game_id'=>$game->id,'player_id'=>$match_player,'team_assign'=>$player_team,'created_at'=>$mytime->toDateTimeString(),'updated_at'=>$mytime->toDateTimeString());
         	}
         	$matches2 = MAtch::insert($matches);
+
         	if($matches2 == 1)
         	{
-        		$success['status'] = "1";
+                foreach ($match_players as $key => $value) {
+                    // dd($value);
+                    $notify = array(
+                    'game_id'=>$game->id,
+                    'to'=>$value,
+                    'from'=>$request->team_id,
+                    'type'=>env('NOTIFICATION_TYPE_SEND_PLAYER_SELECTED_REQUEST'),
+                    'title'=>'Game Created',
+                    'message'=>'You are selected for this game',
+                    );
+                        // dd($notify);
+                    $res_notify = Notification::create($notify);
+
+                    $token[] = $request->user()->device_token;
+                    $data = array(
+                        'title' => $notify['title'],
+                        'message' => $notify['message'],
+                        'notification_type' => env('NOTIFICATION_TYPE_SEND_PLAYER_SELECTED_REQUEST')
+                    );
+                    $data['device_tokens'] = $token;
+                    $data['device_type'] = $request->user()->device_type;
+                    push_notification($data);
+                }
+                $success['status'] = "1";
                 $success['message'] = "Game and Match has been created";
                 $success['data'] = array('game_id'=>$game->id);
                 return $this->sendResponse($success);

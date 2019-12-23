@@ -16,7 +16,6 @@ use App\Tryout;
 use App\Profile;
 use App\TryoutPlayers;
 use App\Match;
-
 class SearchController extends ResponseController
 {
     public function search_tryout(Request $request)
@@ -265,7 +264,7 @@ class SearchController extends ResponseController
             $profile->image = URL::to('public/images/profile_images/').'/'.$profile->image; 
             
             $matches = Match::select(DB::raw('count(game_id) as game_id'),'player_id',DB::raw('SUM(yellow) as yellow'),DB::raw('SUM(red) as red'),DB::raw('SUM(goals) as goals'),DB::raw('SUM(trophies) as trophies'),DB::raw('SUM(time) as time'))->where('player_id',$request->player_id)->get();
-
+            
             $team_joined = Rosters::join('profiles','profiles.user_id','=','rosters.team_id')->where('player_id',$request->player_id)->where('request',1)->select('team_name')->first();
             if($team_joined == null)
             {
