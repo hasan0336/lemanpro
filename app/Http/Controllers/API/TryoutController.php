@@ -15,6 +15,7 @@ use Stripe\Error\Card;
 // use Cartalyst\Stripe\Stripe;
 use Stripe;
 use URL;
+use App\Notification;
 class TryoutController extends ResponseController
 {
     public function create_tryout(Request $request)
@@ -355,7 +356,8 @@ class TryoutController extends ResponseController
         $input['cvc'] = $request->cvc;
         $input['amount'] = $request->amount;
     		$check_player =TryoutPlayers::where('player_id',$input['player_id'])->where('tryout_id',$input['tryout_id'])->first();
-        // dd($check_player);
+        $tryout_team = Tryout::select('profiles.user_id')->join('profiles','tryouts.team_id','=','profiles.user_id')->where('tryouts.id',$input['tryout_id'])->first();
+        $team_id = $tryout_team->user_id;
     		if($check_player != null || !empty($check_player))
     		{
                 
@@ -398,9 +400,30 @@ class TryoutController extends ResponseController
               $card_expiry = '05/23';//$charge['payment_method_details']['card']['exp_month'].'/'.$charge['payment_method_details']['card']['exp_year'];
               $token['id'] ='43543554353535';
               $data = array('tryout_id' => $request->tryout_id, 'player_id' => $request->player_id );
+              $player_id = $input['player_id'];
+              $tryout_id = $input['tryout_id'];
               $join_player = TryoutPlayers::create($data);
-              if($join_player)
+              if($join_player->id)
               {
+                $notify = array(
+                    'tryout_id'=>(int)$tryout_id,
+                    'to'=>$team_id,
+                    'from'=>$player_id,
+                    'type'=>env('NOTIFICATION_TYPE_SEND_PURCHASE_TRYOUT_REQUEST'),
+                    'title'=>'Tryout Purchase',
+                    'message'=>'Tryout Purchase by Player',
+                );
+                $res_notify = Notification::create($notify);
+
+                $device_token[] = $request->user()->device_token;
+                $data = array(
+                    'title' => $notify['title'],
+                    'message' => $notify['message'],
+                    'notification_type' => env('NOTIFICATION_TYPE_SEND_PURCHASE_TRYOUT_REQUEST')
+                );
+                $data['device_tokens'] = $device_token;
+                $data['device_type'] = $request->user()->device_type;
+                push_notification($data);
                   $card_data = array('user_id' => $request->player_id,'stripe_id' => $token['id'], 'card_brand' => $card_brand, 'card_last_four' => $card_last_four_digit, 'trial_ends_at' => $card_expiry );
                   DB::table('stripe')->insert($card_data);
               }

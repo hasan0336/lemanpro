@@ -124,25 +124,67 @@ class RosterController extends ResponseController
         }
     	$player_id = $request->input('player_id');
     	$action = $request->input('action');
-    	// dd($action);
+        $get_roster = Rosters::where('id', $request->roster_id)->where('player_id', $request->player_id)->first();
+    	$team_id = $get_roster->team_id;
     	if($request->user()->id == $player_id )
     	{
     		if($action == 'accept')
     		{
-    			$res = Rosters::where('id', $request->roster_id)->where('player_id', $request->player_id)->update(array('request'=> 1));	
-    			$success['status'] = "1";
-    			$success['message'] = "Request accepted";
-                $success['data'] = '';
-    			return $this->sendResponse($success);
-    		}
-    		else if ($action == 'reject') 
-    		{
+    			$res = Rosters::where('id', $request->roster_id)->where('player_id', $request->player_id)->update(array('request'=> 1));
+                if($res == 1)
+                {
+                    $notify = array(
+                    'roster_id'=>$request->roster_id,
+                    'to'=>$team_id,
+                    'from'=>$player_id,
+                    'type'=>env('NOTIFICATION_TYPE_ACCEPT_REQUEST'),
+                    'title'=>'Rosters Accept',
+                    'message'=>'Player Added to Rosters',
+                    );
+                    $res_notify = Notification::create($notify);
 
-    			$res = Rosters::where('id', $request->roster_id)->where('player_id', $request->player_id)->update(array('request'=> 2));	
-    			$success['status'] = "1";
-    			$success['message'] = "Request Rejected";
-                $success['data'] = '';
-    			return $this->sendResponse($success);
+                    $token[] = $request->user()->device_token;
+                    $data = array(
+                        'title' => $notify['title'],
+                        'message' => $notify['message'],
+                        'notification_type' => env('NOTIFICATION_TYPE_ACCEPT_REQUEST')
+                    );
+                    $data['device_tokens'] = $token;
+                    $data['device_type'] = $request->user()->device_type;
+                    push_notification($data);
+                    $success['status'] = "1";
+                    $success['message'] = "Request accepted";
+                    return $this->sendResponse($success);
+                }
+    		}
+    		elseif($action == 'reject') 
+    		{
+    			$res = Rosters::where('id', $request->roster_id)->where('player_id', $request->player_id)->update(array('request'=> 2));
+                if($res == 1)
+                {
+                    $notify = array(
+                    'roster_id'=>$request->roster_id,
+                    'to'=>$team_id,
+                    'from'=>$player_id,
+                    'type'=>env('NOTIFICATION_TYPE_REJECT_REQUEST'),
+                    'title'=>'Rosters Rejected',
+                    'message'=>'Player Rejected Roster Request',
+                    );
+                    $res_notify = Notification::create($notify);
+
+                    $token[] = $request->user()->device_token;
+                    $data = array(
+                        'title' => $notify['title'],
+                        'message' => $notify['message'],
+                        'notification_type' => env('NOTIFICATION_TYPE_REJECT_REQUEST')
+                    );
+                    $data['device_tokens'] = $token;
+                    $data['device_type'] = $request->user()->device_type;
+                    push_notification($data);
+                    $success['status'] = "1";
+                    $success['message'] = "Request Rejected";
+                    return $this->sendResponse($success);
+                }	
     		}
     		else
     		{
