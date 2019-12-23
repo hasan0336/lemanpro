@@ -336,7 +336,7 @@ class ProfileController extends ResponseController
                     return $this->sendResponse($success);
                 }
             }
-            else if($user->role_id == 2)
+            elseif($user->role_id == 2)
             {
                 $profile = Profile::select('first_name','last_name','dob','gender','cob','cop','height','weight','position','twitter','image')->where('profiles.user_id',$request->user_id)->first();
                 $profile->image = URL::to('public/images/profile_images/').'/'.$profile->image; 
@@ -370,8 +370,7 @@ class ProfileController extends ResponseController
             // Profile::with('matches')->where('')
         }
         else
-        {
-            
+        {  
             $success['status'] = '0';
             $success['message'] = "Unauthorized User";
             return $this->sendResponse($success);

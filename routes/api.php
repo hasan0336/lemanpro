@@ -77,6 +77,7 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 });
 Route::get('search_tryout','API\SearchController@search_tryout');
 Route::get('search_player','API\SearchController@search_player');
+Route::get('search_player_profile','API\SearchController@search_player_profile');
 // Route::middleware(['auth:api','client.credentials'])->get('/user', function (Request $request) {
 
 // 	Route::post('create_profile', 'API\ProfileController@create_profile');

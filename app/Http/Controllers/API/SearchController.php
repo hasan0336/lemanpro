@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\API\ResponseController as ResponseController;
+use Illuminate\Support\Facades\Auth;
 use App\User;
 use Validator;
 use App\Rosters;
@@ -13,6 +15,7 @@ use App\Notification;
 use App\Tryout;
 use App\Profile;
 use App\TryoutPlayers;
+use App\Match;
 
 class SearchController extends ResponseController
 {
@@ -246,5 +249,46 @@ class SearchController extends ResponseController
             $success['message'] = "No Player to show";    
         }
         return $this->sendResponse($success);
+    }
+
+    public function search_player_profile(Request $request)
+    {
+        if($request->player_id == "" || empty($request->player_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player id is missing";
+            return $this->sendResponse($success);
+        }
+        else
+        {
+            $profile = Profile::select('first_name','last_name','dob','gender','cob','cop','height','weight','position','twitter','image')->where('profiles.user_id',$request->player_id)->first();
+            $profile->image = URL::to('public/images/profile_images/').'/'.$profile->image; 
+            
+            $matches = Match::select(DB::raw('count(game_id) as game_id'),'player_id',DB::raw('SUM(yellow) as yellow'),DB::raw('SUM(red) as red'),DB::raw('SUM(goals) as goals'),DB::raw('SUM(trophies) as trophies'),DB::raw('SUM(time) as time'))->where('player_id',$request->player_id)->get();
+
+            $team_joined = Rosters::join('profiles','profiles.user_id','=','rosters.team_id')->where('player_id',$request->player_id)->where('request',1)->select('team_name')->first();
+            if($team_joined == null)
+            {
+               $profile->team_name = ''; 
+            }
+            else
+            {
+               $profile->team_name = $team_joined->team_name; 
+            }
+            foreach ($matches as $key => $value) 
+            {
+                // dd($value->yellow);
+                $profile->games = strval($value->game_id);
+                $profile->yellow = strval($value->yellow);
+                $profile->red = strval($value->red);
+                $profile->goals = strval($value->goals);
+                $profile->trophies = strval($value->trophies);
+                $profile->time = strval($value->time);
+            }
+            $success['status'] = "1";
+            $success['message'] = "Player Profile";
+            $success['data'] = $profile;
+            return $this->sendResponse($success);  
+        } 
     }
 }
