@@ -130,7 +130,7 @@ class SearchController extends ResponseController
         }
         if($gender && $latitude == null && $longitude == null && $age == null )
         {
-            $results = Profile::select('user_id as player_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),DB::raw("CONCAT('".URL::to('/images/profile_images/')."/',image) AS image"))->where('gender', 'LIKE', "%{$gender}%")->get();
+            $results = Profile::select('user_id as player_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),DB::raw("CONCAT('".URL::to('public/images/profile_images/')."/',image) AS image"))->where('gender', 'LIKE', "%{$gender}%")->get();
             foreach ($results as $key => $value) 
             {
                 $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
@@ -150,7 +150,7 @@ class SearchController extends ResponseController
         }
         elseif($age && $gender == null && $latitude == null && $longitude == null)
         {
-            $results = Profile::select('user_id as player_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),DB::raw("CONCAT('".URL::to('/images/profile_images/')."/',image) AS image"))->whereyear('dob','=',$dob)->get();
+            $results = Profile::select('user_id as player_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),DB::raw("CONCAT('".URL::to('public/images/profile_images/')."/',image) AS image"))->whereyear('dob','=',$dob)->get();
             foreach ($results as $key => $value) 
             {
                 $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
@@ -193,7 +193,7 @@ class SearchController extends ResponseController
         elseif($gender && $age)
         {
             
-            $results = Profile::select('user_id as player_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),DB::raw("CONCAT('".URL::to('/images/profile_images/')."/',image) AS image"))->where('gender', 'LIKE', "%{$gender}%")->whereyear('dob','=',$dob)->get();
+            $results = Profile::select('user_id as player_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),DB::raw("CONCAT('".URL::to('public/images/profile_images/')."/',image) AS image"))->where('gender', 'LIKE', "%{$gender}%")->whereyear('dob','=',$dob)->get();
             foreach ($results as $key => $value) 
             {
                 $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
@@ -218,7 +218,7 @@ class SearchController extends ResponseController
             foreach ($results as $key => $value) 
             {
                 $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
-                $results[$key]->image = URL::to('/images/profile_images/').'/'.$value->image;
+                $results[$key]->image = URL::to('public/images/profile_images/').'/'.$value->image;
                 // $result[$key]['display_name'] = $value->first_name.' '.$value->last_name;
                 if($player_roster == null)
                 {
