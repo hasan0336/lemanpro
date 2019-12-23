@@ -133,7 +133,7 @@ class SearchController extends ResponseController
             $results = Profile::select('id as profile_id','user_id as id','first_name','last_name',DB::raw("CONCAT('".URL::to('/images/profile_images/')."/',image) AS imageurl"))->where('gender', 'LIKE', "%{$gender}%")->get();
             foreach ($results as $key => $value) 
             {
-                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
+                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->id)->first();
                 if($player_roster == null)
                 {
                     $results[$key]->team_member = '0';   
@@ -153,7 +153,7 @@ class SearchController extends ResponseController
             $results = Profile::select('id as profile_id','user_id as id','first_name','last_name',DB::raw("CONCAT('".URL::to('/images/profile_images/')."/',image) AS imageurl"))->whereyear('dob','=',$dob)->get();
             foreach ($results as $key => $value) 
             {
-                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
+                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->id)->first();
                 if($player_roster == null)
                 {
                     $results[$key]->team_member = '0';   
@@ -174,7 +174,7 @@ class SearchController extends ResponseController
             $results = DB::select(DB::raw('SELECT id as profile_id,user_id as id,first_name,last_name,latitude,longitude,image, ( 3959 * acos( cos( radians('.$latitude.') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians('.$longitude.') ) + sin( radians('.$latitude.') ) * sin( radians(latitude) ) ) ) AS distance FROM profiles where profiles.gender LIKE "%'.$gender.'%" AND year(profiles.dob)  = '.$dob.' HAVING distance < ' . $miles . ' ORDER BY distance') );
             foreach ($results as $key => $value) 
             {
-                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
+                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->id)->first();
                 if($player_roster == null)
                 {
                     $results[$key]->team_member = '0';   
@@ -195,7 +195,7 @@ class SearchController extends ResponseController
             $results = Profile::select('id as profile_id','user_id as id','first_name','last_name',DB::raw("CONCAT('".URL::to('/images/profile_images/')."/',image) AS imageurl"))->where('gender', 'LIKE', "%{$gender}%")->whereyear('dob','=',$dob)->get();
             foreach ($results as $key => $value) 
             {
-                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
+                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->id)->first();
                 if($player_roster == null)
                 {
                     $results[$key]->team_member = '0';   
@@ -216,7 +216,7 @@ class SearchController extends ResponseController
 
             foreach ($results as $key => $value) 
             {
-                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
+                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->id)->first();
                 if($player_roster == null)
                 {
                     $results[$key]->team_member = '0';   
