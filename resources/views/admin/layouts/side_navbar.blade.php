@@ -36,7 +36,7 @@
                </a>
             </li>
             <li class="artLover_management">
-               <a href="">
+               <a href="{{route('team_management')}}">
                   <i class="fa fa-circle-o"></i> <span>Team's Management</span>
                </a>
             </li>
@@ -61,9 +61,8 @@
          </span>
          </a>
          <ul class="treeview-menu">
-            <li class="cm_term"><a href=""><i class="fa fa-circle-o"></i> Terms and Conditions</a></li>
-            <li class="cm_privacy"><a href=""><i class="fa fa-circle-o"></i> Privacy Policy</a></li>
-            <li class="cm_how"><a href=""><i class="fa fa-circle-o"></i> How to use?</a></li>
+            <li class="cm_term"><a href="{{route('cm_term')}}"><i class="fa fa-circle-o"></i> Terms and Conditions</a></li>
+            <li class="cm_privacy"><a href="{{route('cm_privacy')}}"><i class="fa fa-circle-o"></i> Privacy Policy</a></li>
          </ul>
       </li>
    </ul>

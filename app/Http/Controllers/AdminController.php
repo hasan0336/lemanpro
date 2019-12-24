@@ -15,6 +15,8 @@ use Crypt;
 use Hash;
 use Intervention\Image\ImageManagerStatic as Image;
 use Validator;
+use App\Rosters;
+use App\Profile;
 // use Hash;
 // use Crypt;
 class AdminController extends Controller
@@ -171,6 +173,80 @@ class AdminController extends Controller
 
     public function palyer_management(Request $request)
     {
-    	return view('admin.players_management');
+        $info['get_players'] = User::select('profiles.id','users.email','users.is_blocked','users.is_featured','users.verify_status','profiles.user_id','profiles.first_name','profiles.last_name','profiles.image','profiles.gender','profiles.position','profiles.is_profile_complete')->join('profiles','users.id','=','profiles.user_id')->where('users.role_id','2')->get();
+        foreach ($info['get_players'] as $key => $value) {
+            // dd($value->user_id);
+            $team_info = Rosters::join('profiles','rosters.team_id','=','profiles.user_id')->where('rosters.player_id',$value->user_id)->first();
+            // dd($info[$key]['get_players']);
+            $info['get_players'][$key]['player_team_name'] = $team_info['team_name'];
+        }
+        // dd($info['get_players']);
+    	return view('admin.players_management')->with($info);;
+    }
+
+    public function team_management(Request $request)
+    {
+        $info['get_teams'] = User::select('profiles.id','users.email','users.is_blocked','users.is_featured','users.verify_status','profiles.user_id','profiles.team_name','profiles.city','profiles.pitch_type','profiles.capacity','profiles.coach_name','profiles.is_profile_complete')->join('profiles','users.id','=','profiles.user_id')->where('users.role_id','1')->get();
+        foreach ($info['get_teams'] as $key => $value) {
+            // dd($value->user_id);
+            $team_info = Rosters::where('rosters.team_id',$value->user_id)->get();
+            // dd(count($team_info));
+            $info['get_teams'][$key]['no_of_players'] = count($team_info);
+        }
+        // dd($info['get_teams']);
+        return view('admin.teams_management')->with($info);;
+    }
+
+    public function feature(Request $request)
+    {
+        // dd($request->input('user_id'));
+        $result = User::where('id',$request->input('user_id'))->update(array('is_featured'=>$request->input('check')));
+       // dd($result);
+        return response($result);
+    }
+
+    public function block_team(Request $request)
+    {
+        $result = DB::table('users')->where('id',$request->input('user_id'))->update(array('is_blocked'=>$request->input('check')));
+        // dd($result);
+        return response($result);
+    }
+
+    public function cm_term()
+    {
+        if(Auth::user()->role_id == 3)
+        {
+            $results['results'] = DB::table('contents')->where('content_type','tc')->first(); 
+            // dd($results['results']->description);
+            if($results['results']->description != null || !empty($results['results']->description))
+            {
+                return view('admin.cm_term',$results);  
+            }
+        }
+    }
+    public function update_term(Request $request)
+    {
+//        $request->input('editor');
+        $update = DB::table('contents')->where('content_type','tc')->update(array('description'=>$request->input('editor')));
+        return redirect()->back();
+    }
+
+     public function cm_privacy()
+    {
+        if(Auth::user()->role_id == 3)
+        {
+            $results['results'] = DB::table('contents')->where('content_type','pp')->first(); 
+            // dd($results['results']->description);
+            if($results['results']->description != null || !empty($results['results']->description))
+            {
+                return view('admin.cm_privacy',$results);  
+            }
+        }
+    }
+    public function update_privacy(Request $request)
+    {
+//        $request->input('editor');
+        $update = DB::table('contents')->where('content_type','pp')->update(array('description'=>$request->input('editor')));
+        return redirect()->back();
     }
 }

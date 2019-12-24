@@ -14,11 +14,11 @@
             <!-- Content Header (Page header) -->
             <section class="content-header">
                <h1 class="title">
-                  Player's Management
+                  Team' s Management
                   <!-- <small></small> -->
                </h1>
                <ol class="breadcrumb">
-                  <li><a href=""><i class="fa fa-dashboard"></i> Player's Management</a></li>
+                  <li><a href=""><i class="fa fa-dashboard"></i> Team' s Management</a></li>
                   <!-- <li class="active"></li> -->
                </ol>
             </section>
@@ -36,26 +36,28 @@
                                        <tr>
                                           <th>Name</th>
                                           <th>City</th>
-                                          <th>Team</th>
-                                          <th>Position</th>
-                                          <th>Gender</th>
+                                          <th>Pitch Type</th>
+                                          <th>Capacity</th>
+                                          <th>Coach Name</th>
+                                          <th>No. of Players</th>
                                           <th>Featured</th>
                                           <th>Access</th>
                                        </tr>
                                     </thead>
                                     <tbody>
-                                      @foreach($get_players as $get_player)
+                                      @foreach($get_teams as $get_team)
                                        <tr>
-                                          <td>{{$get_player->first_name.' '.$get_player->last_name}}</td>
-                                          <td>{{$get_player->city}}</td>
-                                          <td>{{$get_player->player_team_name}}</td>
-                                          <td>{{$get_player->position}}</td>
-                                          <td>{{$get_player->gender}}</td>
+                                          <td>{{$get_team->team_name}}</td>
+                                          <td>{{$get_team->city}}</td>
+                                          <td>{{$get_team->pitch_type}}</td>
+                                          <td>{{$get_team->capacity}}</td>
+                                          <td>{{$get_team->coach_name}}</td>
+                                          <td>{{$get_team->no_of_players}}</td>
                                            <td>
-                                             <input type="checkbox" data-id="{{$get_player->user_id}}" class="feature_player" @if($get_player->is_featured == '1') checked @endif >
+                                             <input type="checkbox" data-id="{{$get_team->user_id}}" class="feature_team" @if($get_team->is_featured == '1') checked @endif >
                                           </td>
                                           <td>
-                                             <input type="checkbox" data-id="{{$get_player->user_id}}" class="block_player" @if($get_player->is_blocked == '0') checked @endif  >
+                                             <input type="checkbox" data-id="{{$get_team->user_id}}" class="block_team" @if($get_team->is_blocked == '0') checked @endif  >
                                           </td>
                                        </tr>
                                        @endforeach
@@ -190,7 +192,7 @@
 </html>
 
 <script>
-    $('.feature_player').on('change', function() {
+    $('.feature_team').on('change', function() {
 
         var $this = $(this);
         // $this will contain a reference to the checkbox
@@ -198,6 +200,7 @@
             // alert('ello');
             var $a = 1;
             var $user_id = $(this).data("id");
+            alert($user_id);
             $.ajax({
                 type: "get",
                 url: "feature",
@@ -236,7 +239,7 @@
     })
 </script>
 <script>
-    $('.block_player').on('change', function() {
+    $('.block_team').on('change', function() {
 
         var $this = $(this);
         // $this will contain a reference to the checkbox
@@ -281,4 +284,4 @@
         }
     })
 
-</script>
+</script>]

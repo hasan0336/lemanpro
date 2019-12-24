@@ -414,6 +414,7 @@ class NewsController extends ResponseController
                     // dd($files);
                     if($files != '' || !empty($files))
                     {
+                        
                         foreach($files as $file)
                         {
                             $extension = $file->getClientOriginalExtension();
@@ -430,10 +431,18 @@ class NewsController extends ResponseController
                                     'help_feedback_id' => $help_feedback->id
                                 );
                                 $news_image = HelpFeedbackImage::insertGetId($help_feedback_images);
-                                // $help_feedback = HelpFeedback::join('help_feedback_images','help_feedback_images.help_feedback_id','=','help_feedbacks.id')->where('help_feedbacks.id',$news_image)->get();
+
+                                $help_feedback = HelpFeedback::select('help_feedbacks.id','help_feedbacks.user_id','help_feedbacks.subject','help_feedbacks.description','help_feedback_images.help_feedback_image','help_feedback_images.help_feedback_id')->join('help_feedback_images','help_feedback_images.help_feedback_id','=','help_feedbacks.id')->where('help_feedbacks.id',$help_feedback->id)->first();
+                                $get_help_feedback_images = HelpFeedbackImage::select('help_feedback_image')->where('help_feedback_images.help_feedback_id',$help_feedback->id)->get();
+                                $h_f_iamges = array();
+                                foreach ($get_help_feedback_images as $key => $value) 
+                                {
+                                    $h_f_iamges[$key] = $value->help_feedback_image;
+                                }
+                                $help_feedback->help_feedback_image = $h_f_iamges;
                                 // print_r($help_feedback);
                                 // exit();
-                                // Mail::to($user->email)->send(new PlayerReport($user));
+                                Mail::to('dev.appsnado@gmail.com')->send(new Help_Feedback($help_feedback));
                             }
                         /*Insert your data*/
                             else
@@ -446,6 +455,7 @@ class NewsController extends ResponseController
                         }
                         $success['status'] = "1";
                         $success['message'] = "Help and Feedback Posted";
+                        // $success['data'] = $help_feedback;
                         return $this->sendResponse($success);
                     }
                     else
