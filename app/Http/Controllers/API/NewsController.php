@@ -423,7 +423,7 @@ class NewsController extends ResponseController
                             {
                                 
                                 $name=str_random(5)."-".date('his')."-".str_random(3).".".$file->getClientOriginalExtension();
-                                $file->move('help_feedback_images',$name);
+                                $file->move('public/help_feedback_images',$name);
                                 $images[]=$name;
                                 /*Insert your data*/
                                 $help_feedback_images = array(
