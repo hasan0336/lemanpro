@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\User;
+use Illuminate\Support\Facades\Auth;
 class Help_Feedback extends Mailable
 {
     use Queueable, SerializesModels;
@@ -28,7 +29,7 @@ class Help_Feedback extends Mailable
      */
     public function build()
     {
-        return $this->from('dev.appsnado@gmail.com')
+        return $this->from(Auth::user()->email)
         ->view('emails.help_feedback')
         ->with(['help_feedback' => $this->help_feedback]);
     }
