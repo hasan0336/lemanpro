@@ -43,8 +43,8 @@
          </ul>
       </li>
         <li class="artLover_management">
-            <a href="">
-                  <i class="fa fa-search"></i> <span>Search Management</span>
+            <a href="{{route('Admin_news')}}">
+                  <i class="fa fa-search"></i> <span>News Pannel</span>
             </a>
         </li>
         <li class="artLover_management">

@@ -8,7 +8,7 @@ class News extends Model
 {
     protected $primaryKey = 'id';
     protected $fillable = [
-        'team_id','title','description',
+        'team_id','title','description','is_admin'
     ];
 
 }

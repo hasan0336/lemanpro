@@ -26,6 +26,8 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('admin/team_management','AdminController@team_management')->name('team_management')->middleware('auth');
     Route::get('admin/block_team','AdminController@block_team')->name('block_team')->middleware('auth');
     Route::get('admin/feature','AdminController@feature')->name('feature')->middleware('auth');
+    Route::get('admin/Admin_news','AdminController@Admin_news')->name('Admin_news')->middleware('auth');
+    Route::post('admin/create_news','AdminController@create_news')->name('create_news')->middleware('auth');
     Route::get('admin/cm_term','AdminController@cm_term')->name('cm_term')->middleware('auth');
     Route::post('admin/update_term','AdminController@update_term')->name('update_term')->middleware('auth');
     Route::get('admin/cm_privacy','AdminController@cm_privacy')->name('cm_privacy')->middleware('auth');

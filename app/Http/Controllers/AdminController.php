@@ -17,6 +17,8 @@ use Intervention\Image\ImageManagerStatic as Image;
 use Validator;
 use App\Rosters;
 use App\Profile;
+use App\News;
+use App\Notification;
 // use Hash;
 // use Crypt;
 class AdminController extends Controller
@@ -211,6 +213,110 @@ class AdminController extends Controller
         // dd($result);
         return response($result);
     }
+
+
+    public function Admin_news(Request $request)
+    {
+        return view('admin.news_pannel'); 
+    }
+
+    public function create_news(Request $request)
+    {
+        $input = $request->all();
+        // dd($input);
+        $data = array('team_id'=> Auth::user()->id, 'title' => $input['title'], 'description'=> $input['description'],'is_admin'=>1);
+        $images=array();
+        if($request->file('news_image') != '' || !empty($request->file('news_image')))
+        {   
+            $allowedfileExtension = ['jpeg','jpg','png','gif','svg'];
+            $files = $request->file('news_image');
+            $news = DB::table('news')->insertGetId($data);
+            foreach($files as $file)
+            {
+                $extension = $file->getClientOriginalExtension();
+                $check=in_array($extension,$allowedfileExtension);
+                if($check)
+                {
+                    
+                    $name=str_random(5)."-".date('his')."-".str_random(3).".".$file->getClientOriginalExtension();
+                    $file->move('public/news_image',$name);
+                    $images[]=$name;
+                    /*Insert your data*/
+                    $news_image = DB::table('news_images')->insert([
+                                    'news_image' => $name,
+                                    'news_id' => $news,
+                                    ]);
+                }
+            /*Insert your data*/
+                else
+                {
+                    News::where('id',$news)->delete();
+                    $success['status'] = "1";
+                    $success['message'] = "Sorry Only Upload png, jpg, gif, jpeg, svg";
+                    $success['data'] = '';
+                    return $this->sendResponse($success);
+                }
+            }
+            $get_players = User::where('id', '!=', auth()->id())->get();
+            foreach ($get_players as $key => $player) 
+            {
+                $notify = array(
+                'news_id'=>$news,
+                'to'=>$player['player_id'],
+                'from'=>$request->team_id,
+                'type'=>env('NOTIFICATION_TYPE_SEND_NEWS_ALERT_ADMIN_REQUEST'),
+                'title'=>'News',
+                'message'=>'News from Team',
+            );
+                // dd($notify);
+            $res_notify = Notification::create($notify);
+
+            $token[] = $request->user()->device_token;
+            $data = array(
+                'title' => $notify['title'],
+                'message' => $notify['message'],
+                'notification_type' => env('NOTIFICATION_TYPE_SEND_NEWS_ALERT_ADMIN_REQUEST')
+            );
+            $data['device_tokens'] = $token;
+            $data['device_type'] = $request->user()->device_type;
+            push_notification($data);
+            }
+            $success['status'] = "1";
+            $success['message'] = "News Posted";
+            // $success['data'] = $get_players;
+            return $this->sendResponse($success);
+        }
+        else
+        {
+            $news = DB::table('news')->insertGetId($data);
+            $get_players = User::where('id', '!=', auth()->id())->get();
+            foreach ($get_players as $key => $player) 
+            {
+                $notify = array(
+                'news_id'=>$news,
+                'to'=>$player['id'],
+                'from'=>auth()->id(),
+                'type'=>env('NOTIFICATION_TYPE_SEND_NEWS_ALERT_ADMIN_REQUEST'),
+                'title'=>'Admin News',
+                'message'=>'News from Admin',
+            );
+                // dd($notify);
+            $res_notify = Notification::create($notify);
+
+            $token[] = $request->user()->device_token;
+            $data = array(
+                'title' => $notify['title'],
+                'message' => $notify['message'],
+                'notification_type' => env('NOTIFICATION_TYPE_SEND_NEWS_ALERT_ADMIN_REQUEST')
+            );
+            $data['device_tokens'] = $token;
+            $data['device_type'] = $request->user()->device_type;
+            push_notification($data);
+            }
+            return redirect()->back();
+        }
+    }
+
 
     public function cm_term()
     {
