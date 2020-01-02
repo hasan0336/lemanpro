@@ -9,7 +9,7 @@ class Profile extends Model
 {
     protected $primaryKey = 'id';
     protected $fillable = [
-        'user_id', 'first_name', 'last_name','image','dob','gender','cob','cop','height','weight','team_name','club_address','city','state','zip_code','pitch_type','capacity','website','instagram','twitter','coach_name',
+        'user_id', 'first_name', 'last_name','image','dob','gender','cob','cop','height','weight','team_name','club_address','city','state','zip_code','pitch_type','capacity','website','instagram','twitter','coach_name','address','longitude','latitude','home_field_address','home_field_city','home_field_state','home_field_zipcode',
     ];
 
     public function user()
