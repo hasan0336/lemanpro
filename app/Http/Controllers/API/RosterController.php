@@ -34,7 +34,7 @@ class RosterController extends ResponseController
         $check_roster = Rosters::where('team_id',$team_id)->where('player_id',$player_id)->first();
         if($request->user()->id == $team_id)
         {
-            if($check_roster == null || $check_roster->request == '2')
+            if($check_roster == null || $check_roster->request == '0')
             {
                 $rosters = Rosters::create($request->all());
                 if($rosters->id)
@@ -64,7 +64,7 @@ class RosterController extends ResponseController
                 
                 return $this->sendResponse($success);
             }
-            elseif($check_roster->request == '0')
+            elseif($check_roster->request == '2')
             {
                 $success['status'] = "1";
                 $success['message'] = "Request is pending";
