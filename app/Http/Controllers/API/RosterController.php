@@ -29,47 +29,61 @@ class RosterController extends ResponseController
             $success['message'] = "player_id is missing";
             return $this->sendResponse($success);
         }
-    	$team_id = $request->input('team_id');
-    	$player_id = $request->input('player_id');
+        $team_id = $request->input('team_id');
+        $player_id = $request->input('player_id');
         $check_roster = Rosters::where('team_id',$team_id)->where('player_id',$player_id)->first();
-        dd($check_roster);
-    	if($request->user()->id == $team_id)
-    	{
-    		$rosters = Rosters::create($request->all());
-            if($rosters->id)
+        if($request->user()->id == $team_id)
+        {
+            if($check_roster == null || $check_roster->request == '2')
             {
-                $notify = array(
-                    'roster_id'=>$rosters->id,
-                    'to'=>$player_id,
-                    'from'=>$team_id,
-                    'type'=>env('NOTIFICATION_TYPE_SEND_ROSTER_REQUEST'),
-                    'title'=>'Rosters',
-                    'message'=>'Add to Rosters Request',
-                );
-                $res_notify = Notification::create($notify);
-
-                $token[] = $request->user()->device_token;
-                $data = array(
-                    'title' => $notify['title'],
-                    'message' => $notify['message'],
-                    'notification_type' => env('NOTIFICATION_TYPE_SEND_ROSTER_REQUEST')
-                );
-                $data['device_tokens'] = $token;
-                $data['device_type'] = $request->user()->device_type;
-                push_notification($data);
-                $success['status'] = "1";
-                $success['message'] = "Request send to player";
+                $rosters = Rosters::create($request->all());
+                if($rosters->id)
+                {
+                    $notify = array(
+                        'roster_id'=>$rosters->id,
+                        'to'=>$player_id,
+                        'from'=>$team_id,
+                        'type'=>env('NOTIFICATION_TYPE_SEND_ROSTER_REQUEST'),
+                        'title'=>'Rosters',
+                        'message'=>'Add to Rosters Request',
+                    );
+                    $res_notify = Notification::create($notify);
+    
+                    $token[] = $request->user()->device_token;
+                    $data = array(
+                        'title' => $notify['title'],
+                        'message' => $notify['message'],
+                        'notification_type' => env('NOTIFICATION_TYPE_SEND_ROSTER_REQUEST')
+                    );
+                    $data['device_tokens'] = $token;
+                    $data['device_type'] = $request->user()->device_type;
+                    push_notification($data);
+                    $success['status'] = "1";
+                    $success['message'] = "Request send to player";
+                }
+                
+                return $this->sendResponse($success);
             }
-    		
-            return $this->sendResponse($success);
-    	}
-    	else
-    	{
+            elseif($check_roster->request == '0')
+            {
+                $success['status'] = "1";
+                $success['message'] = "Request is pending";
+                return $this->sendResponse($success);
+            }
+            elseif($check_roster->request == '1')
+            {
+                $success['status'] = "1";
+                $success['message'] = "Request is already accepted";
+                return $this->sendResponse($success);
+            }
+        }
+        else
+        {
             $success['status'] = "0";
-    		$success['message'] = "Unauthorized User";
+            $success['message'] = "Unauthorized User";
             $success['data'] = '';
             return $this->sendResponse($success);
-    	}
+        } 
     }
 
     // player will have listings of teams sending requests
