@@ -164,6 +164,7 @@ class RosterController extends ResponseController
                         'type'=>env('NOTIFICATION_TYPE_ACCEPT_REQUEST'),
                         'title'=>'Rosters Accept',
                         'message'=>'Player Added to Rosters',
+                        'is_accept'=>'1',
                         );
                         $res_notify = Notification::create($notify);
     
@@ -193,6 +194,7 @@ class RosterController extends ResponseController
                         'type'=>env('NOTIFICATION_TYPE_REJECT_REQUEST'),
                         'title'=>'Rosters Rejected',
                         'message'=>'Player Rejected Roster Request',
+                        'is_reject'=>'1',
                         );
                         $res_notify = Notification::create($notify);
     
