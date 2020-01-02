@@ -138,7 +138,14 @@ class RosterController extends ResponseController
             $success['message'] = "player_id is missing";
             return $this->sendResponse($success);
         }
+        if($request->notification_id == "" || empty($request->notification_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "notification_id is missing";
+            return $this->sendResponse($success);
+        }
     	$player_id = $request->input('player_id');
+        $notification_id = $request->notification_id;
     	$action = $request->input('action');
         $get_roster = Rosters::where('id', $request->roster_id)->where('player_id', $request->player_id)->first();
         if($get_roster == null || empty($get_roster))
@@ -167,7 +174,7 @@ class RosterController extends ResponseController
                         'is_accept'=>'1',
                         );
                         $res_notify = Notification::create($notify);
-    
+                        Notification::where('id', $notification_id)->update(array('is_accept'=>'1'));
                         $token[] = $request->user()->device_token;
                         $data = array(
                             'title' => $notify['title'],
@@ -197,7 +204,7 @@ class RosterController extends ResponseController
                         'is_reject'=>'1',
                         );
                         $res_notify = Notification::create($notify);
-    
+                        Notification::where('id', $notification_id)->update(array('is_reject'=>'1'));
                         $token[] = $request->user()->device_token;
                         $data = array(
                             'title' => $notify['title'],
