@@ -313,7 +313,7 @@ class RosterController extends ResponseController
         }
         elseif($request->user()->id == $request->user_id )
         {
-            $res = Notification::select('roster_id','type','title','message','is_read','news_id','to as receiver_id','from as sender_id','image')->join('profiles','profiles.user_id','=','notifications.from')->where('to', $request->user_id)->get();
+            $res = Notification::select('roster_id','type','title','message','is_read','news_id','to as receiver_id','from as sender_id','image','notifications.created_at')->join('profiles','profiles.user_id','=','notifications.from')->where('to', $request->user_id)->orderBy('notifications.created_at','DESC')->get();
             // $players_image = array();
             foreach ($res as $key => $value) 
             {
