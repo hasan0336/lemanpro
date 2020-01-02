@@ -31,6 +31,8 @@ class RosterController extends ResponseController
         }
     	$team_id = $request->input('team_id');
     	$player_id = $request->input('player_id');
+        $check_roster = Rosters::where('team_id',$team_id)->where('player_id',$player_id)->first();
+        dd($check_roster);
     	if($request->user()->id == $team_id)
     	{
     		$rosters = Rosters::create($request->all());
