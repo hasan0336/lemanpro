@@ -167,7 +167,7 @@ class RosterController extends ResponseController
                 }
                 elseif($action == 'reject') 
                 {
-                    $res = Rosters::where('id', $request->roster_id)->where('player_id', $request->player_id)->update(array('request'=> 2));
+                    $res = Rosters::where('id', $request->roster_id)->where('player_id', $request->player_id)->update(array('request'=> 0));
                     if($res == 1)
                     {
                         $notify = array(
