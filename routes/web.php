@@ -23,6 +23,7 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('admin/dashboard','AdminController@index')->name('dashboard')->middleware('auth');
     Route::post('admin/update_admin','AdminController@update_admin')->name('update_admin')->middleware('auth');
     Route::get('admin/palyer_management','AdminController@palyer_management')->name('palyer_management')->middleware('auth');
+    Route::get('admin/tryout_management','AdminController@tryout_management')->name('tryout_management')->middleware('auth');
     Route::get('admin/team_management','AdminController@team_management')->name('team_management')->middleware('auth');
     Route::get('admin/block_team','AdminController@block_team')->name('block_team')->middleware('auth');
     Route::get('admin/feature','AdminController@feature')->name('feature')->middleware('auth');
