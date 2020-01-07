@@ -48,8 +48,8 @@
             </a>
         </li>
         <li class="artLover_management">
-           <a href="">
-              <i class="fa fa-circle-o"></i> <span>Points Management</span>
+           <a href="{{route('tryout_management')}}">
+              <i class="fa fa-circle-o"></i> <span>Tryout's Management</span>
            </a>
         </li>
       <li class="treeview">

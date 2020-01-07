@@ -18,7 +18,9 @@ use Validator;
 use App\Rosters;
 use App\Profile;
 use App\News;
+use App\Tryout;
 use App\Notification;
+use App\TryoutPlayers;
 // use Hash;
 // use Crypt;
 class AdminController extends Controller
@@ -198,6 +200,20 @@ class AdminController extends Controller
         // dd($info['get_teams']);
         return view('admin.teams_management')->with($info);;
     }
+    public function tryout_management(Request $request)
+    {
+        $info['get_tryouts'] = Tryout::select('tryouts.id','tryouts.team_id','tryouts.timeoftryout','tryouts.dateoftryout','tryouts.costoftryout')->get();
+        $leman_pro_fees = DB::table('lemanpro_fees')->first();
+        $tryout_info['lemanpro_fees'] = $leman_pro_fees->lemanpro_fee;
+        foreach ($info['get_tryouts'] as $key => $value) {
+            // dd($value->team_id);
+            $tryout_info = TryoutPlayers::where('tryout_players.tryout_id',$value->id)->get();
+            // dd(count($tryout_info));
+            $info['get_tryouts'][$key]['participants'] = count($tryout_info);
+            $info['get_tryouts'][$key]['collections'] =(count($tryout_info)*$value->costoftryout)+$leman_pro_fees->lemanpro_fee;
+        }
+        return view('admin.tryouts_management')->with($info);;
+    }
 
     public function feature(Request $request)
     {
@@ -332,17 +348,14 @@ class AdminController extends Controller
     }
     public function update_term(Request $request)
     {
-//        $request->input('editor');
         $update = DB::table('contents')->where('content_type','tc')->update(array('description'=>$request->input('editor')));
         return redirect()->back();
     }
-
      public function cm_privacy()
     {
         if(Auth::user()->role_id == 3)
         {
             $results['results'] = DB::table('contents')->where('content_type','pp')->first(); 
-            // dd($results['results']->description);
             if($results['results']->description != null || !empty($results['results']->description))
             {
                 return view('admin.cm_privacy',$results);  
@@ -351,7 +364,6 @@ class AdminController extends Controller
     }
     public function update_privacy(Request $request)
     {
-//        $request->input('editor');
         $update = DB::table('contents')->where('content_type','pp')->update(array('description'=>$request->input('editor')));
         return redirect()->back();
     }
