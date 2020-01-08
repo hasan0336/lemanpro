@@ -21,6 +21,8 @@ use App\News;
 use App\Tryout;
 use App\Notification;
 use App\TryoutPlayers;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\CsvExport;
 // use Hash;
 // use Crypt;
 class AdminController extends Controller
@@ -213,6 +215,10 @@ class AdminController extends Controller
             $info['get_tryouts'][$key]['collections'] =(count($tryout_info)*$value->costoftryout)+$leman_pro_fees->lemanpro_fee;
         }
         return view('admin.tryouts_management')->with($info);;
+    }
+    public function exportExcel()
+    {
+        return Excel::download(new CsvExport, 'lists.xlsx');
     }
 
     public function feature(Request $request)

@@ -78,9 +78,11 @@ class NewsController extends ResponseController
 				        return $this->sendResponse($success);
 					}
 				}
-                $get_players = Rosters::where('team_id',$request->team_id)->get();
+                $get_players = Rosters::select('rosters.player_id','device_token','device_type')->join('users','rosters.player_id','=','users.id')->where('team_id',$request->team_id)->get();
+                // dd($get_players);
                 foreach ($get_players as $key => $player) 
                 {
+                    // dd($player['device_token']);
                     $notify = array(
                     'news_id'=>$news,
                     'to'=>$player['player_id'],
@@ -92,16 +94,16 @@ class NewsController extends ResponseController
                     // dd($notify);
                 $res_notify = Notification::create($notify);
 
-                $token[] = $request->user()->device_token;
+                $token[] = $player['device_token'];
                 $data = array(
                     'title' => $notify['title'],
                     'message' => $notify['message'],
                     'notification_type' => env('NOTIFICATION_TYPE_SEND_NEWS_ALERT_REQUEST')
                 );
                 $data['device_tokens'] = $token;
-                $data['device_type'] = $request->user()->device_type;
-                push_notification($data);
+                $data['device_type'] =$player['device_type'];
                 }
+                push_notification($data);
 				$success['status'] = "1";
 			    $success['message'] = "News Posted";
 			    // $success['data'] = $get_players;

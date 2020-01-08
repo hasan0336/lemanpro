@@ -22,7 +22,7 @@
                   <!-- <li class="active"></li> -->
                </ol>
             </section>
-            
+            <a href="{{route('export')}}">Exprot Excel</a>
             <div class="page-wrapper padding25">
                <!-- Main content -->
                <div class="container-fluid">

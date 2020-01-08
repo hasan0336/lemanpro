@@ -176,8 +176,9 @@ class SearchController extends ResponseController
             $results = DB::select(DB::raw('SELECT id,user_id as player_id,CONCAT(first_name," ",last_name) as display_name ,latitude,longitude,image, ( 3959 * acos( cos( radians('.$latitude.') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians('.$longitude.') ) + sin( radians('.$latitude.') ) * sin( radians(latitude) ) ) ) AS distance FROM profiles where profiles.gender LIKE "%'.$gender.'%" AND year(profiles.dob)  = '.$dob.' HAVING distance < ' . $miles . ' ORDER BY distance') );
             foreach ($results as $key => $value) 
             {
+                // dd($value);
                 $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
-                $result[$key]['display_name'] = $value->first_name.' '.$value->last_name;
+                $result[$key]['display_name'] = $value->display_name;
                 if($player_roster == null)
                 {
                     $results[$key]->team_member = '0';   
