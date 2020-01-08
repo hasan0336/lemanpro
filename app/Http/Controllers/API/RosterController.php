@@ -17,7 +17,8 @@ class RosterController extends ResponseController
     //team sends request to player
     public function send_request(Request $request)
     {
-    	if($request->team_id == "" || empty($request->team_id))
+        // dd(657546);
+        if($request->team_id == "" || empty($request->team_id))
         {
             $success['status'] = '0';
             $success['message'] = "team_id is missing";
@@ -48,15 +49,16 @@ class RosterController extends ResponseController
                         'message'=>'Add to Rosters Request',
                     );
                     $res_notify = Notification::create($notify);
-    
-                    $token[] = $request->user()->device_token;
+                    $get_players = User::select('*')->where('id',$player_id)->first();
+                    
+                    $token[] = $get_players->device_token;
                     $data = array(
                         'title' => $notify['title'],
                         'message' => $notify['message'],
                         'notification_type' => env('NOTIFICATION_TYPE_SEND_ROSTER_REQUEST')
                     );
                     $data['device_tokens'] = $token;
-                    $data['device_type'] = $request->user()->device_type;
+                    $data['device_type'] = $get_players->device_type;
                     push_notification($data);
                     $success['status'] = "1";
                     $success['message'] = "Request send to player";
@@ -89,7 +91,7 @@ class RosterController extends ResponseController
     // player will have listings of teams sending requests
     public function roster_requests(Request $request)
     {
-    	if($request->player_id == "" || empty($request->player_id))
+        if($request->player_id == "" || empty($request->player_id))
         {
             $success['status'] = '0';
             $success['message'] = "player_id is missing";
@@ -98,25 +100,25 @@ class RosterController extends ResponseController
         $player_id = $request->player_id;
         if($request->user()->id == $player_id)
         {
-        	$teams_data = array();
-        	$rosters = Rosters::with('user')->get();
-        	foreach ($rosters as $key => $value) 
-        	{
-        		$team_data[$key] = User::where('id',$value['team_id'])->first();
-        		$team_data[$key]['request'] = $value['request'];
-        		$team_data[$key]['roster_id'] = $value['id'];
-        	}
-        	// $team_data;
-        	$success['status'] = "1";
-    		$success['message'] = "Request send to player";
-    		$success['data'] = $team_data;
+            $teams_data = array();
+            $rosters = Rosters::with('user')->get();
+            foreach ($rosters as $key => $value) 
+            {
+                $team_data[$key] = User::where('id',$value['team_id'])->first();
+                $team_data[$key]['request'] = $value['request'];
+                $team_data[$key]['roster_id'] = $value['id'];
+            }
+            // $team_data;
+            $success['status'] = "1";
+            $success['message'] = "Request send to player";
+            $success['data'] = $team_data;
             return $this->sendResponse($success);
-        	// dd($rosters);
+            // dd($rosters);
         }
         else
         {
             $success['status'] = "0";
-        	$success['message'] = "Unauthorized User";
+            $success['message'] = "Unauthorized User";
             $success['data'] = '';
             return $this->sendResponse($success);
         }
@@ -144,9 +146,9 @@ class RosterController extends ResponseController
             $success['message'] = "notification_id is missing";
             return $this->sendResponse($success);
         }
-    	$player_id = $request->input('player_id');
+        $player_id = $request->input('player_id');
         $notification_id = $request->notification_id;
-    	$action = $request->input('action');
+        $action = $request->input('action');
         $get_roster = Rosters::where('id', $request->roster_id)->where('player_id', $request->player_id)->first();
         if($get_roster == null || empty($get_roster))
         {
@@ -240,34 +242,34 @@ class RosterController extends ResponseController
     // listing of accepted request players in rosters
     public function roster_listing(Request $request)
     {
-    	if($request->team_id == "" || empty($request->team_id))
+        if($request->team_id == "" || empty($request->team_id))
         {
             $success['status'] = '0';
             $success['message'] = "team_id is missing";
             return $this->sendResponse($success);
         }
-    	$team_id = $request->input('team_id');
-    	if($request->user()->id == $team_id )
-    	{
-    		$players = Rosters::with('user')->where('team_id',$team_id)->where('request',1)->get();
-    		$players_data = array();
-    		foreach ($players as $key => $value) 
-    		{
-    			$players_data[$key] = User::join('profiles','users.id','profiles.user_id')->select('users.id as player_id','profiles.id as player_profile_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),'image')->where('users.id',$value['player_id'])->first();
-    			$players_data[$key]['image'] = URL::to('/').'/public/images/profile_images/'.$players_data[$key]['image']; 
-    		}
-    		$success['status'] = "1";
-    		$success['message'] = "Players in the team";
-    		$success['data'] = $players_data;
-    		return $this->sendResponse($success);
-    	}
-    	else
-    	{
+        $team_id = $request->input('team_id');
+        if($request->user()->id == $team_id )
+        {
+            $players = Rosters::with('user')->where('team_id',$team_id)->where('request',1)->get();
+            $players_data = array();
+            foreach ($players as $key => $value) 
+            {
+                $players_data[$key] = User::join('profiles','users.id','profiles.user_id')->select('users.id as player_id','profiles.id as player_profile_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),'image')->where('users.id',$value['player_id'])->first();
+                $players_data[$key]['image'] = URL::to('/').'/public/images/profile_images/'.$players_data[$key]['image']; 
+            }
+            $success['status'] = "1";
+            $success['message'] = "Players in the team";
+            $success['data'] = $players_data;
+            return $this->sendResponse($success);
+        }
+        else
+        {
             $success['status'] = "0";
-    		$success['message'] = "Unauthorized User";
+            $success['message'] = "Unauthorized User";
             $success['data'] = '';
             return $this->sendResponse($success);
-    	}
+        }
     }
 
     // delete player from team

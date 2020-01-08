@@ -25,6 +25,7 @@ Route::group(['middleware' => ['admin']], function () {
     Route::get('admin/palyer_management','AdminController@palyer_management')->name('palyer_management')->middleware('auth');
     Route::get('admin/tryout_management','AdminController@tryout_management')->name('tryout_management')->middleware('auth');
     Route::get('admin/team_management','AdminController@team_management')->name('team_management')->middleware('auth');
+    Route::get('admin/exportExcel','AdminController@exportExcel')->name('export')->middleware('auth');
     Route::get('admin/block_team','AdminController@block_team')->name('block_team')->middleware('auth');
     Route::get('admin/feature','AdminController@feature')->name('feature')->middleware('auth');
     Route::get('admin/Admin_news','AdminController@Admin_news')->name('Admin_news')->middleware('auth');
