@@ -469,4 +469,24 @@ class GameController extends ResponseController
             return $this->sendResponse($success);
         }
     }
+
+    public function check_game(Request $request)
+    {
+        if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->user()->id == $request->team_id)
+        {
+            $check_game = Game::where('team_id',$request->team_id)->where('game_end_time','')->first();
+        }
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+        }
+    }
 }
