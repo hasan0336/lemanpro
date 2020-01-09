@@ -480,7 +480,40 @@ class GameController extends ResponseController
         }
         if($request->user()->id == $request->team_id)
         {
-            $check_game = Game::where('team_id',$request->team_id)->where('game_end_time','')->first();
+            $check_game = Game::where('team_id',$request->team_id)->where('game_end_time','')->where('game_start_time','!=','' )->first();
+            if($check_game->game_start_time != '' && $check_game->game_end_time == '' )
+            {
+                $match_data = Match::where('game_id',$check_game->id)->where('playing_player',1)
+                ->groupBy('team_assign')
+                ->selectRaw('GROUP_CONCAT(player_id) as player_id,GROUP_CONCAT(playing_pos) as playing_pos,team_assign')
+                ->get();
+                $data =array();
+                foreach($match_data as $key => $value)
+                {
+                    if($value->team_assign == 'a' )
+                    {
+                        $data['player_players_team_a'] = $value->player_id;
+                        $data['playing_positions_team_a'] = $value->playing_pos;
+                    }
+                    if($value->team_assign == 'b')
+                    {
+                        $data['player_players_team_b'] = $value->player_id;
+                        $data['playing_positions_team_b'] = $value->playing_pos;
+                    }
+                }
+                $data['team_id'] = $request->team_id;
+                $data['game_id'] = $check_game->id;
+                $success['status'] = '1';
+                $success['message'] = "game is in process";
+                $success['data'] = $data;
+                return $this->sendResponse($success);
+            }
+            else
+            {
+                $success['status'] = '0';
+                $success['message'] = "game is already ended";
+                return $this->sendResponse($success);
+            }
         }
         else
         {
