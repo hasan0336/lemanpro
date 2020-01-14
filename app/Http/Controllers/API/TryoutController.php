@@ -357,7 +357,7 @@ class TryoutController extends ResponseController
         $input['amount'] = $request->amount;
     		$check_player =TryoutPlayers::where('player_id',$input['player_id'])->where('tryout_id',$input['tryout_id'])->first();
         $tryout_team = Tryout::select('profiles.user_id')->join('profiles','tryouts.team_id','=','profiles.user_id')->where('tryouts.id',$input['tryout_id'])->first();
-        
+
         $team_id = $tryout_team->user_id;
     		if($check_player != null || !empty($check_player))
     		{
@@ -404,6 +404,7 @@ class TryoutController extends ResponseController
               $player_id = $input['player_id'];
               $tryout_id = $input['tryout_id'];
               $join_player = TryoutPlayers::create($data);
+              $team_user = User::where('id',$team_id)->first();
               if($join_player->id)
               {
                 $notify = array(
@@ -416,7 +417,7 @@ class TryoutController extends ResponseController
                 );
                 $res_notify = Notification::create($notify);
 
-                $device_token[] = $request->user()->device_token;
+                $device_token[] = $team_user->device_token;
                 $data = array(
                     'title' => $notify['title'],
                     'message' => $notify['message'],
@@ -424,7 +425,7 @@ class TryoutController extends ResponseController
                     'x_data' => ['tryout_id',(int)$tryout_id]
                 );
                 $data['device_tokens'] = $device_token;
-                $data['device_type'] = $request->user()->device_type;
+                $data['device_type'] = $team_user->device_type;
                 push_notification($data);
                   $card_data = array('user_id' => $request->player_id,'stripe_id' => $token['id'], 'card_brand' => $card_brand, 'card_last_four' => $card_last_four_digit, 'trial_ends_at' => $card_expiry );
                   DB::table('stripe')->insert($card_data);
