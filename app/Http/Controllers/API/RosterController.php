@@ -328,7 +328,8 @@ class RosterController extends ResponseController
             // $players_image = array();
             foreach ($res as $key => $value) 
             {
-                $res[$key]['image'] = URL::to('/').'/public/images/profile_images/'.$value['image']; 
+                $res[$key]['image'] = URL::to('/').'/public/images/profile_images/'.$value['image'];
+                $update_is_read = Notification::where('to', $request->user_id)->where('is_read', '0')->update(array('is_read'=> '1'));
             }
             if(count($res) > 0 )
             {
@@ -344,6 +345,12 @@ class RosterController extends ResponseController
                 return $this->sendResponse($success);
             }
         }
-
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            $success['data'] = '';
+            return $this->sendResponse($success);
+        }
     }
 }

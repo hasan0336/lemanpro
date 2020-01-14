@@ -357,6 +357,7 @@ class TryoutController extends ResponseController
         $input['amount'] = $request->amount;
     		$check_player =TryoutPlayers::where('player_id',$input['player_id'])->where('tryout_id',$input['tryout_id'])->first();
         $tryout_team = Tryout::select('profiles.user_id')->join('profiles','tryouts.team_id','=','profiles.user_id')->where('tryouts.id',$input['tryout_id'])->first();
+        
         $team_id = $tryout_team->user_id;
     		if($check_player != null || !empty($check_player))
     		{
@@ -419,7 +420,8 @@ class TryoutController extends ResponseController
                 $data = array(
                     'title' => $notify['title'],
                     'message' => $notify['message'],
-                    'notification_type' => env('NOTIFICATION_TYPE_SEND_PURCHASE_TRYOUT_REQUEST')
+                    'notification_type' => env('NOTIFICATION_TYPE_SEND_PURCHASE_TRYOUT_REQUEST'),
+                    'x_data' => ['tryout_id',(int)$tryout_id]
                 );
                 $data['device_tokens'] = $device_token;
                 $data['device_type'] = $request->user()->device_type;

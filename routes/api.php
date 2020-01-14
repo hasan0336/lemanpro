@@ -44,6 +44,8 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 	Route::get('delete_player','API\RosterController@delete_player');
 	Route::get('get_notification_list','API\RosterController@get_notification_list');
 
+	
+
 
 
 

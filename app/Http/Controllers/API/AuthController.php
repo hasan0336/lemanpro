@@ -15,6 +15,7 @@ use App\Mail\NewOtp;
 use App\Profile;
 use Hash;
 use URL;
+use App\Notification;
 // use Illuminate\Support\Facades\Mail;
 class AuthController extends ResponseController
 {
@@ -234,7 +235,9 @@ class AuthController extends ResponseController
                     $user_info = User::with('profile')->where('id',$user->id)->first();
                     $data =array('device_token'=> $request->device_token, 'device_type' => $request->device_type);
                     $update_device_token = User::where('id', $user->id)->update($data);
-                    $user_info = User::with('profile')->where('id',$user->id)->first();
+                    $notification = Notification::where('to',$user->id)->where('is_read','0')->get();
+                    $notifications_count = count($notification);
+                    $user_info['notifications_count'] = $notifications_count;
                     if($user_info['profile']->image != "" || !empty($user_info['profile']->image))
                     {
                         $user_info['profile']->image = URL::to('public/images/profile_images/'.$user_info['profile']->image);
