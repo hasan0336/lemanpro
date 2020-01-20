@@ -165,6 +165,10 @@ class GameController extends ResponseController
         	{
         		$data['red'] = $request->red;
         	}
+            if($request->own_goal != null || !empty($request->own_goal))
+            {
+                $data['own_goal'] = $request->own_goal;
+            }
         	if($request->yellow != null || !empty($request->yellow))
         	{
         		if($request->yellow == 2 || $request->yellow > 2)
@@ -311,21 +315,25 @@ class GameController extends ResponseController
             $success['message'] = "player players team_a id is missing";
             return $this->sendResponse($success);
         }
-        if($request->player_players_team_b == "" || empty($request->player_players_team_b))
+        if($request->opponent == "" || empty($request->opponent))
         {
             $success['status'] = '0';
-            $success['message'] = "player players team_b id is missing";
+            $success['message'] = "opponent name is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->game_type == "" || empty($request->game_type))
+        {
+            $success['status'] = '0';
+            $success['message'] = "game type is missing";
             return $this->sendResponse($success);
         }
         if($request->user()->id == $request->team_id)
         {
             $mytime = Carbon::now();
             $start_time = $mytime->toDateTimeString();
-            $match = Game::where('id',$request->game_id)->update(['game_start_time' => $start_time]);
+            $match = Game::where('id',$request->game_id)->update(['game_start_time' => $start_time,'opponent'=>$request->opponent,'game_type'=>$request->game_type]);
             $player_players_team_a = explode(',',$request->player_players_team_a);
             $playing_positions_team_a = explode(',',$request->playing_positions_team_a);
-            $player_players_team_b = explode(',',$request->player_players_team_b);
-            $playing_positions_team_b = explode(',',$request->playing_positions_team_b);
             $starting_player = array();
             // $result = '';
             foreach(array_combine($player_players_team_a, $playing_positions_team_a) as $player_team_a => $player_pos_team_a)
@@ -333,12 +341,6 @@ class GameController extends ResponseController
                 // dd($players);
                 $starting_player = array('playing_player' => '1','player_start_time' => $start_time, 'playing_pos' => $player_pos_team_a);
                 $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$player_team_a)->where('team_assign','a')->update($starting_player);
-            }
-            foreach(array_combine($player_players_team_b, $playing_positions_team_b) as $player_team_b => $player_pos_team_b)
-            {
-                // dd($players);
-                $starting_player = array('playing_player' => '1','player_start_time' => $start_time, 'playing_pos' => $player_pos_team_b);
-                $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$player_team_b)->where('team_assign','b')->update($starting_player);
             }
             if($result == 1)
             {
@@ -481,32 +483,41 @@ class GameController extends ResponseController
         if($request->user()->id == $request->team_id)
         {
             $check_game = Game::where('team_id',$request->team_id)->where('game_end_time','')->where('game_start_time','!=','' )->first();
-            if($check_game->game_start_time != '' && $check_game->game_end_time == '' )
+            if($check_game != null && $check_game != '')
             {
-                $match_data = Match::where('game_id',$check_game->id)->where('playing_player',1)
-                ->groupBy('team_assign')
-                ->selectRaw('GROUP_CONCAT(player_id) as player_id,GROUP_CONCAT(playing_pos) as playing_pos,team_assign')
-                ->get();
-                $data =array();
-                foreach($match_data as $key => $value)
+                if($check_game->game_start_time != '' && $check_game->game_end_time == '' )
                 {
-                    if($value->team_assign == 'a' )
+                    $match_data = Match::where('game_id',$check_game->id)->where('playing_player',1)
+                    ->groupBy('team_assign')
+                    ->selectRaw('GROUP_CONCAT(player_id) as player_id,GROUP_CONCAT(playing_pos) as playing_pos,team_assign,GROUP_CONCAT(yellow) as yellow,GROUP_CONCAT(red) as red,GROUP_CONCAT(goals) as goals,GROUP_CONCAT(own_goal) as own_goal,GROUP_CONCAT(trophies) as trophies')
+                    ->get();
+                    $data =array();
+                    foreach($match_data as $key => $value)
                     {
-                        $data['player_players_team_a'] = $value->player_id;
-                        $data['playing_positions_team_a'] = $value->playing_pos;
+                        if($value->team_assign == 'a' )
+                        {
+                            $data['player_players_team_a'] = $value->player_id;
+                            $data['playing_positions_team_a'] = $value->playing_pos;
+                            $data['yellow'] = $value->yellow;
+                            $data['red'] = $value->red;
+                            $data['goals'] = $value->goals;
+                            $data['own_goal'] = $value->own_goal;
+                            $data['trophies'] = $value->trophies;
+                        }
                     }
-                    if($value->team_assign == 'b')
-                    {
-                        $data['player_players_team_b'] = $value->player_id;
-                        $data['playing_positions_team_b'] = $value->playing_pos;
-                    }
+                    $data['team_id'] = $request->team_id;
+                    $data['game_id'] = $check_game->id;
+                    $success['status'] = '1';
+                    $success['message'] = "game is in process";
+                    $success['data'] = $data;
+                    return $this->sendResponse($success);
                 }
-                $data['team_id'] = $request->team_id;
-                $data['game_id'] = $check_game->id;
-                $success['status'] = '1';
-                $success['message'] = "game is in process";
-                $success['data'] = $data;
-                return $this->sendResponse($success);
+                else
+                {
+                    $success['status'] = '0';
+                    $success['message'] = "game is already ended";
+                    return $this->sendResponse($success);
+                }
             }
             else
             {
@@ -514,7 +525,7 @@ class GameController extends ResponseController
                 $success['message'] = "game is already ended";
                 return $this->sendResponse($success);
             }
-        }
+        }   
         else
         {
             $success['status'] = "0";
