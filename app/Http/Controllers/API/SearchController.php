@@ -263,7 +263,7 @@ class SearchController extends ResponseController
             $profile = Profile::select('first_name','last_name','dob','gender','cob','cop','height','weight','position','twitter','image')->where('profiles.user_id',$request->player_id)->first();
             $profile->image = URL::to('public/images/profile_images/').'/'.$profile->image; 
             
-            $matches = Match::select(DB::raw('count(game_id) as game_id'),'player_id',DB::raw('SUM(yellow) as yellow'),DB::raw('SUM(red) as red'),DB::raw('SUM(goals) as goals'),DB::raw('SUM(trophies) as trophies'),DB::raw('SUM(time) as time'))->where('player_id',$request->player_id)->get();
+            $matches = Match::select(DB::raw('count(game_id) as game_id'),'player_id',DB::raw('SUM(yellow) as yellow'),DB::raw('SUM(red) as red'),DB::raw('SUM(goals) as goals'),DB::raw('SUM(own_goal) as own_goal'),DB::raw('SUM(trophies) as trophies'),DB::raw('SUM(time) as time'))->where('player_id',$request->player_id)->get();
             
             $team_joined = Rosters::join('profiles','profiles.user_id','=','rosters.team_id')->where('player_id',$request->player_id)->where('request',1)->select('team_name')->first();
             if($team_joined == null)
@@ -281,6 +281,7 @@ class SearchController extends ResponseController
                 $profile->yellow = strval($value->yellow);
                 $profile->red = strval($value->red);
                 $profile->goals = strval($value->goals);
+                $profile->own_goal = strval($value->own_goal);
                 $profile->trophies = strval($value->trophies);
                 $profile->time = strval($value->time);
             }

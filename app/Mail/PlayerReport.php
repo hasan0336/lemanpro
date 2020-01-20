@@ -31,7 +31,7 @@ class PlayerReport extends Mailable
         // dd($this->user->email);
         return $this->from('dev.appsnado@gmail.com')
         ->view('emails.player_report')
-        ->with(['email' => $this->user->email,'yellow' => $this->user->yellow, 'red' => $this->user->red, 'goals' => $this->user->goals,'trophies' => $this->user->trophies,'time' => $this->user->time]);
+        ->with(['email' => $this->user->email,'yellow' => $this->user->yellow, 'red' => $this->user->red, 'goals' => $this->user->goals,'own_goal' => $this->user->own_goal,'trophies' => $this->user->trophies,'time' => $this->user->time]);
         // return $this->view('view.name');
     }
 }
