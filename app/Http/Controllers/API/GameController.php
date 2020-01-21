@@ -536,6 +536,13 @@ class GameController extends ResponseController
                     {
                         $data['game_resume_timestamp'] = '0';
                     }
+                    else
+                    {
+                        $check_game['game_start_timestamp'] = strtotime($check_game->game_start_time);
+                        $check_game['game_end_timestamp'] = strtotime($check_game->game_end_time);
+                        $check_game['game_pause_timestamp'] = strtotime($check_game->game_pause);
+                        $check_game['game_resume_timestamp'] = strtotime($check_game->game_resume);
+                    }
                     $success['status'] = '1';
                     $success['message'] = "game is in process";
                     $success['data'] = $data;
