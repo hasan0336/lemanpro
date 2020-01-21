@@ -520,11 +520,29 @@ class GameController extends ResponseController
                     $data['opponent'] = $check_game->opponent;
                     $data['game_type'] = $check_game->game_type;
                     $data['game_status'] = $check_game->game_status;
-
-                    $data['game_start_timestamp'] = strtotime($check_game->game_start_time);
-                    $data['game_end_timestamp'] = strtotime($check_game->game_end_time);
-                    $data['game_pause_timestamp'] = strtotime($check_game->game_pause);
-                    $data['game_resume_timestamp'] = strtotime($check_game->game_resume);
+                    if(strtotime($check_game->game_start_time) == false)
+                    {
+                        $data['game_start_timestamp'] = '0';
+                    }
+                    if(strtotime($check_game->game_end_time) == false)
+                    {
+                        $data['game_end_timestamp'] =  '0';
+                    }
+                    if(strtotime($check_game->game_pause) == false)
+                    {
+                        $data['game_pause_timestamp'] =  '0';
+                    }
+                    if(strtotime($check_game->game_resume) == false)
+                    {
+                        $data['game_resume_timestamp'] = '0';
+                    }
+                    else
+                    {
+                        $check_game['game_start_timestamp'] = strtotime($check_game->game_start_time);
+                        $check_game['game_end_timestamp'] = strtotime($check_game->game_end_time);
+                        $check_game['game_pause_timestamp'] = strtotime($check_game->game_pause);
+                        $check_game['game_resume_timestamp'] = strtotime($check_game->game_resume);
+                    }
                     $success['status'] = '1';
                     $success['message'] = "game is in process";
                     $success['data'] = $data;
