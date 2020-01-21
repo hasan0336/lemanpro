@@ -544,6 +544,7 @@ class GameController extends ResponseController
                 {
                     $success['status'] = "1";
                     $success['message'] = "Game and Match are created";
+                    $success['data'] = array('game_id'=>$check_game->id);
                     return $this->sendResponse($success);
                 }
                 else
