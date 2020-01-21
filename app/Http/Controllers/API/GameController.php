@@ -331,7 +331,7 @@ class GameController extends ResponseController
         {
             $mytime = Carbon::now();
             $start_time = $mytime->toDateTimeString();
-            $match = Game::where('id',$request->game_id)->update(['game_start_time' => $start_time,'opponent'=>$request->opponent,'game_type'=>$request->game_type]);
+            $match = Game::where('id',$request->game_id)->update(['game_start_time' => $start_time,'opponent'=>$request->opponent,'game_type'=>$request->game_type, 'game_status'=>'1']);
             $player_players_team_a = explode(',',$request->player_players_team_a);
             $playing_positions_team_a = explode(',',$request->playing_positions_team_a);
             $starting_player = array();
@@ -448,7 +448,7 @@ class GameController extends ResponseController
             $start_time = $mytime->toDateTimeString();
             $ending_player = array('player_end_time' => $start_time);
             $result_end_match = DB::table('matches')->where('game_id',$request->game_id)->where('playing_player',1)->update($ending_player);
-            $ending_game = array('game_end_time' => $start_time);
+            $ending_game = array('game_end_time' => $start_time,'game_status'=>'4');
             $result_end_game = DB::table('games')->where('id',$request->game_id)->update($ending_game);
             $get_playing_time = Match::select('player_id','player_start_time','player_end_time')->where('game_id',$request->game_id)->where('playing_player','1')->get();
 
@@ -507,6 +507,14 @@ class GameController extends ResponseController
                     }
                     $data['team_id'] = $request->team_id;
                     $data['game_id'] = $check_game->id;
+                    $data['opponent'] = $check_game->opponent;
+                    $data['game_type'] = $check_game->game_type;
+                    $data['game_status'] = $check_game->game_status;
+
+                    $data['game_start_timestamp'] = strtotime($check_game->game_start_time);
+                    $data['game_end_timestamp'] = strtotime($check_game->game_end_time);
+                    $data['game_pause_timestamp'] = strtotime($check_game->game_pause);
+                    $data['game_resume_timestamp'] = strtotime($check_game->game_resume);
                     $success['status'] = '1';
                     $success['message'] = "game is in process";
                     $success['data'] = $data;
@@ -526,6 +534,86 @@ class GameController extends ResponseController
                 return $this->sendResponse($success);
             }
         }   
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+        }
+    }
+
+    public function pause_game(Request $request)
+    {
+        if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->game_id == "" || empty($request->game_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "game id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->action == "" || empty($request->action))
+        {
+            $success['status'] = '0';
+            $success['message'] = "action is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->user()->id == $request->team_id)
+        {
+            if($request->action == "pause")
+            {
+                $mytime = Carbon::now();
+                $pause_time = $mytime->toDateTimeString();
+                $pause = Game::where('id',$request->game_id)->update(['game_pause' => $pause_time,'game_status'=>'2']);
+                if($pause == 1)
+                {
+                    $data = Game::where('id',$request->game_id)->first();
+                    $data['game_start_timestamp'] = strtotime($data['game_start_time']);
+                    $data['game_end_timestamp'] = strtotime($data['game_end_time']);
+                    $data['game_pause_timestamp'] = strtotime($data['game_pause']);
+                    $data['game_resume_timestamp'] = strtotime($data['game_resume']);
+                    $success['status'] = '1';
+                    $success['message'] = "Game is pause";
+                    $success['data'] = $data;
+                    return $this->sendResponse($success);
+                }
+                else
+                {
+                    $success['status'] = '0';
+                    $success['message'] = "Game is not pause";
+                    return $this->sendResponse($success);
+                }
+            }
+            elseif ($request->action == "resume") 
+            {
+                $mytime = Carbon::now();
+                $resume_time = $mytime->toDateTimeString();
+                $pause = Game::where('id',$request->game_id)->update(['game_resume' => $resume_time,'game_status'=>'3']);
+                if($pause == 1)
+                {
+                    $data = Game::where('id',$request->game_id)->first();
+                    $data['game_start_timestamp'] = strtotime($data['game_start_time']);
+                    $data['game_end_timestamp'] = strtotime($data['game_end_time']);
+                    $data['game_pause_timestamp'] = strtotime($data['game_pause']);
+                    $data['game_resume_timestamp'] = strtotime($data['game_resume']);
+                    $success['status'] = '1';
+                    $success['message'] = "Game is pause";
+                    $success['data'] = $data;
+                    return $this->sendResponse($success);
+                }
+                else
+                {
+                    $success['status'] = '0';
+                    $success['message'] = "Game is not pause";
+                    return $this->sendResponse($success);
+                }
+            }
+            
+        }
         else
         {
             $success['status'] = "0";

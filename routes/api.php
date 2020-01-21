@@ -55,6 +55,7 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 	Route::get('report_to_manager','API\GameController@report_to_manager');
 	Route::get('players_team_list','API\GameController@players_team_list');
 	Route::get('start_match','API\GameController@start_match');
+	Route::get('pause_game','API\GameController@pause_game');
 	Route::get('substitute_player','API\GameController@substitute_player');
 	Route::get('end_match','API\GameController@end_match');
 	Route::get('check_game','API\GameController@check_game');
