@@ -520,29 +520,39 @@ class GameController extends ResponseController
                     $data['opponent'] = $check_game->opponent;
                     $data['game_type'] = $check_game->game_type;
                     $data['game_status'] = $check_game->game_status;
-                    if(strtotime($check_game->game_start_time) == false)
+                    if(strtotime($check_game->game_start_time) == false || strtotime($check_game->game_start_time) == '')
                     {
                         $data['game_start_timestamp'] = '0';
                     }
-                    if(strtotime($check_game->game_end_time) == false)
+                    else
+                    {
+                        $data['game_start_timestamp'] = strtotime($check_game->game_start_time);
+                    }
+                    if(strtotime($check_game->game_end_time) == false || strtotime($check_game->game_end_time) == '')
                     {
                         $data['game_end_timestamp'] =  '0';
                     }
-                    if(strtotime($check_game->game_pause) == false)
+                    else
+                    {
+                        $data['game_end_timestamp'] = strtotime($check_game->game_end_time);
+                    }
+                    if(strtotime($check_game->game_pause) == false || strtotime($check_game->game_pause) == '')
                     {
                         $data['game_pause_timestamp'] =  '0';
                     }
-                    if(strtotime($check_game->game_resume) == false)
+                    else
+                    {
+                        $data['game_pause_timestamp'] = strtotime($check_game->game_pause);
+                    }
+                    if(strtotime($check_game->game_resume) == false || strtotime($check_game->game_resume) == '')
                     {
                         $data['game_resume_timestamp'] = '0';
                     }
                     else
                     {
-                        $check_game['game_start_timestamp'] = strtotime($check_game->game_start_time);
-                        $check_game['game_end_timestamp'] = strtotime($check_game->game_end_time);
-                        $check_game['game_pause_timestamp'] = strtotime($check_game->game_pause);
-                        $check_game['game_resume_timestamp'] = strtotime($check_game->game_resume);
+                        $data['game_resume_timestamp'] = strtotime($check_game->game_resume);
                     }
+                    $data['game_id'] = $check_game->id;
                     $success['status'] = '1';
                     $success['message'] = "game is in process";
                     $success['data'] = $data;
@@ -629,10 +639,40 @@ class GameController extends ResponseController
                 if($pause == 1)
                 {
                     $data = Game::where('id',$request->game_id)->first();
-                    $data['game_start_timestamp'] = strtotime($data['game_start_time']);
-                    $data['game_end_timestamp'] = strtotime($data['game_end_time']);
-                    $data['game_pause_timestamp'] = strtotime($data['game_pause']);
-                    $data['game_resume_timestamp'] = strtotime($data['game_resume']);
+                    // dd($data);
+                    if(strtotime($data->game_start_time) == false || strtotime($data->game_start_time) == '')
+                    {
+                        $data['game_start_timestamp'] = '0';
+                    }
+                    else
+                    {
+                        $data['game_start_timestamp'] = strtotime($data->game_start_time);
+                    }
+                    if(strtotime($data->game_end_time) == false || strtotime($data->game_end_time) == '')
+                    {
+                        $data['game_end_timestamp'] =  '0';
+                    }
+                    else
+                    {
+                        $data['game_end_timestamp'] = strtotime($data->game_end_time);
+                    }
+                    if(strtotime($data->game_pause) == false || strtotime($data->game_pause) == '')
+                    {
+                        $data['game_pause_timestamp'] =  '0';
+                    }
+                    else
+                    {
+                        $data['game_pause_timestamp'] = strtotime($data->game_pause);
+                    }
+                    if(strtotime($data->game_resume) == false || strtotime($data->game_resume) == '')
+                    {
+                        $data['game_resume_timestamp'] = '0';
+                    }
+                    else
+                    {
+                        $data['game_resume_timestamp'] = strtotime($data->game_resume);
+                    }
+                    $data['game_id'] = $data->id;
                     $success['status'] = '1';
                     $success['message'] = "Game is pause";
                     $success['data'] = $data;
@@ -653,10 +693,40 @@ class GameController extends ResponseController
                 if($pause == 1)
                 {
                     $data = Game::where('id',$request->game_id)->first();
-                    $data['game_start_timestamp'] = strtotime($data['game_start_time']);
-                    $data['game_end_timestamp'] = strtotime($data['game_end_time']);
-                    $data['game_pause_timestamp'] = strtotime($data['game_pause']);
-                    $data['game_resume_timestamp'] = strtotime($data['game_resume']);
+                    if(strtotime($data->game_start_time) == false || strtotime($data->game_start_time) == '')
+                    {
+                        $data['game_start_timestamp'] = '0';
+                    }
+                    else
+                    {
+                        $data['game_start_timestamp'] = strtotime($data->game_start_time);
+                    }
+                    if(strtotime($data->game_end_time) == false || strtotime($data->game_end_time) == '')
+                    {
+                        $data['game_end_timestamp'] =  '0';
+                    }
+                    else
+                    {
+                        $data['game_end_timestamp'] = strtotime($data->game_end_time);
+                    }
+                    if(strtotime($data->game_pause) == false || strtotime($data->game_pause) == '')
+                    {
+                        $data['game_pause_timestamp'] =  '0';
+                    }
+                    else
+                    {
+                        $data['game_pause_timestamp'] = strtotime($data->game_pause);
+                    }
+                    if(strtotime($data->game_resume) == false || strtotime($data->game_resume) == '')
+                    {
+                        $data['game_resume_timestamp'] = '0';
+                    }
+                    else
+                    {
+                        $data['game_resume_timestamp'] = strtotime($data->game_resume);
+                    }
+
+                    $data['game_id'] = $data->id;
                     $success['status'] = '1';
                     $success['message'] = "Game is pause";
                     $success['data'] = $data;
