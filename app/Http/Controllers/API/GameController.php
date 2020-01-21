@@ -542,9 +542,27 @@ class GameController extends ResponseController
                 $check_game = Game::where('team_id',$request->team_id)->where('game_end_time','')->where('game_start_time','')->first();
                 if($check_game != "" || !empty($check_game))
                 {
+                    $check_game['player_players_team_a'] = '';
+                    $check_game['playing_positions_team_a'] = '';
+                    $check_game['yellow'] = '';
+                    $check_game['red'] = '';
+                    $check_game['goals'] = '';
+                    $check_game['own_goal'] = '';
+                    $check_game['trophies'] = '';
+
+                    $check_game['team_id'] = $request->team_id;
+                    $check_game['game_id'] = $check_game->id;
+                    $check_game['opponent'] = $check_game->opponent;
+                    $check_game['game_type'] = $check_game->game_type;
+                    $check_game['game_status'] = $check_game->game_status;
+
+                    $check_game['game_start_timestamp'] = strtotime($check_game->game_start_time);
+                    $check_game['game_end_timestamp'] = strtotime($check_game->game_end_time);
+                    $check_game['game_pause_timestamp'] = strtotime($check_game->game_pause);
+                    $check_game['game_resume_timestamp'] = strtotime($check_game->game_resume);
                     $success['status'] = "1";
                     $success['message'] = "Game and Match are created";
-                    $success['data'] = array('game_id'=>$check_game->id);
+                    $success['data'] = $check_game;
                     return $this->sendResponse($success);
                 }
                 else
