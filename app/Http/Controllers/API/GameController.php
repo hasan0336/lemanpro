@@ -167,9 +167,12 @@ class GameController extends ResponseController
         if($request->user()->id == $request->team_id)
         {
         	$data = array();
+            $get_player_data = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->first();
         	if($request->goals != null || !empty($request->goals))
         	{
-        		$data['goals'] = $request->goals;
+                // dd($get_player_data->goals);
+                $total_goals = $get_player_data->goals + $request->goals;
+        		$data['goals'] = $total_goals;
         	}
         	if($request->red != null || !empty($request->red))
         	{
@@ -177,11 +180,12 @@ class GameController extends ResponseController
         	}
             if($request->own_goal != null || !empty($request->own_goal))
             {
-                $data['own_goal'] = $request->own_goal;
+                $total_own_goals = $get_player_data->goals + $request->goals;
+                $data['own_goal'] = $total_own_goals;
             }
         	if($request->yellow != null || !empty($request->yellow))
         	{
-        		if($request->yellow == 2 || $request->yellow > 2)
+        		if($get_player_data->yellow == 1 || $get_player_data->yellow > 1)
         		{
         			$data['red'] = 1;
         			$data['yellow'] = 0;
