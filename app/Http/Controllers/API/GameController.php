@@ -503,9 +503,10 @@ class GameController extends ResponseController
                 {
                     $match_data = Match::where('game_id',$check_game->id)->where('playing_player',1)
                     ->groupBy('team_assign')
-                    ->selectRaw('GROUP_CONCAT(player_id) as player_id,GROUP_CONCAT(playing_pos) as playing_pos,team_assign,GROUP_CONCAT(yellow) as yellow,GROUP_CONCAT(red) as red,GROUP_CONCAT(goals) as goals,GROUP_CONCAT(own_goal) as own_goal,GROUP_CONCAT(trophies) as trophies')
+                    ->selectRaw('GROUP_CONCAT(player_id) as player_id,GROUP_CONCAT(playing_pos) as playing_pos,team_assign,GROUP_CONCAT(yellow) as yellow,GROUP_CONCAT(red) as red,GROUP_CONCAT(goals) as goals,SUM(goals) as total_goals,GROUP_CONCAT(own_goal) as own_goal,SUM(own_goal) as total_own_goals ,GROUP_CONCAT(trophies) as trophies')
                     ->get();
                     $data =array();
+
                     foreach($match_data as $key => $value)
                     {
                         if($value->team_assign == 'a' )
@@ -517,6 +518,8 @@ class GameController extends ResponseController
                             $data['goals'] = $value->goals;
                             $data['own_goal'] = $value->own_goal;
                             $data['trophies'] = $value->trophies;
+                            $data['total_goals'] = (string)$value->total_goals;
+                            $data['total_own_goals'] = (string)$value->total_own_goals;
                         }
                     }
                     $data['team_id'] = $request->team_id;
@@ -557,6 +560,7 @@ class GameController extends ResponseController
                         $data['game_resume_timestamp'] = strtotime($check_game->game_resume);
                     }
                     $data['game_id'] = $check_game->id;
+
                     $success['status'] = '1';
                     $success['message'] = "game is in process";
                     $success['data'] = $data;
