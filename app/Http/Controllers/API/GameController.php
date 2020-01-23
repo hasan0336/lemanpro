@@ -793,82 +793,36 @@ class GameController extends ResponseController
             $players_goals = explode(',',$request->goals);
             $players_red_cards = explode(',',$request->red_card);
             $players_yellow_cards = explode(',',$request->yellow_card);
-            // foreach(array_combine($match_players, $players_goals) as $match_player => $player_goal)
-            // {
-            //     dd($player_goal);
-            // }
+            $players_own_goals = explode(',',$request->own_goals);
+            $goals = array();
+            $yellow_cards = array();
+            $red_cards = array();
+            $own_goals = array();
+            foreach(array_combine($match_players, $players_goals) as $match_player => $player_goal)
+            {
+                $goals = array('goals'=>$player_goal);
+                $result_1 = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$match_player)->update($goals);
+            }
+            foreach(array_combine($match_players, $players_own_goals) as $match_player => $player_own_goal)
+            {
+                $own_goals = array('own_goal'=>$player_own_goal);
+                $result_2 = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$match_player)->update($own_goals);
+            }
             foreach(array_combine($match_players, $players_red_cards) as $match_player => $player_red_card)
             {
-                dd($player_red_card);
+                $red_cards = array('red'=>$player_red_card);
+                $result_3 = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$match_player)->update($red_cards);
+                
             }
             foreach(array_combine($match_players, $players_yellow_cards) as $match_player => $player_yellow_card)
             {
-                dd($player_yellow_card);
+                $yellow_cards = array('yellow'=>$player_yellow_card);
+                $result_4 = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$match_player)->update($yellow_cards);
             }
-            // dd($request->teams);
-            // $check_game = Game::where('team_id',$request->team_id)->where('game_end_time','')->where('game_start_time','' )->first();
-            // if($check_game != "" || !empty($check_game))
-            // {
-            //     $success['status'] = "1";
-            //     $success['message'] = "Game and Match already created";
-            //     return $this->sendResponse($success);
-            // }
-            // else
-            // {
-            //     $game = Game::create(array('team_id' => $request->team_id));
             
-            //     $match_players = explode(',',$request->players);
-            //     $players_team = explode(',',$request->team_assign);
-            //     $matches = array();
-            //     $mytime = Carbon::now();
-            //     // dd($match_players);
-            //     //multiple variable foreach loop
-
-            //     foreach(array_combine($match_players, $players_team) as $match_player => $player_team)
-            //     {
-            //         // dd($match_player);
-            //         // dd($player_team);
-            //         $matches[] = array('game_id'=>$game->id,'player_id'=>$match_player,'team_assign'=>$player_team,'created_at'=>$mytime->toDateTimeString(),'updated_at'=>$mytime->toDateTimeString());
-            //     }
-            //     $matches2 = MAtch::insert($matches);
-
-            //     if($matches2 == 1)
-            //     {
-            //         foreach ($match_players as $key => $value) {
-            //             // dd($value);
-            //             $notify = array(
-            //             'game_id'=>$game->id,
-            //             'to'=>$value,
-            //             'from'=>$request->team_id,
-            //             'type'=>env('NOTIFICATION_TYPE_SEND_PLAYER_SELECTED_REQUEST'),
-            //             'title'=>'Game Created',
-            //             'message'=>'You are selected for this game',
-            //             );
-            //                 // dd($notify);
-            //             $res_notify = Notification::create($notify);
-
-            //             $token[] = $request->user()->device_token;
-            //             $data = array(
-            //                 'title' => $notify['title'],
-            //                 'message' => $notify['message'],
-            //                 'notification_type' => env('NOTIFICATION_TYPE_SEND_PLAYER_SELECTED_REQUEST')
-            //             );
-            //             $data['device_tokens'] = $token;
-            //             $data['device_type'] = $request->user()->device_type;
-            //             push_notification($data);
-            //         }
-            //         $success['status'] = "1";
-            //         $success['message'] = "Game and Match has been created";
-            //         $success['data'] = array('game_id'=>$game->id);
-            //         return $this->sendResponse($success);
-            //     }
-            //     else
-            //     {
-            //         $success['status'] = "1";
-            //         $success['message'] = "Game and Match not created";
-            //         return $this->sendResponse($success);   
-            //     }
-            // }
+            $success['status'] = "1";
+            $success['message'] = "Updated";
+            return $this->sendResponse($success);
         }
         else
         {
