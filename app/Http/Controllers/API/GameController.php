@@ -287,18 +287,19 @@ class GameController extends ResponseController
         {
             if($request->team_assign == 'a')
             {
-                $team_a = Match::select('profiles.user_id','profiles.first_name','profiles.last_name')->join('profiles','profiles.user_id','=','matches.player_id')->where('game_id',$request->game_id)->where('team_assign','a')->get();
+                $team_a = Match::select('profiles.user_id','profiles.first_name','profiles.last_name','matches.yellow','matches.red','matches.goals','matches.own_goal','matches.trophies')->join('profiles','profiles.user_id','=','matches.player_id')->where('game_id',$request->game_id)->where('team_assign','a')->get();
+
                 $success['status'] = "1";
                 $success['message'] = "TEam A";
                 $success['data'] = $team_a;
             }
-            if($request->team_assign == 'b')
-            {
-                $team_b = Match::select('profiles.user_id','profiles.first_name','profiles.last_name')->join('profiles','profiles.user_id','=','matches.player_id')->where('game_id',$request->game_id)->where('team_assign','b')->get();
-                $success['status'] = "1";
-                $success['message'] = "TEam B";
-                $success['data'] = $team_b;
-            } 
+            // if($request->team_assign == 'b')
+            // {
+            //     $team_b = Match::select('profiles.user_id','profiles.first_name','profiles.last_name')->join('profiles','profiles.user_id','=','matches.player_id')->where('game_id',$request->game_id)->where('team_assign','b')->get();
+            //     $success['status'] = "1";
+            //     $success['message'] = "TEam B";
+            //     $success['data'] = $team_b;
+            // } 
             return $this->sendResponse($success);
         }
         else
