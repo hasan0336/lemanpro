@@ -284,7 +284,7 @@ class AdminController extends Controller
             {
                 $notify = array(
                 'news_id'=>$news,
-                'to'=>$player['player_id'],
+                'to'=>$player['id'],
                 'from'=>$request->team_id,
                 'type'=>env('NOTIFICATION_TYPE_SEND_NEWS_ALERT_ADMIN_REQUEST'),
                 'title'=>'News',
@@ -293,14 +293,14 @@ class AdminController extends Controller
                 // dd($notify);
             $res_notify = Notification::create($notify);
 
-            $token[] = $request->user()->device_token;
+            $token[] = $player['device_token'];
             $data = array(
                 'title' => $notify['title'],
                 'message' => $notify['message'],
                 'notification_type' => env('NOTIFICATION_TYPE_SEND_NEWS_ALERT_ADMIN_REQUEST')
             );
             $data['device_tokens'] = $token;
-            $data['device_type'] = $request->user()->device_type;
+            $data['device_type'] = $player['device_type'];
             push_notification($data);
             }
             $success['status'] = "1";
@@ -325,14 +325,14 @@ class AdminController extends Controller
                 // dd($notify);
             $res_notify = Notification::create($notify);
 
-            $token[] = $request->user()->device_token;
+            $token[] = $player['device_token'];
             $data = array(
                 'title' => $notify['title'],
                 'message' => $notify['message'],
                 'notification_type' => env('NOTIFICATION_TYPE_SEND_NEWS_ALERT_ADMIN_REQUEST')
             );
             $data['device_tokens'] = $token;
-            $data['device_type'] = $request->user()->device_type;
+            $data['device_type'] = $player['device_type'];
             push_notification($data);
             }
             return redirect()->back();

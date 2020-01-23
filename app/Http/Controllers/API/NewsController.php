@@ -89,17 +89,18 @@ class NewsController extends ResponseController
                     'title'=>'News',
                     'message'=>'News from Team',
                 );
+                $get_info = User::where('id', '=', $player['player_id'])->first();
                     // dd($notify);
                 $res_notify = Notification::create($notify);
 
-                $token[] = $request->user()->device_token;
+                $token[] = $get_info->device_token;
                 $data = array(
                     'title' => $notify['title'],
                     'message' => $notify['message'],
                     'notification_type' => env('NOTIFICATION_TYPE_SEND_NEWS_ALERT_REQUEST')
                 );
                 $data['device_tokens'] = $token;
-                $data['device_type'] = $request->user()->device_type;
+                $data['device_type'] = $get_info->device_type;
                 push_notification($data);
                 }
 				$success['status'] = "1";
