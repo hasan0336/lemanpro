@@ -70,6 +70,8 @@ class GameController extends ResponseController
                     {
                         foreach ($match_players as $key => $value) {
                             // dd($value);
+                            $get_info = User::where('id', '=', $value)->first();
+                            // dd($get_info->device_token);
                             $notify = array(
                             'game_id'=>$game->id,
                             'to'=>$value,
@@ -81,14 +83,14 @@ class GameController extends ResponseController
                                 // dd($notify);
                             $res_notify = Notification::create($notify);
 
-                            $token[] = $request->user()->device_token;
+                            $token[] = $get_info->device_token;
                             $data = array(
                                 'title' => $notify['title'],
                                 'message' => $notify['message'],
                                 'notification_type' => env('NOTIFICATION_TYPE_SEND_PLAYER_SELECTED_REQUEST')
                             );
                             $data['device_tokens'] = $token;
-                            $data['device_type'] = $request->user()->device_type;
+                            $data['device_type'] = $get_info->device_type;
                             push_notification($data);
                         }
                         $success['status'] = "1";

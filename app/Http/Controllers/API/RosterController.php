@@ -175,16 +175,17 @@ class RosterController extends ResponseController
                         'message'=>'Player Added to Rosters',
                         'is_accept'=>'1',
                         );
+                        $get_info = User::where('id', '=', $team_id)->first();
                         $res_notify = Notification::create($notify);
                         Notification::where('id', $notification_id)->update(array('is_accept'=>'1'));
-                        $token[] = $request->user()->device_token;
+                        $token[] = $get_info->device_token;
                         $data = array(
                             'title' => $notify['title'],
                             'message' => $notify['message'],
                             'notification_type' => env('NOTIFICATION_TYPE_ACCEPT_REQUEST')
                         );
                         $data['device_tokens'] = $token;
-                        $data['device_type'] = $request->user()->device_type;
+                        $data['device_type'] = $get_info->device_type;
                         push_notification($data);
                         $success['status'] = "1";
                         $success['message'] = "Request accepted";
@@ -205,16 +206,17 @@ class RosterController extends ResponseController
                         'message'=>'Player Rejected Roster Request',
                         'is_reject'=>'1',
                         );
+                        $get_info = User::where('id', '=', $team_id)->first();
                         $res_notify = Notification::create($notify);
                         Notification::where('id', $notification_id)->update(array('is_reject'=>'1'));
-                        $token[] = $request->user()->device_token;
+                        $token[] = $get_info->device_token;
                         $data = array(
                             'title' => $notify['title'],
                             'message' => $notify['message'],
                             'notification_type' => env('NOTIFICATION_TYPE_REJECT_REQUEST')
                         );
                         $data['device_tokens'] = $token;
-                        $data['device_type'] = $request->user()->device_type;
+                        $data['device_type'] = $get_info->device_type;
                         push_notification($data);
                         $success['status'] = "1";
                         $success['message'] = "Request Rejected";
