@@ -359,10 +359,20 @@ class GameController extends ResponseController
             $success['message'] = "game type is missing";
             return $this->sendResponse($success);
         }
+        if($request->start_time == "" || empty($request->start_time))
+        {
+            $success['status'] = '0';
+            $success['message'] = "start time is missing";
+            return $this->sendResponse($success);
+        }
         if($request->user()->id == $request->team_id)
         {
-            $mytime = Carbon::now();
-            $start_time = $mytime->toDateTimeString();
+            // $mytime = Carbon::now();
+            // $start_time = $mytime->toDateTimeString();
+            $timestamp = $request->start_time;
+            // $timestamp = strtotime($start_time);
+            $start_time = date('Y-m-d H:i:s', $timestamp);
+            // dd($timestamp);
             $match = Game::where('id',$request->game_id)->update(['game_start_time' => $start_time,'opponent'=>$request->opponent,'game_type'=>$request->game_type, 'game_status'=>'1']);
             $player_players_team_a = explode(',',$request->player_players_team_a);
             $playing_positions_team_a = explode(',',$request->playing_positions_team_a);
@@ -423,8 +433,10 @@ class GameController extends ResponseController
         }
         if($request->user()->id == $request->team_id)
         {
-            $mytime = Carbon::now();
-            $start_time = $mytime->toDateTimeString();
+            // $mytime = Carbon::now();
+            // $start_time = $mytime->toDateTimeString();
+            $timestamp = $request->start_time;
+            $start_time = date('Y-m-d H:i:s', $timestamp);
             $starting_player = array('playing_player' => '1','player_start_time' => $start_time);
             $result_start = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_in_id)->update($starting_player);
             $ending_player = array('playing_player' => '0','player_end_time' => $start_time);
@@ -473,11 +485,19 @@ class GameController extends ResponseController
             $success['message'] = "match id is missing";
             return $this->sendResponse($success);
         }
+        if($request->end_time == "" || empty($request->end_time))
+        {
+            $success['status'] = '0';
+            $success['message'] = "end time is missing";
+            return $this->sendResponse($success);
+        }
         if($request->user()->id == $request->team_id)
         {
 
-            $mytime = Carbon::now();
-            $start_time = $mytime->toDateTimeString();
+            // $mytime = Carbon::now();
+            // $start_time = $mytime->toDateTimeString();
+            $timestamp = $request->end_time;
+            $start_time = date('Y-m-d H:i:s', $timestamp);
             $ending_player = array('player_end_time' => $start_time);
             $result_end_match = DB::table('matches')->where('game_id',$request->game_id)->where('playing_player',1)->update($ending_player);
             $ending_game = array('game_end_time' => $start_time,'game_status'=>'4');
@@ -659,8 +679,16 @@ class GameController extends ResponseController
         {
             if($request->action == "pause")
             {
-                $mytime = Carbon::now();
-                $pause_time = $mytime->toDateTimeString();
+                if($request->pause_time == "" || empty($request->pause_time))
+                {
+                    $success['status'] = '0';
+                    $success['message'] = "pause time is missing";
+                    return $this->sendResponse($success);
+                }
+                // $mytime = Carbon::now();
+                // $pause_time = $mytime->toDateTimeString();
+                $timestamp = $request->pause_time;
+                $pause_time = date('Y-m-d H:i:s', $timestamp);
                 $pause = Game::where('id',$request->game_id)->update(['game_pause' => $pause_time,'game_status'=>'2']);
                 if($pause == 1)
                 {
@@ -713,8 +741,16 @@ class GameController extends ResponseController
             }
             elseif ($request->action == "resume") 
             {
-                $mytime = Carbon::now();
-                $resume_time = $mytime->toDateTimeString();
+                if($request->resume_time == "" || empty($request->resume_time))
+                {
+                    $success['status'] = '0';
+                    $success['message'] = "resume time is missing";
+                    return $this->sendResponse($success);
+                }
+                // $mytime = Carbon::now();
+                // $resume_time = $mytime->toDateTimeString();
+                $timestamp = $request->resume_time;
+                $resume_time = date('Y-m-d H:i:s', $timestamp);
                 $pause = Game::where('id',$request->game_id)->update(['game_resume' => $resume_time,'game_status'=>'3']);
                 if($pause == 1)
                 {
@@ -754,14 +790,14 @@ class GameController extends ResponseController
 
                     $data['game_id'] = $data->id;
                     $success['status'] = '1';
-                    $success['message'] = "Game is pause";
+                    $success['message'] = "Game is resume";
                     $success['data'] = $data;
                     return $this->sendResponse($success);
                 }
                 else
                 {
                     $success['status'] = '0';
-                    $success['message'] = "Game is not pause";
+                    $success['message'] = "Game is not resume";
                     return $this->sendResponse($success);
                 }
             }
