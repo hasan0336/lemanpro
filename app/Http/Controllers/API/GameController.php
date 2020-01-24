@@ -571,35 +571,43 @@ class GameController extends ResponseController
                     
                     if(strtotime($check_game->game_start_time) == false || strtotime($check_game->game_start_time) == '')
                     {
-                        $data['game_start_timestamp'] = '0';
+                        $check_game->game_start_time = '0';
+                        $data['game_start_timestamp'] = $check_game->game_start_time;
                     }
                     else
-                    {
-                        $data['game_start_timestamp'] = strtotime($check_game->game_start_time);
+                    {  
+                        $check_game->game_start_time = strtotime($check_game->game_start_time);
+                        $data['game_start_timestamp'] = $check_game->game_start_time;
                     }
                     if(strtotime($check_game->game_end_time) == false || strtotime($check_game->game_end_time) == '')
                     {
-                        $data['game_end_timestamp'] =  '0';
+                        $check_game->game_end_time =  '0';
+                        $data['game_end_timestamp'] =  $check_game->game_end_time;
                     }
                     else
                     {
-                        $data['game_end_timestamp'] = strtotime($check_game->game_end_time);
+                        $check_game->game_end_time = strtotime($check_game->game_end_time);
+                        $data['game_end_timestamp'] = $check_game->game_end_time;
                     }
                     if(strtotime($check_game->game_pause) == false || strtotime($check_game->game_pause) == '')
                     {
-                        $data['game_pause_timestamp'] =  '0';
+                        $check_game->game_pause =  '0';
+                        $data['game_pause_timestamp'] =  $check_game->game_pause;
                     }
                     else
                     {
-                        $data['game_pause_timestamp'] = strtotime($check_game->game_pause);
+                        $check_game->game_pause = strtotime($check_game->game_pause);
+                        $data['game_pause_timestamp'] = $check_game->game_pause ;
                     }
                     if(strtotime($check_game->game_resume) == false || strtotime($check_game->game_resume) == '')
                     {
-                        $data['game_resume_timestamp'] = '0';
+                        $check_game->game_resume = '0';
+                        $data['game_resume_timestamp'] = $check_game->game_resume ;
                     }
                     else
                     {
-                        $data['game_resume_timestamp'] = strtotime($check_game->game_resume);
+                        $check_game->game_resume = strtotime($check_game->game_resume);
+                        $data['game_resume_timestamp'] = $check_game->game_resume;
                     }
                     $data['game_id'] = $check_game->id;
 
