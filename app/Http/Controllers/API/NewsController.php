@@ -79,7 +79,6 @@ class NewsController extends ResponseController
 					}
 				}
                 $get_players = Rosters::select('rosters.player_id','device_token','device_type')->join('users','rosters.player_id','=','users.id')->where('team_id',$request->team_id)->get();
-                // dd($get_players);
                 foreach ($get_players as $key => $player) 
                 {
                     // dd($player['device_token']);
