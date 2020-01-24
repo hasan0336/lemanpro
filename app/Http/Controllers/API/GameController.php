@@ -22,7 +22,7 @@ class GameController extends ResponseController
 {
     public function create_game(Request $request)
     {
-    	if($request->team_id == "" || empty($request->team_id))
+        if($request->team_id == "" || empty($request->team_id))
         {
             $success['status'] = '0';
             $success['message'] = "team id is missing";
@@ -110,7 +110,7 @@ class GameController extends ResponseController
         else
         {
             $success['status'] = "0";
-        	$success['message'] = "Unauthorized User";
+            $success['message'] = "Unauthorized User";
             return $this->sendResponse($success);
         }
     }
@@ -131,27 +131,27 @@ class GameController extends ResponseController
         }
         if($request->user()->id == $request->team_id)
         {
-        				DB::table("matches")->where("game_id", $request->game_id)->delete();
-			$res 	= 	DB::table("games")->where("id", $request->game_id)->delete();
-			if($res)
-			{
-				$success['status'] = "1";
+                        DB::table("matches")->where("game_id", $request->game_id)->delete();
+            $res    =   DB::table("games")->where("id", $request->game_id)->delete();
+            if($res)
+            {
+                $success['status'] = "1";
                 $success['message'] = "Game and Match deleted";
 
-                return $this->sendResponse($success);	
-			}
-			else
-			{
-				$success['status'] = "0";
+                return $this->sendResponse($success);   
+            }
+            else
+            {
+                $success['status'] = "0";
                 $success['message'] = "Game and Match not deleted";
 
-                return $this->sendResponse($success);	
-			}
+                return $this->sendResponse($success);   
+            }
         }
         else
         {
             $success['status'] = "0";
-        	$success['message'] = "Unauthorized User";
+            $success['message'] = "Unauthorized User";
             return $this->sendResponse($success);
         }
     }
@@ -178,66 +178,66 @@ class GameController extends ResponseController
         }
         if($request->user()->id == $request->team_id)
         {
-        	$data = array();
+            $data = array();
             $get_player_data = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->first();
-        	if($request->goals != null || !empty($request->goals))
-        	{
+            if($request->goals != null || !empty($request->goals))
+            {
                 // dd($get_player_data->goals);
                 $total_goals = $get_player_data->goals + $request->goals;
-        		$data['goals'] = $total_goals;
-        	}
-        	if($request->red != null || !empty($request->red))
-        	{
-        		$data['red'] = $request->red;
-        	}
+                $data['goals'] = $total_goals;
+            }
+            if($request->red != null || !empty($request->red))
+            {
+                $data['red'] = $request->red;
+            }
             if($request->own_goal != null || !empty($request->own_goal))
             {
                 $total_own_goals = $get_player_data->goals + $request->goals;
                 $data['own_goal'] = $total_own_goals;
             }
-        	if($request->yellow != null || !empty($request->yellow))
-        	{
-        		if($get_player_data->yellow == 1 || $get_player_data->yellow > 1)
-        		{
-        			$data['red'] = 1;
-        			$data['yellow'] = 0;
-        		}
-        		else
-        		{
-        			$data['yellow'] = $request->yellow;
-        		}
-        	}
-        	if($request->trophies != null || !empty($request->trophies))
-        	{
-        		$data['trophies'] = $request->trophies;
-        	}
-        	if($request->time != null || !empty($request->time))
-        	{
-        		$data['time'] = $request->time;
-        	}
-        	$match = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->update($data);
-        	if($match == 1)
-        	{
-        		$user = User::join('matches','users.id','matches.player_id')->where('matches.player_id',$request->player_id)->where('matches.game_id',$request->game_id)->first();
-        		
-        		Mail::to($user->email)->send(new PlayerReport($user));
-        		$success['status'] = "1";
+            if($request->yellow != null || !empty($request->yellow))
+            {
+                if($get_player_data->yellow == 1 || $get_player_data->yellow > 1)
+                {
+                    $data['red'] = 1;
+                    $data['yellow'] = 0;
+                }
+                else
+                {
+                    $data['yellow'] = $request->yellow;
+                }
+            }
+            if($request->trophies != null || !empty($request->trophies))
+            {
+                $data['trophies'] = $request->trophies;
+            }
+            if($request->time != null || !empty($request->time))
+            {
+                $data['time'] = $request->time;
+            }
+            $match = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->update($data);
+            if($match == 1)
+            {
+                $user = User::join('matches','users.id','matches.player_id')->where('matches.player_id',$request->player_id)->where('matches.game_id',$request->game_id)->first();
+                
+                Mail::to($user->email)->send(new PlayerReport($user));
+                $success['status'] = "1";
                 $success['message'] = "player score inserted";
 
                 return $this->sendResponse($success);
-        	}
-        	else
-        	{
-        		$success['status'] = "1";
+            }
+            else
+            {
+                $success['status'] = "1";
                 $success['message'] = "player score not inserted";
 
                 return $this->sendResponse($success);
-        	}
+            }
         }
         else
         {
             $success['status'] = "0";
-        	$success['message'] = "Unauthorized User";
+            $success['message'] = "Unauthorized User";
             return $this->sendResponse($success);
         }
     }
@@ -258,11 +258,11 @@ class GameController extends ResponseController
         }
         if($request->user()->id == $request->team_id)
         {
-        	$game = Match::join('users','users.id','=','matches.player_id')->where('game_id',$request->game_id)->get();
-        	$users = User::where('id',$request->team_id)->first();
-        	
-        	Mail::to($users->email)->send(new MatchReport($game));
-        	$success['status'] = "1";
+            $game = Match::join('users','users.id','=','matches.player_id')->where('game_id',$request->game_id)->get();
+            $users = User::where('id',$request->team_id)->first();
+            
+            Mail::to($users->email)->send(new MatchReport($game));
+            $success['status'] = "1";
             $success['message'] = "Report sent to Manager";
             $success['data'] = $game;
             return $this->sendResponse($success);
@@ -526,6 +526,7 @@ class GameController extends ResponseController
 
     public function check_game(Request $request)
     {
+        
         if($request->team_id == "" || empty($request->team_id))
         {
             $success['status'] = '0';
@@ -534,7 +535,9 @@ class GameController extends ResponseController
         }
         if($request->user()->id == $request->team_id)
         {
+            
             $check_game = Game::where('team_id',$request->team_id)->where('game_end_time','')->where('game_start_time','!=','' )->first();
+            
             if($check_game != null && $check_game != '')
             {
                 if($check_game->game_start_time != '' && $check_game->game_end_time == '' )
@@ -565,6 +568,7 @@ class GameController extends ResponseController
                     $data['opponent'] = $check_game->opponent;
                     $data['game_type'] = $check_game->game_type;
                     $data['game_status'] = $check_game->game_status;
+                    
                     if(strtotime($check_game->game_start_time) == false || strtotime($check_game->game_start_time) == '')
                     {
                         $data['game_start_timestamp'] = '0';
@@ -614,6 +618,7 @@ class GameController extends ResponseController
             else
             {
                 $check_game = Game::where('team_id',$request->team_id)->where('game_end_time','')->where('game_start_time','')->first();
+                
                 if($check_game != "" || !empty($check_game))
                 {
                     $check_game['player_players_team_a'] = '';
@@ -629,11 +634,49 @@ class GameController extends ResponseController
                     $check_game['opponent'] = $check_game->opponent;
                     $check_game['game_type'] = $check_game->game_type;
                     $check_game['game_status'] = $check_game->game_status;
-
-                    $check_game['game_start_timestamp'] = '0';
-                    $check_game['game_end_timestamp'] = '0';
-                    $check_game['game_pause_timestamp'] = '0';
-                    $check_game['game_resume_timestamp'] = '0';
+                    
+                    // dd($check_game->game_start_time);
+                    if(strtotime($check_game->game_start_time) == false || strtotime($check_game->game_start_time) == '')
+                    {
+                        $check_game->game_start_time = '0';
+                        $data['game_start_timestamp'] = $check_game->game_start_time;
+                    }
+                    else
+                    {  
+                        $check_game->game_start_time = strtotime($check_game->game_start_time);
+                        $data['game_start_timestamp'] = $check_game->game_start_time;
+                    }
+                    if(strtotime($check_game->game_end_time) == false || strtotime($check_game->game_end_time) == '')
+                    {
+                        $check_game->game_end_time =  '0';
+                        $data['game_end_timestamp'] =  $check_game->game_end_time;
+                    }
+                    else
+                    {
+                        $check_game->game_end_time = strtotime($check_game->game_end_time);
+                        $data['game_end_timestamp'] = $check_game->game_end_time;
+                    }
+                    if(strtotime($check_game->game_pause) == false || strtotime($check_game->game_pause) == '')
+                    {
+                        $check_game->game_pause =  '0';
+                        $data['game_pause_timestamp'] =  $check_game->game_pause;
+                    }
+                    else
+                    {
+                        $check_game->game_pause = strtotime($check_game->game_pause);
+                        $data['game_pause_timestamp'] = $check_game->game_pause ;
+                    }
+                    if(strtotime($check_game->game_resume) == false || strtotime($check_game->game_resume) == '')
+                    {
+                        $check_game->game_resume = '0';
+                        $data['game_resume_timestamp'] = $check_game->game_resume ;
+                    }
+                    else
+                    {
+                        $check_game->game_resume = strtotime($check_game->game_resume);
+                        $data['game_resume_timestamp'] = $check_game->game_resume;
+                    }
+                    $data['game_id'] = $check_game->id;
                     $success['status'] = "1";
                     $success['message'] = "Game and Match are created";
                     $success['data'] = $check_game;
