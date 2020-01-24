@@ -804,8 +804,8 @@ class GameController extends ResponseController
                 }
                 // $mytime = Carbon::now();
                 // $resume_time = $mytime->toDateTimeString();
-                $timestamp = $request->resume_time;
-                $resume_time = date('Y-m-d H:i:s', $timestamp);
+                $resume_time = $request->resume_time;
+                // $resume_time = date('Y-m-d H:i:s', $timestamp);
                 $pause = Game::where('id',$request->game_id)->update(['game_resume' => $resume_time,'game_status'=>'3']);
                 if($pause == 1)
                 {
