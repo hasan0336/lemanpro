@@ -369,9 +369,9 @@ class GameController extends ResponseController
         {
             // $mytime = Carbon::now();
             // $start_time = $mytime->toDateTimeString();
-            $timestamp = $request->start_time;
+            $start_time = $request->start_time;
             // $timestamp = strtotime($start_time);
-            $start_time = date('Y-m-d H:i:s', $timestamp);
+            // $start_time = date('Y-m-d H:i:s', $timestamp);
             // dd($timestamp);
             $match = Game::where('id',$request->game_id)->update(['game_start_time' => $start_time,'opponent'=>$request->opponent,'game_type'=>$request->game_type, 'game_status'=>'1']);
             $player_players_team_a = explode(',',$request->player_players_team_a);
@@ -496,8 +496,8 @@ class GameController extends ResponseController
 
             // $mytime = Carbon::now();
             // $start_time = $mytime->toDateTimeString();
-            $timestamp = $request->end_time;
-            $start_time = date('Y-m-d H:i:s', $timestamp);
+            $start_time = $request->end_time;
+            // $start_time = date('Y-m-d H:i:s', $timestamp);
             $ending_player = array('player_end_time' => $start_time);
             $result_end_match = DB::table('matches')->where('game_id',$request->game_id)->where('playing_player',1)->update($ending_player);
             $ending_game = array('game_end_time' => $start_time,'game_status'=>'4');
@@ -576,7 +576,7 @@ class GameController extends ResponseController
                     }
                     else
                     {  
-                        $check_game->game_start_time = strtotime($check_game->game_start_time);
+                        // $check_game->game_start_time = strtotime($check_game->game_start_time);
                         $data['game_start_timestamp'] = $check_game->game_start_time;
                     }
                     if(strtotime($check_game->game_end_time) == false || strtotime($check_game->game_end_time) == '')
@@ -586,7 +586,7 @@ class GameController extends ResponseController
                     }
                     else
                     {
-                        $check_game->game_end_time = strtotime($check_game->game_end_time);
+                        // $check_game->game_end_time = strtotime($check_game->game_end_time);
                         $data['game_end_timestamp'] = $check_game->game_end_time;
                     }
                     if(strtotime($check_game->game_pause) == false || strtotime($check_game->game_pause) == '')
@@ -596,7 +596,7 @@ class GameController extends ResponseController
                     }
                     else
                     {
-                        $check_game->game_pause = strtotime($check_game->game_pause);
+                        // $check_game->game_pause = strtotime($check_game->game_pause);
                         $data['game_pause_timestamp'] = $check_game->game_pause ;
                     }
                     if(strtotime($check_game->game_resume) == false || strtotime($check_game->game_resume) == '')
@@ -606,7 +606,7 @@ class GameController extends ResponseController
                     }
                     else
                     {
-                        $check_game->game_resume = strtotime($check_game->game_resume);
+                        // $check_game->game_resume = strtotime($check_game->game_resume);
                         $data['game_resume_timestamp'] = $check_game->game_resume;
                     }
                     $data['game_id'] = $check_game->id;
@@ -651,7 +651,7 @@ class GameController extends ResponseController
                     }
                     else
                     {  
-                        $check_game->game_start_time = strtotime($check_game->game_start_time);
+                        // $check_game->game_start_time = strtotime($check_game->game_start_time);
                         $data['game_start_timestamp'] = $check_game->game_start_time;
                     }
                     if(strtotime($check_game->game_end_time) == false || strtotime($check_game->game_end_time) == '')
@@ -661,7 +661,7 @@ class GameController extends ResponseController
                     }
                     else
                     {
-                        $check_game->game_end_time = strtotime($check_game->game_end_time);
+                        // $check_game->game_end_time = strtotime($check_game->game_end_time);
                         $data['game_end_timestamp'] = $check_game->game_end_time;
                     }
                     if(strtotime($check_game->game_pause) == false || strtotime($check_game->game_pause) == '')
@@ -671,7 +671,7 @@ class GameController extends ResponseController
                     }
                     else
                     {
-                        $check_game->game_pause = strtotime($check_game->game_pause);
+                        // $check_game->game_pause = strtotime($check_game->game_pause);
                         $data['game_pause_timestamp'] = $check_game->game_pause ;
                     }
                     if(strtotime($check_game->game_resume) == false || strtotime($check_game->game_resume) == '')
@@ -681,7 +681,7 @@ class GameController extends ResponseController
                     }
                     else
                     {
-                        $check_game->game_resume = strtotime($check_game->game_resume);
+                        // $check_game->game_resume = strtotime($check_game->game_resume);
                         $data['game_resume_timestamp'] = $check_game->game_resume;
                     }
                     $data['game_id'] = $check_game->id;
@@ -738,8 +738,8 @@ class GameController extends ResponseController
                 }
                 // $mytime = Carbon::now();
                 // $pause_time = $mytime->toDateTimeString();
-                $timestamp = $request->pause_time;
-                $pause_time = date('Y-m-d H:i:s', $timestamp);
+                $pause_time = $request->pause_time;
+                // $pause_time = date('Y-m-d H:i:s', $timestamp);
                 $pause = Game::where('id',$request->game_id)->update(['game_pause' => $pause_time,'game_status'=>'2']);
                 if($pause == 1)
                 {
@@ -751,7 +751,8 @@ class GameController extends ResponseController
                     }
                     else
                     {
-                        $data['game_start_timestamp'] = strtotime($data->game_start_time);
+                        // $data['game_start_timestamp'] = strtotime($data->game_start_time);
+                        $data['game_start_timestamp'] = $data->game_start_time;
                     }
                     if(strtotime($data->game_end_time) == false || strtotime($data->game_end_time) == '')
                     {
@@ -759,7 +760,8 @@ class GameController extends ResponseController
                     }
                     else
                     {
-                        $data['game_end_timestamp'] = strtotime($data->game_end_time);
+                        // $data['game_end_timestamp'] = strtotime($data->game_end_time);
+                        $data['game_end_timestamp'] = $data->game_end_time;
                     }
                     if(strtotime($data->game_pause) == false || strtotime($data->game_pause) == '')
                     {
@@ -767,7 +769,8 @@ class GameController extends ResponseController
                     }
                     else
                     {
-                        $data['game_pause_timestamp'] = strtotime($data->game_pause);
+                        // $data['game_pause_timestamp'] = strtotime($data->game_pause);
+                        $data['game_pause_timestamp'] = $data->game_pause;
                     }
                     if(strtotime($data->game_resume) == false || strtotime($data->game_resume) == '')
                     {
@@ -775,7 +778,8 @@ class GameController extends ResponseController
                     }
                     else
                     {
-                        $data['game_resume_timestamp'] = strtotime($data->game_resume);
+                        // $data['game_resume_timestamp'] = strtotime($data->game_resume);
+                        $data['game_resume_timestamp'] = $data->game_resume;
                     }
                     $data['game_id'] = $data->id;
                     $success['status'] = '1';
@@ -812,7 +816,8 @@ class GameController extends ResponseController
                     }
                     else
                     {
-                        $data['game_start_timestamp'] = strtotime($data->game_start_time);
+                        // $data['game_start_timestamp'] = strtotime($data->game_start_time);
+                        $data['game_start_timestamp'] = $data->game_start_time;
                     }
                     if(strtotime($data->game_end_time) == false || strtotime($data->game_end_time) == '')
                     {
@@ -820,7 +825,8 @@ class GameController extends ResponseController
                     }
                     else
                     {
-                        $data['game_end_timestamp'] = strtotime($data->game_end_time);
+                        // $data['game_end_timestamp'] = strtotime($data->game_end_time);
+                        $data['game_end_timestamp'] = $data->game_end_time;
                     }
                     if(strtotime($data->game_pause) == false || strtotime($data->game_pause) == '')
                     {
@@ -828,7 +834,8 @@ class GameController extends ResponseController
                     }
                     else
                     {
-                        $data['game_pause_timestamp'] = strtotime($data->game_pause);
+                        // $data['game_pause_timestamp'] = strtotime($data->game_pause);
+                        $data['game_pause_timestamp'] = $data->game_pause;
                     }
                     if(strtotime($data->game_resume) == false || strtotime($data->game_resume) == '')
                     {
@@ -836,7 +843,8 @@ class GameController extends ResponseController
                     }
                     else
                     {
-                        $data['game_resume_timestamp'] = strtotime($data->game_resume);
+                        // $data['game_resume_timestamp'] = strtotime($data->game_resume);
+                        $data['game_resume_timestamp'] = $data->game_resume;
                     }
 
                     $data['game_id'] = $data->id;
