@@ -900,10 +900,13 @@ class GameController extends ResponseController
                 $goals = array('goals'=>$player_goal);
                 $result_1 = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$match_player)->update($goals);
             }
-            foreach(array_combine($match_players, $players_own_goals) as $match_player => $player_own_goal)
+            if($own_goals != null || !empty($own_goals))
             {
-                $own_goals = array('own_goal'=>$player_own_goal);
-                $result_2 = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$match_player)->update($own_goals);
+                foreach(array_combine($match_players, $players_own_goals) as $match_player => $player_own_goal)
+                {
+                    $own_goals = array('own_goal'=>$player_own_goal);
+                    $result_2 = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$match_player)->update($own_goals);
+                }
             }
             foreach(array_combine($match_players, $players_red_cards) as $match_player => $player_red_card)
             {
