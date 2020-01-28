@@ -193,7 +193,7 @@ class GameController extends ResponseController
             }
             if($request->own_goal != null || !empty($request->own_goal))
             {
-                $total_own_goals = $get_player_data->goals + $request->goals;
+                $total_own_goals = $get_player_data->own_goal + $request->own_goal;
                 $data['own_goal'] = $total_own_goals;
             }
             if($request->yellow != null || !empty($request->yellow))
