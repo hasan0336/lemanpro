@@ -64,7 +64,8 @@ class GameController extends ResponseController
                         // dd($player_team);
                         $matches[] = array('game_id'=>$game->id,'player_id'=>$match_player,'team_assign'=>$player_team,'created_at'=>$mytime->toDateTimeString(),'updated_at'=>$mytime->toDateTimeString());
                     }
-                    $matches2 = MAtch::insert($matches);
+                    
+                    $matches2 = Match::insert($matches);
 
                     if($matches2 == 1)
                     {
