@@ -28,7 +28,7 @@ class UserNotification extends Mailable
      */
     public function build()
     {
-         return $this->from('dev.appsnado@gmail.com')
+         return $this->from('dev.appsnado@gmail.com')->subject('Leman Pro')
         ->view('emails.verification')
         ->with([
                 'email' => $this->user->email
