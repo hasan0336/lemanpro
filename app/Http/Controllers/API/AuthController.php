@@ -404,6 +404,7 @@ class AuthController extends ResponseController
                     $success['status'] = '1';
                     $success['message'] = "'password changed sucessfully";
                     $success['data'] = $user_info;
+                    $success['token'] =  $user->createToken('token')->accessToken;
                     return $this->sendResponse($success);
                 }
                 else 
