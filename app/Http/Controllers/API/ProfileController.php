@@ -339,7 +339,7 @@ class ProfileController extends ResponseController
             }
             elseif($user->role_id == 2)
             {
-                $profile = Profile::select('first_name','last_name','dob','gender','cob','cop','height','weight','position','twitter','image')->where('profiles.user_id',$request->user_id)->first();
+                $profile = Profile::select('first_name','last_name','dob','gender','address','longitude','latitude','cob','cop','height','weight','position','twitter','image')->where('profiles.user_id',$request->user_id)->first();
                 $profile->image = URL::to('public/images/profile_images/').'/'.$profile->image; 
                 
                 $matches = Match::select(DB::raw('count(game_id) as game_id'),'player_id',DB::raw('SUM(yellow) as yellow'),DB::raw('SUM(red) as red'),DB::raw('SUM(goals) as goals'),DB::raw('SUM(own_goal) as own_goal'),DB::raw('SUM(trophies) as trophies'),DB::raw('SUM(time) as time'))->groupBy('player_id')->where('player_id',$request->user_id)->get();
