@@ -12,6 +12,7 @@ use App\Rosters;
 use DB;
 use URL;
 use App\Notification;
+
 class RosterController extends ResponseController
 {
     //team sends request to player
@@ -260,6 +261,7 @@ class RosterController extends ResponseController
                 $players_data[$key] = User::join('profiles','users.id','profiles.user_id')->select('users.id as player_id','profiles.id as player_profile_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),'image')->where('users.id',$value['player_id'])->first();
                 $players_data[$key]['image'] = URL::to('/').'/public/images/profile_images/'.$players_data[$key]['image']; 
             }
+            
             $success['status'] = "1";
             $success['message'] = "Players in the team";
             $success['data'] = $players_data;
