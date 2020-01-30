@@ -195,52 +195,52 @@ class SearchController extends ResponseController
                 }
             }
         }
-        // elseif($gender == null && $latitude && $longitude && $age)
-        // {
-        //     // dd(445);
-        //     $results = DB::select(DB::raw('SELECT id,user_id as player_id,CONCAT(first_name," ",last_name) as display_name ,latitude,longitude,image, ( 3959 * acos( cos( radians('.$latitude.') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians('.$longitude.') ) + sin( radians('.$latitude.') ) * sin( radians(latitude) ) ) ) AS distance FROM profiles where year(profiles.dob)  = '.$dob.' HAVING distance < ' . $miles . ' ORDER BY distance') );
-        //     foreach ($results as $key => $value) 
-        //     {
-        //         // dd($value);
-        //         $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
-        //         $result[$key]['display_name'] = $value->display_name;
-        //         if($player_roster == null)
-        //         {
-        //             $results[$key]->team_member = '0';   
-        //         }  
-        //         if($player_roster['request'] == 1)
-        //         {
-        //             $results[$key]->team_member = '1';
-        //         }
-        //         elseif($player_roster['request'] == 2)
-        //         {
-        //             $results[$key]->team_member = '2';
-        //         }
-        //     }
-        // }
-        // elseif($gender && $latitude && $longitude && $age == null)
-        // {
-        //     // dd(445);
-        //     $results = DB::select(DB::raw('SELECT id,user_id as player_id,CONCAT(first_name," ",last_name) as display_name ,latitude,longitude,image, ( 3959 * acos( cos( radians('.$latitude.') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians('.$longitude.') ) + sin( radians('.$latitude.') ) * sin( radians(latitude) ) ) ) AS distance FROM profiles where profiles.gender LIKE "%'.$gender.'%" HAVING distance < ' . $miles . ' ORDER BY distance') );
-        //     foreach ($results as $key => $value) 
-        //     {
-        //         // dd($value);
-        //         $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
-        //         $result[$key]['display_name'] = $value->display_name;
-        //         if($player_roster == null)
-        //         {
-        //             $results[$key]->team_member = '0';   
-        //         }  
-        //         if($player_roster['request'] == 1)
-        //         {
-        //             $results[$key]->team_member = '1';
-        //         }
-        //         elseif($player_roster['request'] == 2)
-        //         {
-        //             $results[$key]->team_member = '2';
-        //         }
-        //     }
-        // }
+        elseif($gender == null && $latitude && $longitude && $age)
+        {
+            // dd(445);
+            $results = DB::select(DB::raw('SELECT id,user_id as player_id,CONCAT(first_name," ",last_name) as display_name ,latitude,longitude,image, ( 3959 * acos( cos( radians('.$latitude.') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians('.$longitude.') ) + sin( radians('.$latitude.') ) * sin( radians(latitude) ) ) ) AS distance FROM profiles where year(profiles.dob)  = '.$dob.' HAVING distance < ' . $miles . ' ORDER BY distance') );
+            foreach ($results as $key => $value) 
+            {
+                // dd($value);
+                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
+                $result[$key]['display_name'] = $value->display_name;
+                if($player_roster == null)
+                {
+                    $results[$key]->team_member = '0';   
+                }  
+                if($player_roster['request'] == 1)
+                {
+                    $results[$key]->team_member = '1';
+                }
+                elseif($player_roster['request'] == 2)
+                {
+                    $results[$key]->team_member = '2';
+                }
+            }
+        }
+        elseif($gender && $latitude && $longitude && $age == null)
+        {
+            // dd(445);
+            $results = DB::select(DB::raw('SELECT id,user_id as player_id,CONCAT(first_name," ",last_name) as display_name ,latitude,longitude,image, ( 3959 * acos( cos( radians('.$latitude.') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians('.$longitude.') ) + sin( radians('.$latitude.') ) * sin( radians(latitude) ) ) ) AS distance FROM profiles where profiles.gender LIKE "%'.$gender.'%" HAVING distance < ' . $miles . ' ORDER BY distance') );
+            foreach ($results as $key => $value) 
+            {
+                // dd($value);
+                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
+                $result[$key]['display_name'] = $value->display_name;
+                if($player_roster == null)
+                {
+                    $results[$key]->team_member = '0';   
+                }  
+                if($player_roster['request'] == 1)
+                {
+                    $results[$key]->team_member = '1';
+                }
+                elseif($player_roster['request'] == 2)
+                {
+                    $results[$key]->team_member = '2';
+                }
+            }
+        }
         elseif($gender && $age)
         {
             
