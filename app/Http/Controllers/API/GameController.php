@@ -850,6 +850,7 @@ class GameController extends ResponseController
                     }
 
                     $data['game_id'] = $data->id;
+                    $data['team_id'] = (string)$data->team_id;
                     $success['status'] = '1';
                     $success['message'] = "Game is resume";
                     $success['data'] = $data;
