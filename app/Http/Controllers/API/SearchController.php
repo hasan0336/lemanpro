@@ -20,8 +20,8 @@ class SearchController extends ResponseController
 {
     public function search_tryout(Request $request)
     {
-    	$longitude = $request->longitude;
-    	$latitude = $request->latitude;
+    	$longitude = $request->latitude;
+    	$latitude = $request->longitude;
     	$miles = $request->miles;
 
     	$search_team_name = $request->search_team_name;
