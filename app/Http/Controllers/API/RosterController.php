@@ -316,7 +316,7 @@ class RosterController extends ResponseController
                     'notification_type' => env('NOTIFICATION_TYPE_SEND_PLAYER_LEFT_TEAM_REQUEST')
                 );
                 $data['device_tokens'] = $token;
-                $data['device_type'] = $get_players->device_type;
+                $data['device_type'] = $get_team->device_type;
                 push_notification($data);
                 $success['status'] = "1";
                 $success['message'] = "sucessfully deleted";
