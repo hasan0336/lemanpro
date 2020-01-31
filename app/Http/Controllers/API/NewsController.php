@@ -309,7 +309,7 @@ class NewsController extends ResponseController
         {
             if($request->user()->id == $request->player_id)
             {
-
+                
                 $rosters = Rosters::where('player_id',$request->player_id)->get();
                 if(count($rosters) > 0)
                 {

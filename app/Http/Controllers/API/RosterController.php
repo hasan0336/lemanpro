@@ -13,7 +13,7 @@ use DB;
 use URL;
 use App\Notification;
 use App\Game;
-
+use App\Profile;
 class RosterController extends ResponseController
 {
     //team sends request to player
