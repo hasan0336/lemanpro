@@ -320,14 +320,12 @@ class RosterController extends ResponseController
                 push_notification($data);
                 $success['status'] = "1";
                 $success['message'] = "sucessfully deleted";
-                $success['data'] = '';
                 return $this->sendResponse($success);
             }
             else
             {
                 $success['status'] = "1";
                 $success['message'] = "not exist";
-                $success['data'] = '';
                 return $this->sendResponse($success);
             }
         }
@@ -335,7 +333,6 @@ class RosterController extends ResponseController
         {
             $success['status'] = "0";
             $success['message'] = "Unauthorized User";
-            $success['data'] = '';
             return $this->sendResponse($success);
         }
     }
