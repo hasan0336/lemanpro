@@ -41,15 +41,9 @@ class ProfileController extends ResponseController
         $imageName = '' ;
         if($check_complete_profile->is_profile_complete == 0)
         {
-            if($request->image == "" || empty($request->image))
+            if($request->image != '' || $request->image != false)
             {
-                $success['status'] = '0';
-                $success['message'] = "image is missing";
-                return $this->sendResponse($success);   
-            }
-            else
-            {
-                $imageName = time().'.'.request()->image->getClientOriginalExtension();
+               $imageName = time().'.'.request()->image->getClientOriginalExtension();
                 request()->image->move(public_path('images/profile_images'), $imageName);
             }
         }
