@@ -257,18 +257,27 @@ class RosterController extends ResponseController
         if($request->user()->id == $team_id )
         {
             $players = Rosters::with('user')->where('team_id',$team_id)->where('request',1)->get();
-            $players_data = array();
-            foreach ($players as $key => $value) 
+            if(count($players) > 0)
             {
-                $players_data[$key] = User::join('profiles','users.id','profiles.user_id')->select('users.id as player_id','profiles.id as player_profile_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),'image')->where('users.id',$value['player_id'])->first();
-                $players_data[$key]['image'] = URL::to('/').'/public/images/profile_images/'.$players_data[$key]['image']; 
+                $players_data = array();
+                foreach ($players as $key => $value) 
+                {
+                    $players_data[$key] = User::join('profiles','users.id','profiles.user_id')->select('users.id as player_id','profiles.id as player_profile_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),'image')->where('users.id',$value['player_id'])->first();
+                    $players_data[$key]['image'] = URL::to('/').'/public/images/profile_images/'.$players_data[$key]['image']; 
+                }
+                $check_game_start = Game::where('team_id',$request->team_id)->where('game_end_time','')->where('game_start_time','!=','' )->first();
+                $success['is_game_start'] = count($check_game_start) ? "1" : "0";
+                $success['status'] = "1";
+                $success['message'] = "Players in the team";
+                $success['data'] = $players_data;
+                return $this->sendResponse($success);
             }
-            $check_game_start = Game::where('team_id',$request->team_id)->where('game_end_time','')->where('game_start_time','!=','' )->first();
-            $success['is_game_start'] = count($check_game_start) ? "1" : "0";
-            $success['status'] = "1";
-            $success['message'] = "Players in the team";
-            $success['data'] = $players_data;
-            return $this->sendResponse($success);
+            else
+            {
+                $success['status'] = "1";
+                $success['message'] = "No Player";
+                return $this->sendResponse($success);
+            }
         }
         else
         {
