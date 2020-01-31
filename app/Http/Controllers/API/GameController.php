@@ -543,9 +543,9 @@ class GameController extends ResponseController
             {
                 if($check_game->game_start_time != '' && $check_game->game_end_time == '' )
                 {
-                    $match_data = Match::where('game_id',$check_game->id)->where('playing_player',1)
+                    $match_data = Match::where('game_id',$check_game->id)->where('playing_player',1)->join('profiles','profiles.user_id','=','matches.player_id')
                     ->groupBy('team_assign')
-                    ->selectRaw('GROUP_CONCAT(player_id) as player_id,GROUP_CONCAT(playing_pos) as playing_pos,team_assign,GROUP_CONCAT(yellow) as yellow,GROUP_CONCAT(red) as red,GROUP_CONCAT(goals) as goals,SUM(goals) as total_goals,GROUP_CONCAT(own_goal) as own_goal,SUM(own_goal) as total_own_goals ,GROUP_CONCAT(trophies) as trophies')
+                    ->selectRaw('GROUP_CONCAT(player_id) as player_id,GROUP_CONCAT(playing_pos) as playing_pos,team_assign,GROUP_CONCAT(yellow) as yellow,GROUP_CONCAT(red) as red,GROUP_CONCAT(goals) as goals,SUM(goals) as total_goals,GROUP_CONCAT(own_goal) as own_goal,SUM(own_goal) as total_own_goals ,GROUP_CONCAT(trophies) as trophies,GROUP_CONCAT(profiles.first_name," ",profiles.last_name) as display_name')
                     ->get();
                     $data =array();
 
@@ -555,6 +555,7 @@ class GameController extends ResponseController
                         {
                             $data['player_players_team_a'] = $value->player_id;
                             $data['playing_positions_team_a'] = $value->playing_pos;
+                            $data['playing_players_name'] = $value->display_name;
                             $data['yellow'] = $value->yellow;
                             $data['red'] = $value->red;
                             $data['goals'] = $value->goals;
