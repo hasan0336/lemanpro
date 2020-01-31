@@ -47,7 +47,7 @@ class RosterController extends ResponseController
                         'to'=>$player_id,
                         'from'=>$team_id,
                         'type'=>env('NOTIFICATION_TYPE_SEND_ROSTER_REQUEST'),
-                        'title'=>$get_team->first_name +' '+$get_team->last_name,
+                        'title'=>$get_team->first_name .' '.$get_team->last_name,
                         'message'=>'Add to Rosters Request',
                     );
                     $res_notify = Notification::create($notify);
@@ -174,7 +174,7 @@ class RosterController extends ResponseController
                         'to'=>$team_id,
                         'from'=>$player_id,
                         'type'=>env('NOTIFICATION_TYPE_ACCEPT_REQUEST'),
-                        'title'=>$get_player->first_name+' '++$get_team->last_name,
+                        'title'=>$get_player->first_name.' '.$get_team->last_name,
                         'message'=>'Player Added to Rosters',
                         'is_accept'=>'1',
                         );
