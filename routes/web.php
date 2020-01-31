@@ -11,8 +11,14 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/test/notification', function () {
+    $data = array(
+        'title' => "testing",
+        'message' => "hello",
+        'notification_type' => 003);
+    $data['device_tokens'] = array('fc7udXWE9jk:APA91bHLS33DBWS01yCruKIoOLvyH4zlsKKiLbhEIe9xZm7QEeClm6zGdy1oVrTJdkKSu-O8dw_w4nPJnb7eyQ1UK-VCBGxnmhEDnv4s2zGXJLXiaWiIM4Iqoqz531EuVkSQAkQZ-bXO');
+    $data['device_type'] = 'android';
+    push_notification();
 });
 // Route::get('admin', function () {
 // 	dd('i am admin');
