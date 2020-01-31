@@ -450,6 +450,7 @@ class GameController extends ResponseController
                 
                 $end_time = Carbon::parse($get_playing_time->player_end_time)->format('h:i:s');
                 $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
+                $get_minutes = abs($get_minutes);
                 $player_time = array('time' => $get_minutes);
                 $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->update($player_time);
                 // dd($get_minutes);
@@ -510,6 +511,7 @@ class GameController extends ResponseController
                 $end_time = Carbon::parse($value->player_end_time)->format('h:i:s');
                 $start_time = Carbon::parse($value->player_start_time)->format('h:i:s');
                 $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
+                $get_minutes = abs($get_minutes);
                 $player_time = array('time' => number_format((float)$get_minutes, 0, '.', ''));
                 $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$value->player_id)->update($player_time);
             }
