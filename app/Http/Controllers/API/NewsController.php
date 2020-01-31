@@ -85,12 +85,13 @@ class NewsController extends ResponseController
                     foreach ($get_players as $key => $player) 
                     {
                         // dd($player['device_token']);
+                        $get_news = DB::table('news')->latest('created_at')->where('team_id',$request->team_id)->first();
                         $notify = array(
                         'news_id'=>$news,
                         'to'=>$player['player_id'],
                         'from'=>$request->team_id,
                         'type'=>env('NOTIFICATION_TYPE_SEND_NEWS_ALERT_REQUEST'),
-                        'title'=>'News',
+                        'title'=>$get_news->title,
                         'message'=>'News from Team',
                     );
                     $get_info = User::where('id', '=', $player['player_id'])->first();
