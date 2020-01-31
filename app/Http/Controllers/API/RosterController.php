@@ -292,11 +292,32 @@ class RosterController extends ResponseController
             $success['message'] = "player_id is missing";
             return $this->sendResponse($success);
         }
-        elseif($request->user()->id == $request->team_id )
+        elseif($request->user()->id == $request->player_id )
         {
             $res = DB::table('rosters')->where('team_id', $request->team_id)->where('player_id', $request->player_id)->delete();
             if($res == 1)
             {
+                $team_id = $request->team_id;
+                $player_id = $request->player_id;
+                $notify = array(
+                        'to'=>$team_id,
+                        'from'=>$player_id,
+                        'type'=>env('NOTIFICATION_TYPE_SEND_PLAYER_LEFT_TEAM_REQUEST'),
+                        'title'=>'Left Roster',
+                        'message'=>'Player Left Team',
+                    );
+                $res_notify = Notification::create($notify);
+                $get_team = User::select('*')->where('id',$team_id)->first();
+                
+                $token[] = $get_team->device_token;
+                $data = array(
+                    'title' => $notify['title'],
+                    'message' => $notify['message'],
+                    'notification_type' => env('NOTIFICATION_TYPE_SEND_PLAYER_LEFT_TEAM_REQUEST')
+                );
+                $data['device_tokens'] = $token;
+                $data['device_type'] = $get_players->device_type;
+                push_notification($data);
                 $success['status'] = "1";
                 $success['message'] = "sucessfully deleted";
                 $success['data'] = '';
@@ -329,7 +350,7 @@ class RosterController extends ResponseController
         }
         elseif($request->user()->id == $request->user_id )
         {
-            $res = Notification::select('notifications.id','roster_id','type','title','message','is_read','news_id','to as receiver_id','from as sender_id','image','is_accept','is_reject','notifications.created_at')->join('profiles','profiles.user_id','=','notifications.from')->where('to', $request->user_id)->orderBy('notifications.created_at','DESC')->get();
+            $res = Notification::select('notifications.id','roster_id','type','title','message','is_read','news_id','to as receiver_id','from as sender_id','image','is_accept','is_reject','notifications.created_at',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'))->join('profiles','profiles.user_id','=','notifications.from')->where('to', $request->user_id)->orderBy('notifications.created_at','DESC')->get();
             // $players_image = array();
             foreach ($res as $key => $value) 
             {
