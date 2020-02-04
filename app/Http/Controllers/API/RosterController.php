@@ -19,7 +19,6 @@ class RosterController extends ResponseController
     //team sends request to player
     public function send_request(Request $request)
     {
-        // dd(657546);
         if($request->team_id == "" || empty($request->team_id))
         {
             $success['status'] = '0';
@@ -42,13 +41,13 @@ class RosterController extends ResponseController
                 $rosters = Rosters::create($request->all());
                 if($rosters->id)
                 {
-                    $get_team = Profile::select('*')->where('id',$team_id)->first();
+                    $get_team = Profile::select('*')->where('user_id',$team_id)->first();
                     $notify = array(
                         'roster_id'=>$rosters->id,
                         'to'=>$player_id,
                         'from'=>$team_id,
                         'type'=>env('NOTIFICATION_TYPE_SEND_ROSTER_REQUEST'),
-                        'title'=>$get_team->first_name .' '.$get_team->last_name,
+                        'title'=>$get_team->team_name,
                         'message'=>'Add to Rosters Request',
                     );
                     $res_notify = Notification::create($notify);
@@ -116,7 +115,6 @@ class RosterController extends ResponseController
             $success['message'] = "Request send to player";
             $success['data'] = $team_data;
             return $this->sendResponse($success);
-            // dd($rosters);
         }
         else
         {
@@ -175,7 +173,7 @@ class RosterController extends ResponseController
                         'to'=>$team_id,
                         'from'=>$player_id,
                         'type'=>env('NOTIFICATION_TYPE_ACCEPT_REQUEST'),
-                        'title'=>$get_player->first_name.' '.$get_team->last_name,
+                        'title'=>$get_player->first_name.' '.$get_player->last_name,
                         'message'=>'Player Added to Rosters',
                         'is_accept'=>'1',
                         );

@@ -423,11 +423,12 @@ class TryoutController extends ResponseController
                     'title' => $notify['title'],
                     'message' => $notify['message'],
                     'notification_type' => env('NOTIFICATION_TYPE_SEND_PURCHASE_TRYOUT_REQUEST'),
-                    'x_data' => ['tryout_id',(int)$tryout_id]
+                    'x_data' => ['tryout_id' => (int)$tryout_id]
                 );
                 $data['device_tokens'] = $device_token;
                 $data['device_type'] = $team_user->device_type;
-                push_notification($data);
+                $datasvvef = push_notification($data);
+                
                   $card_data = array('user_id' => $request->player_id,'stripe_id' => $token['id'], 'card_brand' => $card_brand, 'card_last_four' => $card_last_four_digit, 'trial_ends_at' => $card_expiry );
                   DB::table('stripe')->insert($card_data);
               }
