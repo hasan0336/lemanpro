@@ -84,7 +84,6 @@ class NewsController extends ResponseController
                 {
                     foreach ($get_players as $key => $player) 
                     {
-                        // dd($player['device_token']);
                         $get_news = DB::table('news')->latest('created_at')->where('team_id',$request->team_id)->first();
                         $notify = array(
                         'news_id'=>$news,
@@ -95,7 +94,6 @@ class NewsController extends ResponseController
                         'message'=>'News from Team',
                     );
                     $get_info = User::where('id', '=', $player['player_id'])->first();
-                        // dd($notify);
                     $res_notify = Notification::create($notify);
                     $token[] = $get_info->device_token;
                     $data = array(
@@ -156,7 +154,6 @@ class NewsController extends ResponseController
         if($request->user()->id == $request->team_id)
         {   
             $input = $request->all();
-            // dd($input);
             if($input['title'] != '' || $input['title'] != false)
             {
                 $data['title'] = $input['title'];
@@ -171,7 +168,6 @@ class NewsController extends ResponseController
             $files = $request->file('news_image');
             if($files != '' || !empty($files))
             {   
-                // dd(count($files));
                 foreach($files as $file)
                 {
                     $extension = $file->getClientOriginalExtension();
@@ -181,9 +177,7 @@ class NewsController extends ResponseController
                         $check_images = DB::table('news_images')->where('news_id',$request->news_id)->get();
                         foreach($check_images as $key => $check_image)
                         {
-                            // dd($check_image->news_image);
                             $destinationPath = public_path('/news_image/'.$check_image->news_image);
-                            // dd($destinationPath);
                             if(file_exists($destinationPath))
                             {
                                 unlink($destinationPath);                               
@@ -273,10 +267,8 @@ class NewsController extends ResponseController
             if($request->user()->id == $request->team_id)
             {
                 $news_result = News::select('news.id','news.team_id','news.title','news.description','news.created_at','news_images.news_id')->join('news_images','news.id','=','news_images.news_id')->where('news.team_id',$request->team_id)->orwhere('news.is_admin',1)->groupBy('news_images.news_id')->orderBy('news.created_at', 'desc')->get();
-                // dd($news_result);
                 $news_pics = array();
                 foreach ($news_result as $key => $value) {
-                    // dd($value->news_id);
                     $res = $this->get_news_pictures($value->news_id);
                     $news_result[$key]['news_pics'] = isset($res) ? $res : "";
                 }
@@ -309,7 +301,7 @@ class NewsController extends ResponseController
         {
             if($request->user()->id == $request->player_id)
             {
-                
+                $news_result = array();
                 $rosters = Rosters::where('player_id',$request->player_id)->get();
                 if(count($rosters) > 0)
                 {
@@ -325,7 +317,6 @@ class NewsController extends ResponseController
                     $res = array();
                     foreach ($news_result as $key => $value) 
                     {
-                        // dd($value->news_id);
                         $res[] = $this->get_news_pictures($value->news_id);
                         // $news_result[$key]['news_pics'] = isset($res) ? $res : "";
                     }
@@ -425,7 +416,6 @@ class NewsController extends ResponseController
                     $allowedfileExtension = ['jpeg','jpg','png','gif','svg'];
                     $files = $request->file('hf_image');
                     $help_feedback = HelpFeedback::create($data);
-                    // dd($files);
                     if($files != '' || !empty($files))
                     {
                         

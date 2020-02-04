@@ -41,9 +41,15 @@ class ProfileController extends ResponseController
         $imageName = '' ;
         if($check_complete_profile->is_profile_complete == 0)
         {
-            if($request->image != '' || $request->image != false)
+            if($request->image == "" || empty($request->image))
             {
-               $imageName = time().'.'.request()->image->getClientOriginalExtension();
+                $success['status'] = '0';
+                $success['message'] = "image is missing";
+                return $this->sendResponse($success);   
+            }
+            else
+            {
+                $imageName = time().'.'.request()->image->getClientOriginalExtension();
                 request()->image->move(public_path('images/profile_images'), $imageName);
             }
         }
@@ -56,13 +62,11 @@ class ProfileController extends ResponseController
                 request()->image->move(public_path('images/profile_images'), $imageName);
             }
         }
-        // dd($check_complete_profile->is_profile_complete);
 
         if($request->user()->id == $request->user_id)
         {
             $input = $request->all();
             $profile = User::find($input['user_id']);
-            // dd($request->all());
             if($profile->role_id == 1)
             {
                 if($input['club_address'] != '' || $input['club_address'] != false)
@@ -248,7 +252,9 @@ class ProfileController extends ResponseController
                 if($user == 1)
                 {
                     $user = $request->user();
+                    
                     $user_info = User::with('profile')->where('id',$user->id)->first();
+                    
                     $user_info['profile']->image = URL::to('/public/images/profile_images/'.$user_info['profile']->image);
                     $success['status'] = "1";
                     $success['message'] = "User Profile is Updated";
@@ -287,6 +293,7 @@ class ProfileController extends ResponseController
         if($request->user()->id == $request->user_id)
         {
             $user = User::find($request->user_id);
+            
             if($user->role_id == 1)
             {
                 if($request->player_id != null || !empty($request->player_id))
@@ -306,7 +313,6 @@ class ProfileController extends ResponseController
                     }
                     foreach ($matches as $key => $value) 
                     {
-                        // dd($value->yellow);
                         $profile->games = strval($value->game_id);
                         $profile->yellow = strval($value->yellow);
                         $profile->red = strval($value->red);
@@ -333,10 +339,11 @@ class ProfileController extends ResponseController
             }
             elseif($user->role_id == 2)
             {
+                
                 $profile = Profile::select('first_name','last_name','dob','gender','address','longitude','latitude','cob','cop','height','weight','position','twitter','image')->where('profiles.user_id',$request->user_id)->first();
                 $profile->image = URL::to('public/images/profile_images/').'/'.$profile->image; 
-                
                 $matches = Match::select(DB::raw('count(game_id) as game_id'),'player_id',DB::raw('SUM(yellow) as yellow'),DB::raw('SUM(red) as red'),DB::raw('SUM(goals) as goals'),DB::raw('SUM(own_goal) as own_goal'),DB::raw('SUM(trophies) as trophies'),DB::raw('SUM(time) as time'))->groupBy('player_id')->where('player_id',$request->user_id)->get();
+                
                 $team_joined = Rosters::join('profiles','profiles.user_id','=','rosters.team_id')->where('player_id',$request->user_id)->where('request',1)->select('team_name')->first();
                 if($team_joined == null)
                 {
@@ -348,7 +355,6 @@ class ProfileController extends ResponseController
                 }
                 foreach ($matches as $key => $value) 
                 {
-                    // dd($value->yellow);
                     $profile->games = strval($value->game_id);
                     $profile->yellow = strval($value->yellow);
                     $profile->red = strval($value->red);
