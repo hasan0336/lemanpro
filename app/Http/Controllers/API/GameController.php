@@ -18,6 +18,7 @@ use App\Mail\MatchReport;
 use App\User;
 use Mail;
 use App\Notification;
+use App\Activity;
 class GameController extends ResponseController
 {
     public function create_game(Request $request)
@@ -183,29 +184,122 @@ class GameController extends ResponseController
             $get_player_data = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->first();
             if($request->goals != null || !empty($request->goals))
             {
-                // dd($get_player_data->goals);
-                $total_goals = $get_player_data->goals + $request->goals;
-                $data['goals'] = $total_goals;
+                if($request->time != null || !empty($request->time))
+                {
+                    // dd($get_player_data->goals);
+                    $total_goals = $get_player_data->goals + $request->goals;
+                    $data['goals'] = $total_goals;
+                    $activity_data = array(
+                        'game_id' =>$request->game_id,
+                        'player_id' =>$request->player_id,
+                        'type' =>'goal',
+                        'time' =>'24',
+                    );
+                    $get_result = Activity::insert($activity_data);
+                    // if($get_result)
+                    // {
+                    //     $success['status'] = '1';
+                    //     $success['message'] = "Goal Inserted";
+                    //     return $this->sendResponse($success);
+                    // }
+                    // else
+                    // {
+                    //     $success['status'] = '0';
+                    //     $success['message'] = "Goal not Inserted";
+                    //     return $this->sendResponse($success);
+                    // }
+                }
+                else
+                {
+                    $success['status'] = '0';
+                    $success['message'] = "Time is missing";
+                    return $this->sendResponse($success);
+                }
             }
             if($request->red != null || !empty($request->red))
             {
-                $data['red'] = $request->red;
+                if($request->time != null || !empty($request->time))
+                {
+                    $data['red'] = $request->red;
+                    $data['yellow'] = 0;
+                    $activity_data = array(
+                        'game_id' =>$request->game_id,
+                        'player_id' =>$request->player_id,
+                        'type' =>'red',
+                        'time' =>'24',
+                    );
+                    $get_result = Activity::insert($activity_data);
+                }
+                else
+                {
+                    $success['status'] = '0';
+                    $success['message'] = "Time is missing";
+                    return $this->sendResponse($success);
+                }
             }
             if($request->own_goal != null || !empty($request->own_goal))
             {
-                $total_own_goals = $get_player_data->own_goal + $request->own_goal;
-                $data['own_goal'] = $total_own_goals;
+                if($request->time != null || !empty($request->time))
+                {
+                    $total_own_goals = $get_player_data->own_goal + $request->own_goal;
+                    $data['own_goal'] = $total_own_goals;
+                    $activity_data = array(
+                        'game_id' =>$request->game_id,
+                        'player_id' =>$request->player_id,
+                        'type' =>'own_goal',
+                        'time' =>'24',
+                    );
+                    $get_result = Activity::insert($activity_data);
+                }
+                else
+                {
+                    $success['status'] = '0';
+                    $success['message'] = "Time is missing";
+                    return $this->sendResponse($success);
+                }
             }
             if($request->yellow != null || !empty($request->yellow))
             {
                 if($get_player_data->yellow == 1 || $get_player_data->yellow > 1)
                 {
-                    $data['red'] = 1;
-                    $data['yellow'] = 0;
+                    if($request->time != null || !empty($request->time))
+                    {
+                        $data['red'] = 1;
+                        $data['yellow'] = 0;
+                        $activity_data = array(
+                            'game_id' =>$request->game_id,
+                            'player_id' =>$request->player_id,
+                            'type' =>'red',
+                            'time' =>'24',
+                        );
+                        $get_result = Activity::insert($activity_data);
+                    }
+                    else
+                    {
+                        $success['status'] = '0';
+                        $success['message'] = "Time is missing";
+                        return $this->sendResponse($success);
+                    }
                 }
                 else
                 {
-                    $data['yellow'] = $request->yellow;
+                    if($request->time != null || !empty($request->time))
+                    {
+                        $data['yellow'] = $request->yellow;
+                        $activity_data = array(
+                            'game_id' =>$request->game_id,
+                            'player_id' =>$request->player_id,
+                            'type' =>'yellow',
+                            'time' =>'24',
+                        );
+                        $get_result = Activity::insert($activity_data);
+                    }
+                    else
+                    {
+                        $success['status'] = '0';
+                        $success['message'] = "Time is missing";
+                        return $this->sendResponse($success);
+                    }
                 }
             }
             if($request->trophies != null || !empty($request->trophies))
