@@ -370,30 +370,31 @@ class TryoutController extends ResponseController
     		{ 
           $leman_pro_fees = DB::table('lemanpro_fees')->first();
           $input['amount'] = $input['amount'] + $leman_pro_fees->lemanpro_fee;
-          // $stripe = Stripe::setApiKey(env('STRIPE_SECRET'));
-          // $token = $stripe->tokens()->create
-          // ([
-          //   'card' => 
-          //     [
-          //       'number' => $input['number'],
-          //       'exp_month' => $input['exp_month'],
-          //       'exp_year' => $input['exp_year'],
-          //       'cvc' => $input['cvc'],
-          //     ],
-          // ]);
-          // if (!isset($token['id'])) 
-          // {
-          //     $success['status'] = "0";
-          //     $success['message'] = "Card details failed.";
-          //     return $this->sendResponse($success);
-          // }
-          // $charge = $stripe->charges()->create
-          // ([
-          //     'card' => $token['id'],
-          //     'currency' => 'USD',
-          //     'amount' => $input['amount'],
-          //     'description' => 'wallet',
-          // ]);
+          $stripe = Stripe::setApiKey(env('STRIPE_SECRET'));
+          $token = $stripe->tokens()->create
+          ([
+            'card' => 
+              [
+                'number' => $input['number'],
+                'exp_month' => $input['exp_month'],
+                'exp_year' => $input['exp_year'],
+                'cvc' => $input['cvc'],
+              ],
+          ]);
+          if (!isset($token['id'])) 
+          {
+              $success['status'] = "0";
+              $success['message'] = "Card details failed.";
+              return $this->sendResponse($success);
+          }
+          $charge = $stripe->charges()->create
+          ([
+              'card' => $token['id'],
+              'currency' => 'USD',
+              'amount' => $input['amount'],
+              'description' => 'wallet',
+          ]);
+          dd($charge['status']);
           // if($charge['status'] == 'succeeded') 
           // {
               $card_brand = 'visa';//$charge['payment_method_details']['card']['brand'];
