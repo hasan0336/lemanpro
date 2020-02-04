@@ -306,10 +306,6 @@ class GameController extends ResponseController
             {
                 $data['trophies'] = $request->trophies;
             }
-            if($request->time != null || !empty($request->time))
-            {
-                $data['time'] = $request->time;
-            }
             $match = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->update($data);
             if($match == 1)
             {
@@ -354,9 +350,23 @@ class GameController extends ResponseController
         if($request->user()->id == $request->team_id)
         {
             $game = Match::join('users','users.id','=','matches.player_id')->where('game_id',$request->game_id)->get();
+            foreach ($game as $key => $value) 
+            {
+                // dd($value);
+                $users = User::where('id',$value->player_id)->first();
+                $game_data = array(
+                    'email' => $value->email,
+                    'yellow' => $value->yellow,
+                    'red' => $value->red,
+                    'goals' => $value->goals,
+                    'own_goals' => $value->own_goal,
+                    'trophies' => $value->trophies,
+                    'time' => $value->time
+                );
+                Mail::to($users->email)->send(new MatchReport($game_data,$users->role_id));
+            }
             $users = User::where('id',$request->team_id)->first();
-            
-            Mail::to($users->email)->send(new MatchReport($game));
+            Mail::to($users->email)->send(new MatchReport($game,$users->role_id));
             $success['status'] = "1";
             $success['message'] = "Report sent to Manager";
             $success['data'] = $game;
