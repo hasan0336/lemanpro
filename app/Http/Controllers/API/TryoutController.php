@@ -394,13 +394,13 @@ class TryoutController extends ResponseController
               'amount' => $input['amount'],
               'description' => 'wallet',
           ]);
-          dd($charge['status']);
-          // if($charge['status'] == 'succeeded') 
-          // {
-              $card_brand = 'visa';//$charge['payment_method_details']['card']['brand'];
-              $card_last_four_digit = $request->card_no; //$charge['payment_method_details']['card']['last4'];
-              $card_expiry = '05/23';//$charge['payment_method_details']['card']['exp_month'].'/'.$charge['payment_method_details']['card']['exp_year'];
-              $token['id'] ='43543554353535';
+          
+          if($charge['status'] == 'succeeded') 
+          {
+              $card_brand = $charge['payment_method_details']['card']['brand'];//'visa';
+              $card_last_four_digit = $charge['payment_method_details']['card']['last4']; //$request->card_no;
+              $card_expiry = $charge['payment_method_details']['card']['exp_month'].'/'.$charge['payment_method_details']['card']['exp_year'];//'05/23';
+              $token['id'] = $token['id'];
               $data = array('tryout_id' => $request->tryout_id, 'player_id' => $request->player_id );
               $player_id = $input['player_id'];
               $tryout_id = $input['tryout_id'];
@@ -442,8 +442,8 @@ class TryoutController extends ResponseController
               $success['message'] = "Player joins tryout";
               // $success['data'] = $charge;
               return $this->sendResponse($success);
-              // return redirect()->route('addmoney.paymentstripe');
-          // } 
+          //     return redirect()->route('addmoney.paymentstripe');
+          } 
     		}
     	}
     	else
