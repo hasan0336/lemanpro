@@ -357,7 +357,6 @@ class TryoutController extends ResponseController
         $input['amount'] = $request->amount;
     		$check_player =TryoutPlayers::where('player_id',$input['player_id'])->where('tryout_id',$input['tryout_id'])->first();
         $tryout_team = Tryout::select('profiles.user_id')->join('profiles','tryouts.team_id','=','profiles.user_id')->where('tryouts.id',$input['tryout_id'])->first();
-
         $team_id = $tryout_team->user_id;
     		if($check_player != null || !empty($check_player))
     		{
