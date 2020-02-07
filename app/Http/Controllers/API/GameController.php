@@ -232,6 +232,20 @@ class GameController extends ResponseController
                         'time' =>$request->time,
                     );
                     $get_result = Activity::insert($activity_data);
+                    $player_match_time = Match::select('player_start_time')->where('player_id',$request->player_id)->where('game_id',$request->game_id)->first();
+                    $player_time = new DateTime($player_match_time->player_start_time);
+                    $player_time->add(new DateInterval('PT' . $request->time . 'M'));
+                    $player_end_time = $player_time->format('Y-m-d H:i:s');
+                    $data['player_end_time'] = $player_end_time;
+                    $match = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->update($data);
+
+                    $get_playing_time = Match::select('player_start_time','player_end_time')->where('game_id',$request->game_id)->where('player_id',$request->player_id)->first();
+                    $start_time = Carbon::parse($get_playing_time->player_start_time)->format('h:i:s');
+                    $end_time = Carbon::parse($get_playing_time->player_end_time)->format('h:i:s');
+                    $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
+                    $get_minutes = abs($get_minutes);
+                    $player_time = array('time' => $get_minutes);
+                    $match = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_id)->update($player_time);
                 }
                 else
                 {
@@ -309,28 +323,7 @@ class GameController extends ResponseController
             {
                 $data['trophies'] = $request->trophies;
             }
-            if($data['red'] == '1')
-            {
-                $player_match_time = Match::select('player_start_time')->where('player_id',$request->player_id)->where('game_id',$request->game_id)->first();
-                $player_time = new DateTime($player_match_time->player_start_time);
-                $player_time->add(new DateInterval('PT' . $request->time . 'M'));
-                $player_end_time = $player_time->format('Y-m-d H:i:s');
-                $data['player_end_time'] = $player_end_time;
-                $match = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->update($data);
-
-                $get_playing_time = Match::select('player_start_time','player_end_time')->where('game_id',$request->game_id)->where('player_id',$request->player_id)->first();
-                $start_time = Carbon::parse($get_playing_time->player_start_time)->format('h:i:s');
-                $end_time = Carbon::parse($get_playing_time->player_end_time)->format('h:i:s');
-                $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
-                $get_minutes = abs($get_minutes);
-                $player_time = array('time' => $get_minutes);
-                $match = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_id)->update($player_time);
-
-            }
-            else
-            {
-                $match = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->update($data);
-            }
+            $match = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->update($data);
             if($match == 1)
             {
                 $user = User::join('matches','users.id','matches.player_id')->where('matches.player_id',$request->player_id)->where('matches.game_id',$request->game_id)->first();
