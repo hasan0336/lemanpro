@@ -265,7 +265,15 @@ class RosterController extends ResponseController
                     $players_data[$key]['image'] = URL::to('/').'/public/images/profile_images/'.$players_data[$key]['image']; 
                 }
                 $check_game_start = Game::where('team_id',$request->team_id)->where('game_end_time','')->where('game_start_time','!=','' )->first();
-                $success['is_game_start'] = count($check_game_start) ? "1" : "0";
+                if($check_game_start == null)
+                {
+                    $success['is_game_start'] = '0';
+                }
+                else
+                {
+                    $success['is_game_start'] = '1';
+                }
+                // $success['is_game_start'] = count($check_game_start) ? "1" : "0";
                 $success['status'] = "1";
                 $success['message'] = "Players in the team";
                 $success['data'] = $players_data;

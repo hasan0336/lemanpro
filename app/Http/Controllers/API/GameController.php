@@ -19,6 +19,9 @@ use App\User;
 use Mail;
 use App\Notification;
 use App\Activity;
+use DateTime;
+use DatePeriod;
+use DateInterval;
 class GameController extends ResponseController
 {
     public function create_game(Request $request)
@@ -193,7 +196,7 @@ class GameController extends ResponseController
                         'game_id' =>$request->game_id,
                         'player_id' =>$request->player_id,
                         'type' =>'goal',
-                        'time' =>'24',
+                        'time' =>$request->time,
                     );
                     $get_result = Activity::insert($activity_data);
                     // if($get_result)
@@ -226,7 +229,7 @@ class GameController extends ResponseController
                         'game_id' =>$request->game_id,
                         'player_id' =>$request->player_id,
                         'type' =>'red',
-                        'time' =>'24',
+                        'time' =>$request->time,
                     );
                     $get_result = Activity::insert($activity_data);
                 }
@@ -247,7 +250,7 @@ class GameController extends ResponseController
                         'game_id' =>$request->game_id,
                         'player_id' =>$request->player_id,
                         'type' =>'own_goal',
-                        'time' =>'24',
+                        'time' =>$request->time,
                     );
                     $get_result = Activity::insert($activity_data);
                 }
@@ -270,7 +273,7 @@ class GameController extends ResponseController
                             'game_id' =>$request->game_id,
                             'player_id' =>$request->player_id,
                             'type' =>'red',
-                            'time' =>'24',
+                            'time' =>$request->time,
                         );
                         $get_result = Activity::insert($activity_data);
                     }
@@ -290,7 +293,7 @@ class GameController extends ResponseController
                             'game_id' =>$request->game_id,
                             'player_id' =>$request->player_id,
                             'type' =>'yellow',
-                            'time' =>'24',
+                            'time' =>$request->time,
                         );
                         $get_result = Activity::insert($activity_data);
                     }
@@ -306,7 +309,28 @@ class GameController extends ResponseController
             {
                 $data['trophies'] = $request->trophies;
             }
-            $match = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->update($data);
+            if($data['red'] == '1')
+            {
+                $player_match_time = Match::select('player_start_time')->where('player_id',$request->player_id)->where('game_id',$request->game_id)->first();
+                $player_time = new DateTime($player_match_time->player_start_time);
+                $player_time->add(new DateInterval('PT' . $request->time . 'M'));
+                $player_end_time = $player_time->format('Y-m-d H:i:s');
+                $data['player_end_time'] = $player_end_time;
+                $match = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->update($data);
+
+                $get_playing_time = Match::select('player_start_time','player_end_time')->where('game_id',$request->game_id)->where('player_id',$request->player_id)->first();
+                $start_time = Carbon::parse($get_playing_time->player_start_time)->format('h:i:s');
+                $end_time = Carbon::parse($get_playing_time->player_end_time)->format('h:i:s');
+                $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
+                $get_minutes = abs($get_minutes);
+                $player_time = array('time' => $get_minutes);
+                $match = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_id)->update($player_time);
+
+            }
+            else
+            {
+                $match = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->update($data);
+            }
             if($match == 1)
             {
                 $user = User::join('matches','users.id','matches.player_id')->where('matches.player_id',$request->player_id)->where('matches.game_id',$request->game_id)->first();
@@ -404,7 +428,7 @@ class GameController extends ResponseController
         {
             if($request->team_assign == 'a')
             {
-                $team_a = Match::select('profiles.user_id','profiles.first_name','profiles.last_name','profiles.image','matches.yellow','matches.red','matches.goals','matches.own_goal','matches.trophies')->join('profiles','profiles.user_id','=','matches.player_id')->where('game_id',$request->game_id)->where('team_assign','a')->get();
+                $team_a = Match::select('profiles.user_id','profiles.first_name','profiles.last_name','profiles.position','profiles.image','matches.yellow','matches.red','matches.goals','matches.own_goal','matches.trophies')->join('profiles','profiles.user_id','=','matches.player_id')->where('game_id',$request->game_id)->where('team_assign','a')->get();
 
                 foreach ($team_a as $key => $team) 
                 {
@@ -449,7 +473,7 @@ class GameController extends ResponseController
         if($request->player_players_team_a == "" || empty($request->player_players_team_a))
         {
             $success['status'] = '0';
-            $success['message'] = "player players team_a id is missing";
+            $success['message'] = "playing players id is missing";
             return $this->sendResponse($success);
         }
         if($request->opponent == "" || empty($request->opponent))
@@ -468,6 +492,12 @@ class GameController extends ResponseController
         {
             $success['status'] = '0';
             $success['message'] = "start time is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->playing_positions_team_a == "" || empty($request->playing_positions_team_a))
+        {
+            $success['status'] = '0';
+            $success['message'] = "playing positions is missing";
             return $this->sendResponse($success);
         }
         if($request->user()->id == $request->team_id)
@@ -540,12 +570,16 @@ class GameController extends ResponseController
         {
             // $mytime = Carbon::now();
             // $start_time = $mytime->toDateTimeString();
+            // dd($request->start_time);
             $timestamp = $request->start_time;
-            $start_time = date('Y-m-d H:i:s', $timestamp);
+            // dd($timestamp);
+            $start_time = $timestamp;
             $starting_player = array('playing_player' => '1','player_start_time' => $start_time);
             $result_start = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_in_id)->update($starting_player);
+
             $ending_player = array('playing_player' => '0','player_end_time' => $start_time);
             $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->update($ending_player);
+            
             if($result_start == '1' && $result_end == '1')
             {
                 $get_playing_time = Match::select('player_start_time','player_end_time')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->first();
