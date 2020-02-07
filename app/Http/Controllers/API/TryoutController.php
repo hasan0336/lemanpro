@@ -388,7 +388,7 @@ class TryoutController extends ResponseController
           }
           $charge = $stripe->charges()->create
           ([
-              'card' => $token['id'],
+              'source' => $token['id'],
               'currency' => 'USD',
               'amount' => $input['amount'],
               'description' => 'wallet',

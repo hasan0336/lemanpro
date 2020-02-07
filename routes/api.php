@@ -60,6 +60,9 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 	Route::get('substitute_player','API\GameController@substitute_player');
 	Route::get('end_match','API\GameController@end_match');
 	Route::get('check_game','API\GameController@check_game');
+	Route::get('get_player_match_data','API\GameController@get_player_match_data');
+	Route::get('del_player_match_data','API\GameController@del_player_match_data');
+	
 
 
 	Route::post('create_news','API\NewsController@create_news');

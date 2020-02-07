@@ -334,8 +334,8 @@ class GameController extends ResponseController
             if($match == 1)
             {
                 $user = User::join('matches','users.id','matches.player_id')->where('matches.player_id',$request->player_id)->where('matches.game_id',$request->game_id)->first();
-                
-                Mail::to($user->email)->send(new PlayerReport($user));
+                //PlayerReport
+                // Mail::to($user->email)->send(new PlayerReport($user));
                 $success['status'] = "1";
                 $success['message'] = "player score inserted";
 
@@ -574,7 +574,9 @@ class GameController extends ResponseController
             $timestamp = $request->start_time;
             // dd($timestamp);
             $start_time = $timestamp;
-            $starting_player = array('playing_player' => '1','player_start_time' => $start_time);
+            $get_pos_out = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->first();
+
+            $starting_player = array('playing_player' => '1','player_start_time' => $start_time,'playing_pos' =>$get_pos_out->playing_pos);
             $result_start = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_in_id)->update($starting_player);
 
             $ending_player = array('playing_player' => '0','player_end_time' => $start_time);
@@ -1112,18 +1114,19 @@ class GameController extends ResponseController
         elseif($request->user()->id == $request->team_id)
         {
             $data = array();
+            $activity_data = array();
             $get_player_result = Match::where('game_id',$request->game_id)->where('player_id',$request->player_id)->first();
-            if($request->type == 'goal'))
+            if($request->type == 'goal')
             {
                 
                 $total_goals = $get_player_result->goals + 1; 
                 $data['goals'] = $total_goals;
             }
-            if($request->type == 'red'))
+            if($request->type == 'red')
             {
                 $data['red'] = 1;
             }
-            if$request->type == 'yellow'))
+            if($request->type == 'yellow')
             {
                 if($get_player_result->yellow = 1)
                 {
@@ -1135,23 +1138,219 @@ class GameController extends ResponseController
                     $data['yellow'] = $get_player_result->yellow + 1;
                 }
             }
-            if($request->own_goals != null || !empty($request->own_goals))
+            if($request->type == 'own_goal')
             {
-                $data['own_goal'] = $request->own_goals;
+                $total_own_goals = $get_player_result->own_goal + 1;
+                $data['own_goal'] = $total_own_goals;
             }
             $result = Match::where('game_id',$request->game_id)->where('player_id',$request->player_id)->update($data);
-            if($result == 1)
+            $activity_data = array('time'=>$request->time, 'type'=>$request->type,'game_id'=>$request->game_id,'player_id'=>$request->player_id);
+            if($data['red'] == 1)
             {
-                $success['status'] = "1";
-                $success['message'] = "Updated";
-                return $this->sendResponse($success);
+                $result_activity = Activity::where('game_id',$request->game_id)->where('player_id',$request->player_id)->insert($activity_data);
+
+                $player_time = new DateTime($get_player_result->player_end_time);
+                $player_time->add(new DateInterval('PT' . $request->time . 'M'));
+                $player_end_time = $player_time->format('Y-m-d H:i:s');
+                $end_time_data['player_end_time'] = $player_end_time;
+                $match = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->update($end_time_data);
+
+                $get_playing_time = Match::select('player_start_time','player_end_time')->where('game_id',$request->game_id)->where('player_id',$request->player_id)->first();
+                $start_time = Carbon::parse($get_playing_time->player_start_time)->format('h:i:s');
+                $end_time = Carbon::parse($get_playing_time->player_end_time)->format('h:i:s');
+                $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
+                $get_minutes = abs($get_minutes);
+                $player_time = array('time' => $get_minutes);
+                $match = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_id)->update($player_time);
+                if($result == 1)
+                {
+                    $success['status'] = "1";
+                    $success['message'] = "Updated";
+                    return $this->sendResponse($success);
+                }
+                else
+                {
+                    $success['status'] = "0";
+                    $success['message'] = "Not Updated";
+                    return $this->sendResponse($success);
+                }
+
             }
             else
             {
-                $success['status'] = "0";
-                $success['message'] = "Not Updated";
-                return $this->sendResponse($success);
+                $result_activity = Activity::where('game_id',$request->game_id)->where('player_id',$request->player_id)->insert($activity_data);
+                if($result == 1)
+                {
+                    $success['status'] = "1";
+                    $success['message'] = "Updated";
+                    return $this->sendResponse($success);
+                }
+                else
+                {
+                    $success['status'] = "0";
+                    $success['message'] = "Not Updated";
+                    return $this->sendResponse($success);
+                }
             }
+            
+        }
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+        }
+    }
+
+    public function get_player_match_data(Request $request)
+    {
+        if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->game_id == "" || empty($request->game_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "game id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->player_id == "" || empty($request->player_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->type == "" || empty($request->type))
+        {
+            $success['status'] = '0';
+            $success['message'] = "game id is missing";
+            return $this->sendResponse($success);
+        }
+        elseif($request->user()->id == $request->team_id)
+        {
+            if($request->type == "yellow")
+            {
+                $result_activity = Activity::where('type',$request->type)->where('game_id',$request->game_id)->where('player_id',$request->player_id)->get();   
+            }
+            if($request->type == "red")
+            {
+                $result_activity = Activity::where('type',$request->type)->where('game_id',$request->game_id)->where('player_id',$request->player_id)->get();   
+            }
+            if($request->type == "goal")
+            {
+                $result_activity = Activity::where('type',$request->type)->where('game_id',$request->game_id)->where('player_id',$request->player_id)->get();   
+            }
+            if($request->type == "own_goal")
+            {
+                $result_activity = Activity::where('type',$request->type)->where('game_id',$request->game_id)->where('player_id',$request->player_id)->get();   
+            }
+            $success['status'] = "1";
+            $success['message'] = "result";
+            $success['data'] = $result_activity;
+            return $this->sendResponse($success);
+        }
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+        }
+    }
+
+    public function del_player_match_data(Request $request)
+    {
+        if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->game_id == "" || empty($request->game_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "game id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->player_id == "" || empty($request->player_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->type == "" || empty($request->type))
+        {
+            $success['status'] = '0';
+            $success['message'] = "game id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->time == "" || empty($request->time))
+        {
+            $success['status'] = '0';
+            $success['message'] = "time is missing";
+            return $this->sendResponse($success);
+        }
+        elseif($request->user()->id == $request->team_id)
+        {
+            $result_activity = Activity::where('type',$request->type)->where('game_id',$request->game_id)->where('player_id',$request->player_id)->where('time',$request->time)->delete();
+            $result_match = Match::where('game_id',$request->game_id)->where('player_id',$request->player_id)->first();
+            if($request->type == "yellow")
+            {
+                $result_activity = Activity::where('type',$request->type)->where('game_id',$request->game_id)->where('player_id',$request->player_id)->get();
+                if($result_activity == null)
+                {
+                    $data = array('yellow'=> 0);
+                }
+                else
+                {
+                    $data = array('yellow'=>count($result_activity));
+                }
+                $result_update = Match::where('game_id',$request->game_id)->where('player_id',$request->player_id)->update($data);   
+            }
+            if($request->type == "red")
+            {
+                $result_activity = Activity::where('type',$request->type)->where('game_id',$request->game_id)->where('player_id',$request->player_id)->get();
+                if($result_activity == null)
+                {
+                    $data = array('red'=> 0);
+                }
+                else
+                {
+                    $data = array('red'=>count($result_activity));
+                }
+                $result_update = Match::where('game_id',$request->game_id)->where('player_id',$request->player_id)->update($data);   
+            }
+            if($request->type == "goal")
+            {
+                $result_activity = Activity::where('type',$request->type)->where('game_id',$request->game_id)->where('player_id',$request->player_id)->get();
+                if($result_activity == null)
+                {
+                    $data = array('goals'=> 0);
+                }
+                else
+                {
+                    $data = array('goals'=>count($result_activity));
+                }
+                $result_update = Match::where('game_id',$request->game_id)->where('player_id',$request->player_id)->update($data);   
+            }
+            if($request->type == "own_goal")
+            {
+                $result_activity = Activity::where('type',$request->type)->where('game_id',$request->game_id)->where('player_id',$request->player_id)->get();
+                if($result_activity == null)
+                {
+                    $data = array('own_goal'=> 0);
+                }
+                else
+                {
+                    $data = array('own_goal'=>count($result_activity));
+                }
+                $result_update = Match::where('game_id',$request->game_id)->where('player_id',$request->player_id)->update($data);   
+            }
+
+            $success['status'] = "1";
+            $success['message'] = "Result Updated";
+            return $this->sendResponse($success);
         }
         else
         {
