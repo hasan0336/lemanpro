@@ -451,66 +451,123 @@ class GameController extends ResponseController
 
     public function start_match(Request $request)
     {
-        if($request->team_id == "" || empty($request->team_id))
+        if($extra_time = 0)
         {
-            $success['status'] = '0';
-            $success['message'] = "team id is missing";
-            return $this->sendResponse($success);
+            if($request->team_id == "" || empty($request->team_id))
+            {
+                $success['status'] = '0';
+                $success['message'] = "team id is missing";
+                return $this->sendResponse($success);
+            }
+            if($request->game_id == "" || empty($request->game_id))
+            {
+                $success['status'] = '0';
+                $success['message'] = "game id is missing";
+                return $this->sendResponse($success);
+            }
+            if($request->player_players_team_a == "" || empty($request->player_players_team_a))
+            {
+                $success['status'] = '0';
+                $success['message'] = "playing players id is missing";
+                return $this->sendResponse($success);
+            }
+            if($request->opponent == "" || empty($request->opponent))
+            {
+                $success['status'] = '0';
+                $success['message'] = "opponent name is missing";
+                return $this->sendResponse($success);
+            }
+            if($request->game_type == "" || empty($request->game_type))
+            {
+                $success['status'] = '0';
+                $success['message'] = "game type is missing";
+                return $this->sendResponse($success);
+            }
+            if($request->start_time == "" || empty($request->start_time))
+            {
+                $success['status'] = '0';
+                $success['message'] = "start time is missing";
+                return $this->sendResponse($success);
+            }
+            if($request->playing_positions_team_a == "" || empty($request->playing_positions_team_a))
+            {
+                $success['status'] = '0';
+                $success['message'] = "playing positions is missing";
+                return $this->sendResponse($success);
+            }
+            if($request->user()->id == $request->team_id)
+            {
+                // $mytime = Carbon::now();
+                // $start_time = $mytime->toDateTimeString();
+                $start_time = $request->start_time;
+                // $timestamp = strtotime($start_time);
+                // $start_time = date('Y-m-d H:i:s', $timestamp);
+                // dd($timestamp);
+                $match = Game::where('id',$request->game_id)->update(['game_start_time' => $start_time,'opponent'=>$request->opponent,'game_type'=>$request->game_type, 'game_status'=>'1']);
+                $player_players_team_a = explode(',',$request->player_players_team_a);
+                $playing_positions_team_a = explode(',',$request->playing_positions_team_a);
+                $starting_player = array();
+                // $result = '';
+                foreach(array_combine($player_players_team_a, $playing_positions_team_a) as $player_team_a => $player_pos_team_a)
+                {
+                    // dd($players);
+                    $starting_player = array('playing_player' => '1','player_start_time' => $start_time, 'playing_pos' => $player_pos_team_a);
+                    $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$player_team_a)->where('team_assign','a')->update($starting_player);
+                }
+                if($result == 1)
+                {
+                    $success['status'] = '1';
+                    $success['message'] = "game started";
+                    return $this->sendResponse($success);
+                }
+                else
+                {
+                    $success['status'] = '0';
+                    $success['message'] = "game not started";
+                    return $this->sendResponse($success);
+                }
+            }
+            else
+            {
+                $success['status'] = "0";
+                $success['message'] = "Unauthorized User";
+                return $this->sendResponse($success);
+            }
         }
-        if($request->game_id == "" || empty($request->game_id))
+        else
         {
-            $success['status'] = '0';
-            $success['message'] = "game id is missing";
-            return $this->sendResponse($success);
-        }
-        if($request->player_players_team_a == "" || empty($request->player_players_team_a))
-        {
-            $success['status'] = '0';
-            $success['message'] = "playing players id is missing";
-            return $this->sendResponse($success);
-        }
-        if($request->opponent == "" || empty($request->opponent))
-        {
-            $success['status'] = '0';
-            $success['message'] = "opponent name is missing";
-            return $this->sendResponse($success);
-        }
-        if($request->game_type == "" || empty($request->game_type))
-        {
-            $success['status'] = '0';
-            $success['message'] = "game type is missing";
-            return $this->sendResponse($success);
-        }
-        if($request->start_time == "" || empty($request->start_time))
-        {
-            $success['status'] = '0';
-            $success['message'] = "start time is missing";
-            return $this->sendResponse($success);
-        }
-        if($request->playing_positions_team_a == "" || empty($request->playing_positions_team_a))
-        {
-            $success['status'] = '0';
-            $success['message'] = "playing positions is missing";
-            return $this->sendResponse($success);
-        }
-        if($request->user()->id == $request->team_id)
-        {
-            // $mytime = Carbon::now();
-            // $start_time = $mytime->toDateTimeString();
+            if($request->team_id == "" || empty($request->team_id))
+            {
+                $success['status'] = '0';
+                $success['message'] = "team id is missing";
+                return $this->sendResponse($success);
+            }
+            if($request->game_id == "" || empty($request->game_id))
+            {
+                $success['status'] = '0';
+                $success['message'] = "game id is missing";
+                return $this->sendResponse($success);
+            }
+            if($request->start_time == "" || empty($request->start_time))
+            {
+                $success['status'] = '0';
+                $success['message'] = "start time is missing";
+                return $this->sendResponse($success);
+            }
             $start_time = $request->start_time;
             // $timestamp = strtotime($start_time);
             // $start_time = date('Y-m-d H:i:s', $timestamp);
             // dd($timestamp);
-            $match = Game::where('id',$request->game_id)->update(['game_start_time' => $start_time,'opponent'=>$request->opponent,'game_type'=>$request->game_type, 'game_status'=>'1']);
-            $player_players_team_a = explode(',',$request->player_players_team_a);
-            $playing_positions_team_a = explode(',',$request->playing_positions_team_a);
+            $match = Game::where('id',$request->game_id)->update(['ext_first_hlf_start' => $start_time]);
+            $player_players_team_a = Match::where('game_id',$request->game_id)->where('playing_player',1)->get();
             $starting_player = array();
             // $result = '';
-            foreach(array_combine($player_players_team_a, $playing_positions_team_a) as $player_team_a => $player_pos_team_a)
+            foreach($player_players_team_a as $key => $player_pos_team_a)
             {
-                // dd($players);
-                $starting_player = array('playing_player' => '1','player_start_time' => $start_time, 'playing_pos' => $player_pos_team_a);
-                $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$player_team_a)->where('team_assign','a')->update($starting_player);
+                // dd($player_pos_team_a);
+                $starting_player = array('player_ext_hlf_start' => $start_time);
+
+                $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$player_pos_team_a->player_id)->update($starting_player);
             }
             if($result == 1)
             {
@@ -524,12 +581,6 @@ class GameController extends ResponseController
                 $success['message'] = "game not started";
                 return $this->sendResponse($success);
             }
-        }
-        else
-        {
-            $success['status'] = "0";
-            $success['message'] = "Unauthorized User";
-            return $this->sendResponse($success);
         }
     }
 
@@ -564,38 +615,77 @@ class GameController extends ResponseController
             // $mytime = Carbon::now();
             // $start_time = $mytime->toDateTimeString();
             // dd($request->start_time);
-            $timestamp = $request->start_time;
-            // dd($timestamp);
-            $start_time = $timestamp;
-            $get_pos_out = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->first();
-
-            $starting_player = array('playing_player' => '1','player_start_time' => $start_time,'playing_pos' =>$get_pos_out->playing_pos);
-            $result_start = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_in_id)->update($starting_player);
-
-            $ending_player = array('playing_player' => '0','player_end_time' => $start_time);
-            $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->update($ending_player);
-
-            if($result_start == '1' && $result_end == '1')
+            if($request->extra_time == 0)
             {
-                $get_playing_time = Match::select('player_start_time','player_end_time')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->first();
-                $start_time = Carbon::parse($get_playing_time->player_start_time)->format('h:i:s');
+                $timestamp = $request->start_time;
+                // dd($timestamp);
+                $start_time = $timestamp;
+                $get_pos_out = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->first();
 
-                
-                $end_time = Carbon::parse($get_playing_time->player_end_time)->format('h:i:s');
-                $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
-                $get_minutes = abs($get_minutes);
-                $player_time = array('time' => $get_minutes);
-                $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->update($player_time);
-                // dd($get_minutes);
-                $success['status'] = '1';
-                $success['message'] = "player Substitute";
-                return $this->sendResponse($success);
+                $starting_player = array('playing_player' => '1','player_start_time' => $start_time,'playing_pos' =>$get_pos_out->playing_pos);
+                $result_start = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_in_id)->update($starting_player);
+
+                $ending_player = array('playing_player' => '0','player_end_time' => $start_time);
+                $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->update($ending_player);
+
+                if($result_start == '1' && $result_end == '1')
+                {
+                    $get_playing_time = Match::select('player_start_time','player_end_time')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->first();
+                    $start_time = Carbon::parse($get_playing_time->player_start_time)->format('h:i:s');
+
+                    
+                    $end_time = Carbon::parse($get_playing_time->player_end_time)->format('h:i:s');
+                    $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
+                    $get_minutes = abs($get_minutes);
+                    $player_time = array('time' => $get_minutes);
+                    $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->update($player_time);
+                    // dd($get_minutes);
+                    $success['status'] = '1';
+                    $success['message'] = "player Substitute";
+                    return $this->sendResponse($success);
+                }
+                else
+                {
+                    $success['status'] = '1';
+                    $success['message'] = "player not Substitute";
+                    return $this->sendResponse($success);   
+                }
             }
             else
             {
-                $success['status'] = '1';
-                $success['message'] = "player not Substitute";
-                return $this->sendResponse($success);   
+                $timestamp = $request->start_time;
+                // dd($timestamp);
+                $start_time = $timestamp;
+                $get_pos_out = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->first();
+
+                $starting_player = array('playing_player' => '1','player_ext_hlf_start' => $start_time,'playing_pos' =>$get_pos_out->playing_pos);
+                $result_start = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_in_id)->update($starting_player);
+
+                $ending_player = array('playing_player' => '0','player_ext_hlf_end' => $start_time);
+                $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->update($ending_player);
+
+                if($result_start == '1' && $result_end == '1')
+                {
+                    $get_playing_time = Match::select('player_ext_hlf_start','player_ext_hlf_end','time')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->first();
+                    $start_time = Carbon::parse($get_playing_time->player_ext_hlf_start)->format('h:i:s');
+
+                    
+                    $end_time = Carbon::parse($get_playing_time->player_ext_hlf_end)->format('h:i:s');
+                    $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
+                    $get_minutes = abs($get_minutes) + $get_playing_time->time;
+                    $player_time = array('time' => $get_minutes);
+                    $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->update($player_time);
+                    // dd($get_minutes);
+                    $success['status'] = '1';
+                    $success['message'] = "player Substitute";
+                    return $this->sendResponse($success);
+                }
+                else
+                {
+                    $success['status'] = '1';
+                    $success['message'] = "player not Substitute";
+                    return $this->sendResponse($success);   
+                }
             }
         }
         else
@@ -631,26 +721,53 @@ class GameController extends ResponseController
 
             // $mytime = Carbon::now();
             // $start_time = $mytime->toDateTimeString();
-            $start_time = $request->end_time;
-            // $start_time = date('Y-m-d H:i:s', $timestamp);
-            $ending_player = array('player_end_time' => $start_time);
-            $result_end_match = DB::table('matches')->where('game_id',$request->game_id)->where('playing_player',1)->where('red','!=',1)->update($ending_player);
-            $ending_game = array('game_end_time' => $start_time,'game_status'=>'4');
-            $result_end_game = DB::table('games')->where('id',$request->game_id)->update($ending_game);
-            $get_playing_time = Match::select('player_id','player_start_time','player_end_time')->where('game_id',$request->game_id)->where('playing_player','1')->get();
-
-            foreach ($get_playing_time as $key => $value) 
+            if($request->extra_time == 0)
             {
-                $end_time = Carbon::parse($value->player_end_time)->format('h:i:s');
-                $start_time = Carbon::parse($value->player_start_time)->format('h:i:s');
-                $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
-                $get_minutes = abs($get_minutes);
-                $player_time = array('time' => number_format((float)$get_minutes, 0, '.', ''));
-                $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$value->player_id)->update($player_time);
+                $start_time = $request->end_time;
+                // $start_time = date('Y-m-d H:i:s', $timestamp);
+                $ending_player = array('player_end_time' => $start_time);
+                $result_end_match = DB::table('matches')->where('game_id',$request->game_id)->where('playing_player',1)->where('red','!=',1)->update($ending_player);
+                $ending_game = array('game_end_time' => $start_time,'game_status'=>'4');
+                $result_end_game = DB::table('games')->where('id',$request->game_id)->update($ending_game);
+                $get_playing_time = Match::select('player_id','player_start_time','player_end_time')->where('game_id',$request->game_id)->where('playing_player','1')->get();
+
+                foreach ($get_playing_time as $key => $value) 
+                {
+                    $end_time = Carbon::parse($value->player_end_time)->format('h:i:s');
+                    $start_time = Carbon::parse($value->player_start_time)->format('h:i:s');
+                    $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
+                    $get_minutes = abs($get_minutes);
+                    $player_time = array('time' => number_format((float)$get_minutes, 0, '.', ''));
+                    $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$value->player_id)->update($player_time);
+                }
+                $success['status'] = '1';
+                $success['message'] = "match is finished";
+                return $this->sendResponse($success);
             }
-            $success['status'] = '1';
-            $success['message'] = "match is finished";
-            return $this->sendResponse($success);
+            else
+            {
+                $start_time = $request->end_time;
+                // $start_time = date('Y-m-d H:i:s', $timestamp);
+                $ending_player = array('player_ext_hlf_end' => $start_time);
+                $result_end_match = DB::table('matches')->where('game_id',$request->game_id)->where('playing_player',1)->where('red','!=',1)->update($ending_player);
+                $ending_game = array('ext_second_hlf_end' => $start_time,'game_status'=>'4');
+                $result_end_game = DB::table('games')->where('id',$request->game_id)->update($ending_game);
+                $get_playing_time = Match::select('time','player_id','player_ext_hlf_start','player_ext_hlf_end')->where('game_id',$request->game_id)->where('playing_player','1')->get();
+
+                foreach ($get_playing_time as $key => $value) 
+                {
+                    $end_time = Carbon::parse($value->player_ext_hlf_end)->format('h:i:s');
+                    $start_time = Carbon::parse($value->player_ext_hlf_start)->format('h:i:s');
+                    $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
+                    
+                    $get_minutes = abs($get_minutes) + (int)$value->time;
+                    $player_time = array('time' => number_format((float)$get_minutes, 0, '.', ''));
+                    $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$value->player_id)->update($player_time);
+                }
+                $success['status'] = '1';
+                $success['message'] = "match is finished";
+                return $this->sendResponse($success);
+            }
         }
         else
         {
@@ -682,6 +799,17 @@ class GameController extends ResponseController
                     ->groupBy('team_assign')
                     ->selectRaw('GROUP_CONCAT(player_id) as player_id,GROUP_CONCAT(playing_pos) as playing_pos,team_assign,GROUP_CONCAT(yellow) as yellow,GROUP_CONCAT(red) as red,GROUP_CONCAT(goals) as goals,SUM(goals) as total_goals,GROUP_CONCAT(own_goal) as own_goal,SUM(own_goal) as total_own_goals ,GROUP_CONCAT(trophies) as trophies,GROUP_CONCAT(profiles.first_name," ",profiles.last_name) as display_name')
                     ->get();
+
+                    $match_sub_data = Match::where('game_id',$check_game->id)->where('playing_player',0)->where('player_start_time','==','')->join('profiles','profiles.user_id','=','matches.player_id')
+                    ->groupBy('team_assign')
+                    ->selectRaw('GROUP_CONCAT(player_id) as player_id,GROUP_CONCAT(playing_pos) as playing_pos,team_assign,GROUP_CONCAT(profiles.first_name," ",profiles.last_name) as display_name')
+                    ->get();
+
+                    $match_already_sub_data = Match::where('game_id',$check_game->id)->where('playing_player',0)->where('player_start_time','!=','')->where('player_end_time','!=','')->join('profiles','profiles.user_id','=','matches.player_id')
+                    ->groupBy('team_assign')
+                    ->selectRaw('GROUP_CONCAT(player_id) as player_id,GROUP_CONCAT(playing_pos) as playing_pos,team_assign,GROUP_CONCAT(profiles.first_name," ",profiles.last_name) as display_name')
+                    ->get();
+
                     $data =array();
 
                     foreach($match_data as $key => $value)
@@ -698,6 +826,25 @@ class GameController extends ResponseController
                             $data['trophies'] = $value->trophies;
                             $data['total_goals'] = (string)$value->total_goals;
                             $data['total_own_goals'] = (string)$value->total_own_goals;
+                        }
+                    }
+                    foreach($match_sub_data as $key => $value)
+                    {
+                        if($value->team_assign == 'a' )
+                        {
+                            $data['substitutes_team_a'] = $value->player_id;
+                            $data['substitutes_positions_team_a'] = $value->playing_pos;
+                            $data['substitutes_players_name'] = $value->display_name;
+                        }
+                    }
+
+                    foreach($match_already_sub_data as $key => $value)
+                    {
+                        if($value->team_assign == 'a' )
+                        {
+                            $data['already_substitutes_team_a'] = $value->player_id;
+                            $data['already_substitutes_positions_team_a'] = $value->playing_pos;
+                            $data['already_substitutes_players_name'] = $value->display_name;
                         }
                     }
                     $data['team_id'] = $request->team_id;
@@ -877,60 +1024,121 @@ class GameController extends ResponseController
                 // $pause_time = $mytime->toDateTimeString();
                 $pause_time = $request->pause_time;
                 // $pause_time = date('Y-m-d H:i:s', $timestamp);
-                $pause = Game::where('id',$request->game_id)->update(['game_pause' => $pause_time,'game_status'=>'2']);
-                if($pause == 1)
+                if($request->extra_time = 0)
                 {
-                    $data = Game::where('id',$request->game_id)->first();
-                    // dd($data);
-                    if(strtotime($data->game_start_time) == false || strtotime($data->game_start_time) == '')
+                    $pause = Game::where('id',$request->game_id)->update(['game_pause' => $pause_time,'game_status'=>'2']);
+                    if($pause == 1)
                     {
-                        $data['game_start_timestamp'] = '0';
+                        $data = Game::where('id',$request->game_id)->first();
+                        // dd($data);
+                        if(strtotime($data->game_start_time) == false || strtotime($data->game_start_time) == '')
+                        {
+                            $data['game_start_timestamp'] = '0';
+                        }
+                        else
+                        {
+                            // $data['game_start_timestamp'] = strtotime($data->game_start_time);
+                            $data['game_start_timestamp'] = $data->game_start_time;
+                        }
+                        if(strtotime($data->game_end_time) == false || strtotime($data->game_end_time) == '')
+                        {
+                            $data['game_end_timestamp'] =  '0';
+                        }
+                        else
+                        {
+                            // $data['game_end_timestamp'] = strtotime($data->game_end_time);
+                            $data['game_end_timestamp'] = $data->game_end_time;
+                        }
+                        if(strtotime($data->game_pause) == false || strtotime($data->game_pause) == '')
+                        {
+                            $data['game_pause_timestamp'] =  '0';
+                        }
+                        else
+                        {
+                            // $data['game_pause_timestamp'] = strtotime($data->game_pause);
+                            $data['game_pause_timestamp'] = $data->game_pause;
+                        }
+                        if(strtotime($data->game_resume) == false || strtotime($data->game_resume) == '')
+                        {
+                            $data['game_resume_timestamp'] = '0';
+                        }
+                        else
+                        {
+                            // $data['game_resume_timestamp'] = strtotime($data->game_resume);
+                            $data['game_resume_timestamp'] = $data->game_resume;
+                        }
+                        $data['game_id'] = $data->id;
+                        $data['team_id'] = (string)$data->team_id;
+                        
+                        $success['status'] = '1';
+                        $success['message'] = "Game is pause";
+                        $success['data'] = $data;
+                        return $this->sendResponse($success);
                     }
                     else
                     {
-                        // $data['game_start_timestamp'] = strtotime($data->game_start_time);
-                        $data['game_start_timestamp'] = $data->game_start_time;
+                        $success['status'] = '0';
+                        $success['message'] = "Game is not pause";
+                        return $this->sendResponse($success);
                     }
-                    if(strtotime($data->game_end_time) == false || strtotime($data->game_end_time) == '')
-                    {
-                        $data['game_end_timestamp'] =  '0';
-                    }
-                    else
-                    {
-                        // $data['game_end_timestamp'] = strtotime($data->game_end_time);
-                        $data['game_end_timestamp'] = $data->game_end_time;
-                    }
-                    if(strtotime($data->game_pause) == false || strtotime($data->game_pause) == '')
-                    {
-                        $data['game_pause_timestamp'] =  '0';
-                    }
-                    else
-                    {
-                        // $data['game_pause_timestamp'] = strtotime($data->game_pause);
-                        $data['game_pause_timestamp'] = $data->game_pause;
-                    }
-                    if(strtotime($data->game_resume) == false || strtotime($data->game_resume) == '')
-                    {
-                        $data['game_resume_timestamp'] = '0';
-                    }
-                    else
-                    {
-                        // $data['game_resume_timestamp'] = strtotime($data->game_resume);
-                        $data['game_resume_timestamp'] = $data->game_resume;
-                    }
-                    $data['game_id'] = $data->id;
-                    $data['team_id'] = (string)$data->team_id;
-                    
-                    $success['status'] = '1';
-                    $success['message'] = "Game is pause";
-                    $success['data'] = $data;
-                    return $this->sendResponse($success);
                 }
                 else
                 {
-                    $success['status'] = '0';
-                    $success['message'] = "Game is not pause";
-                    return $this->sendResponse($success);
+                    $pause = Game::where('id',$request->game_id)->update(['ext_first_hlf_end' => $pause_time,'game_status'=>'2']);
+                    if($pause == 1)
+                    {
+                        $data = Game::where('id',$request->game_id)->first();
+                        // dd($data);
+                        if(strtotime($data->ext_first_hlf_start) == false || strtotime($data->ext_first_hlf_start) == '')
+                        {
+                            $data['game_start_timestamp'] = '0';
+                        }
+                        else
+                        {
+                            // $data['game_start_timestamp'] = strtotime($data->game_start_time);
+                            $data['game_start_timestamp'] = $data->ext_first_hlf_start;
+                        }
+                        if(strtotime($data->ext_second_hlf_end) == false || strtotime($data->ext_second_hlf_end) == '')
+                        {
+                            $data['game_end_timestamp'] =  '0';
+                        }
+                        else
+                        {
+                            // $data['game_end_timestamp'] = strtotime($data->game_end_time);
+                            $data['game_end_timestamp'] = $data->ext_second_hlf_end;
+                        }
+                        if(strtotime($data->ext_first_hlf_end) == false || strtotime($data->ext_first_hlf_end) == '')
+                        {
+                            $data['game_pause_timestamp'] =  '0';
+                        }
+                        else
+                        {
+                            // $data['game_pause_timestamp'] = strtotime($data->game_pause);
+                            $data['game_pause_timestamp'] = $data->ext_first_hlf_end;
+                        }
+                        if(strtotime($data->ext_second_hlf_start) == false || strtotime($data->ext_second_hlf_start) == '')
+                        {
+                            $data['game_resume_timestamp'] = '0';
+                        }
+                        else
+                        {
+                            // $data['game_resume_timestamp'] = strtotime($data->game_resume);
+                            $data['game_resume_timestamp'] = $data->game_resume;
+                        }
+                        $data['game_id'] = $data->id;
+                        $data['team_id'] = (string)$data->team_id;
+                        
+                        $success['status'] = '1';
+                        $success['message'] = "Game is pause";
+                        $success['data'] = $data;
+                        return $this->sendResponse($success);
+                    }
+                    else
+                    {
+                        $success['status'] = '0';
+                        $success['message'] = "Game is not pause";
+                        return $this->sendResponse($success);
+                    }
                 }
             }
             elseif ($request->action == "resume") 
@@ -945,59 +1153,119 @@ class GameController extends ResponseController
                 // $resume_time = $mytime->toDateTimeString();
                 $resume_time = $request->resume_time;
                 // $resume_time = date('Y-m-d H:i:s', $timestamp);
-                $pause = Game::where('id',$request->game_id)->update(['game_resume' => $resume_time,'game_status'=>'3']);
-                if($pause == 1)
+                if($request->extra_time = 0)
                 {
-                    $data = Game::where('id',$request->game_id)->first();
-                    if(strtotime($data->game_start_time) == false || strtotime($data->game_start_time) == '')
+                    $pause = Game::where('id',$request->game_id)->update(['game_resume' => $resume_time,'game_status'=>'3']);
+                    if($pause == 1)
                     {
-                        $data['game_start_timestamp'] = '0';
-                    }
-                    else
-                    {
-                        // $data['game_start_timestamp'] = strtotime($data->game_start_time);
-                        $data['game_start_timestamp'] = $data->game_start_time;
-                    }
-                    if(strtotime($data->game_end_time) == false || strtotime($data->game_end_time) == '')
-                    {
-                        $data['game_end_timestamp'] =  '0';
-                    }
-                    else
-                    {
-                        // $data['game_end_timestamp'] = strtotime($data->game_end_time);
-                        $data['game_end_timestamp'] = $data->game_end_time;
-                    }
-                    if(strtotime($data->game_pause) == false || strtotime($data->game_pause) == '')
-                    {
-                        $data['game_pause_timestamp'] =  '0';
-                    }
-                    else
-                    {
-                        // $data['game_pause_timestamp'] = strtotime($data->game_pause);
-                        $data['game_pause_timestamp'] = $data->game_pause;
-                    }
-                    if(strtotime($data->game_resume) == false || strtotime($data->game_resume) == '')
-                    {
-                        $data['game_resume_timestamp'] = '0';
-                    }
-                    else
-                    {
-                        // $data['game_resume_timestamp'] = strtotime($data->game_resume);
-                        $data['game_resume_timestamp'] = $data->game_resume;
-                    }
+                        $data = Game::where('id',$request->game_id)->first();
+                        if(strtotime($data->game_start_time) == false || strtotime($data->game_start_time) == '')
+                        {
+                            $data['game_start_timestamp'] = '0';
+                        }
+                        else
+                        {
+                            // $data['game_start_timestamp'] = strtotime($data->game_start_time);
+                            $data['game_start_timestamp'] = $data->game_start_time;
+                        }
+                        if(strtotime($data->game_end_time) == false || strtotime($data->game_end_time) == '')
+                        {
+                            $data['game_end_timestamp'] =  '0';
+                        }
+                        else
+                        {
+                            // $data['game_end_timestamp'] = strtotime($data->game_end_time);
+                            $data['game_end_timestamp'] = $data->game_end_time;
+                        }
+                        if(strtotime($data->game_pause) == false || strtotime($data->game_pause) == '')
+                        {
+                            $data['game_pause_timestamp'] =  '0';
+                        }
+                        else
+                        {
+                            // $data['game_pause_timestamp'] = strtotime($data->game_pause);
+                            $data['game_pause_timestamp'] = $data->game_pause;
+                        }
+                        if(strtotime($data->game_resume) == false || strtotime($data->game_resume) == '')
+                        {
+                            $data['game_resume_timestamp'] = '0';
+                        }
+                        else
+                        {
+                            // $data['game_resume_timestamp'] = strtotime($data->game_resume);
+                            $data['game_resume_timestamp'] = $data->game_resume;
+                        }
 
-                    $data['game_id'] = $data->id;
-                    $data['team_id'] = (string)$data->team_id;
-                    $success['status'] = '1';
-                    $success['message'] = "Game is resume";
-                    $success['data'] = $data;
-                    return $this->sendResponse($success);
+                        $data['game_id'] = $data->id;
+                        $data['team_id'] = (string)$data->team_id;
+                        $success['status'] = '1';
+                        $success['message'] = "Game is resume";
+                        $success['data'] = $data;
+                        return $this->sendResponse($success);
+                    }
+                    else
+                    {
+                        $success['status'] = '0';
+                        $success['message'] = "Game is not resume";
+                        return $this->sendResponse($success);
+                    }
                 }
                 else
                 {
-                    $success['status'] = '0';
-                    $success['message'] = "Game is not resume";
-                    return $this->sendResponse($success);
+                    $pause = Game::where('id',$request->game_id)->update(['ext_second_hlf_start' => $resume_time,'game_status'=>'3']);
+                    if($pause == 1)
+                    {
+                        $data = Game::where('id',$request->game_id)->first();
+                        if(strtotime($data->ext_first_hlf_start) == false || strtotime($data->ext_first_hlf_start) == '')
+                        {
+                            $data['game_start_timestamp'] = '0';
+                        }
+                        else
+                        {
+                            // $data['game_start_timestamp'] = strtotime($data->game_start_time);
+                            $data['game_start_timestamp'] = $data->ext_first_hlf_start;
+                        }
+                        if(strtotime($data->ext_second_hlf_end) == false || strtotime($data->ext_second_hlf_end) == '')
+                        {
+                            $data['game_end_timestamp'] =  '0';
+                        }
+                        else
+                        {
+                            // $data['game_end_timestamp'] = strtotime($data->game_end_time);
+                            $data['game_end_timestamp'] = $data->game_end_time;
+                        }
+                        if(strtotime($data->ext_first_hlf_end) == false || strtotime($data->ext_first_hlf_end) == '')
+                        {
+                            $data['game_pause_timestamp'] =  '0';
+                        }
+                        else
+                        {
+                            // $data['game_pause_timestamp'] = strtotime($data->game_pause);
+                            $data['game_pause_timestamp'] = $data->ext_first_hlf_end;
+                        }
+                        if(strtotime($data->ext_second_hlf_start) == false || strtotime($data->ext_second_hlf_start) == '')
+                        {
+                            $data['game_resume_timestamp'] = '0';
+                        }
+                        else
+                        {
+                            // $data['game_resume_timestamp'] = strtotime($data->game_resume);
+                            $data['game_resume_timestamp'] = $data->ext_second_hlf_start;
+                        }
+
+                        $data['game_id'] = $data->id;
+                        $data['team_id'] = (string)$data->team_id;
+                        $success['status'] = '1';
+                        $success['message'] = "Game is resume";
+                        $success['data'] = $data;
+                        return $this->sendResponse($success);
+                    }
+                    else
+                    {
+                        $success['status'] = '0';
+                        $success['message'] = "Game is not resume";
+                        return $this->sendResponse($success);
+                    }
                 }
             }
             
@@ -1233,6 +1501,12 @@ class GameController extends ResponseController
             {
                 $result_activity = Activity::where('type',$request->type)->where('game_id',$request->game_id)->where('player_id',$request->player_id)->get();   
             }
+            $player_profile = Profile::where('user_id',$request->player_id)->first();
+            
+            $display_name = $player_profile->first_name.' '.$player_profile->last_name;
+            // dd($display_name);
+            $result_activity['display_name'] = $display_name;
+            $result_activity['image'] = URL::to('public/images/profile_images/').'/'.$player_profile->image;
             $success['status'] = "1";
             $success['message'] = "result";
             $success['data'] = $result_activity;
