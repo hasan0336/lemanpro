@@ -1118,32 +1118,12 @@ class GameController extends ResponseController
             if($request->type == 'red')
             {
                 $data['red'] = 1;
-            }
-            if($request->type == 'yellow')
-            {
-                if($get_player_result->yellow = 1)
-                {
-                    $data['red'] = 1;
-                    $data['yellow'] = 0;
-                }
-                else
-                {
-                    $data['yellow'] = $get_player_result->yellow + 1;
-                }
-            }
-            if($request->type == 'own_goal')
-            {
-                $total_own_goals = $get_player_result->own_goal + 1;
-                $data['own_goal'] = $total_own_goals;
-            }
-            $result = Match::where('game_id',$request->game_id)->where('player_id',$request->player_id)->update($data);
-            $activity_data = array('time'=>$request->time, 'type'=>$request->type,'game_id'=>$request->game_id,'player_id'=>$request->player_id);
-            if($data['red'] == 1)
-            {
+                $result = Match::where('game_id',$request->game_id)->where('player_id',$request->player_id)->update($data);
+                $activity_data = array('time'=>$request->time, 'type'=>$request->type,'game_id'=>$request->game_id,'player_id'=>$request->player_id);
                 $result_activity = Activity::where('game_id',$request->game_id)->where('player_id',$request->player_id)->insert($activity_data);
 
                 $player_time = new DateTime($get_player_result->player_end_time);
-                $player_time->add(new DateInterval('PT' . $request->time . 'M'));
+                $player_time->sub(new DateInterval('PT' . $request->time . 'M'));
                 $player_end_time = $player_time->format('Y-m-d H:i:s');
                 $end_time_data['player_end_time'] = $player_end_time;
                 $match = Match::where('player_id',$request->player_id)->where('game_id',$request->game_id)->update($end_time_data);
@@ -1167,25 +1147,39 @@ class GameController extends ResponseController
                     $success['message'] = "Not Updated";
                     return $this->sendResponse($success);
                 }
-
             }
-            else
+            if($request->type == 'yellow')
             {
-                $result_activity = Activity::where('game_id',$request->game_id)->where('player_id',$request->player_id)->insert($activity_data);
-                if($result == 1)
+                if($get_player_result->yellow = 1)
                 {
-                    $success['status'] = "1";
-                    $success['message'] = "Updated";
-                    return $this->sendResponse($success);
+                    $data['red'] = 1;
+                    $data['yellow'] = 0;
                 }
                 else
                 {
-                    $success['status'] = "0";
-                    $success['message'] = "Not Updated";
-                    return $this->sendResponse($success);
+                    $data['yellow'] = $get_player_result->yellow + 1;
                 }
             }
-            
+            if($request->type == 'own_goal')
+            {
+                $total_own_goals = $get_player_result->own_goal + 1;
+                $data['own_goal'] = $total_own_goals;
+            }
+            $result = Match::where('game_id',$request->game_id)->where('player_id',$request->player_id)->update($data);
+            $activity_data = array('time'=>$request->time, 'type'=>$request->type,'game_id'=>$request->game_id,'player_id'=>$request->player_id);
+            $result_activity = Activity::where('game_id',$request->game_id)->where('player_id',$request->player_id)->insert($activity_data);
+            if($result == 1)
+            {
+                $success['status'] = "1";
+                $success['message'] = "Updated";
+                return $this->sendResponse($success);
+            }
+            else
+            {
+                $success['status'] = "0";
+                $success['message'] = "Not Updated";
+                return $this->sendResponse($success);
+            }
         }
         else
         {
