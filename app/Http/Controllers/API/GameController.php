@@ -451,7 +451,7 @@ class GameController extends ResponseController
 
     public function start_match(Request $request)
     {
-        if($extra_time = 0)
+        if($request->extra_time == 0)
         {
             if($request->team_id == "" || empty($request->team_id))
             {
@@ -505,14 +505,16 @@ class GameController extends ResponseController
                 // dd($timestamp);
                 $match = Game::where('id',$request->game_id)->update(['game_start_time' => $start_time,'opponent'=>$request->opponent,'game_type'=>$request->game_type, 'game_status'=>'1']);
                 $player_players_team_a = explode(',',$request->player_players_team_a);
+                // dd($player_players_team_a);
                 $playing_positions_team_a = explode(',',$request->playing_positions_team_a);
                 $starting_player = array();
                 // $result = '';
                 foreach(array_combine($player_players_team_a, $playing_positions_team_a) as $player_team_a => $player_pos_team_a)
                 {
-                    // dd($players);
+                    // dd($player_pos_team_a);
                     $starting_player = array('playing_player' => '1','player_start_time' => $start_time, 'playing_pos' => $player_pos_team_a);
                     $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$player_team_a)->where('team_assign','a')->update($starting_player);
+                    // dd($result);
                 }
                 if($result == 1)
                 {
@@ -560,6 +562,7 @@ class GameController extends ResponseController
             // dd($timestamp);
             $match = Game::where('id',$request->game_id)->update(['ext_first_hlf_start' => $start_time]);
             $player_players_team_a = Match::where('game_id',$request->game_id)->where('playing_player',1)->get();
+            // dd($player_players_team_a);
             $starting_player = array();
             // $result = '';
             foreach($player_players_team_a as $key => $player_pos_team_a)
@@ -568,7 +571,9 @@ class GameController extends ResponseController
                 $starting_player = array('player_ext_hlf_start' => $start_time);
 
                 $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$player_pos_team_a->player_id)->update($starting_player);
+                // dd($result);
             }
+            // dd($result);
             if($result == 1)
             {
                 $success['status'] = '1';
@@ -1024,7 +1029,7 @@ class GameController extends ResponseController
                 // $pause_time = $mytime->toDateTimeString();
                 $pause_time = $request->pause_time;
                 // $pause_time = date('Y-m-d H:i:s', $timestamp);
-                if($request->extra_time = 0)
+                if($request->extra_time == 0)
                 {
                     $pause = Game::where('id',$request->game_id)->update(['game_pause' => $pause_time,'game_status'=>'2']);
                     if($pause == 1)
@@ -1153,7 +1158,7 @@ class GameController extends ResponseController
                 // $resume_time = $mytime->toDateTimeString();
                 $resume_time = $request->resume_time;
                 // $resume_time = date('Y-m-d H:i:s', $timestamp);
-                if($request->extra_time = 0)
+                if($request->extra_time == 0)
                 {
                     $pause = Game::where('id',$request->game_id)->update(['game_resume' => $resume_time,'game_status'=>'3']);
                     if($pause == 1)
