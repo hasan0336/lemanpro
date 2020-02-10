@@ -16,6 +16,7 @@ use Stripe\Error\Card;
 use Stripe;
 use URL;
 use App\Notification;
+use App\Transaction;
 class TryoutController extends ResponseController
 {
     public function create_tryout(Request $request)
@@ -368,6 +369,7 @@ class TryoutController extends ResponseController
     		else
     		{ 
           $leman_pro_fees = DB::table('lemanpro_fees')->first();
+          $tryout_fees = $input['amount'];
           $input['amount'] = $input['amount'] + $leman_pro_fees->lemanpro_fee;
           $stripe = Stripe::setApiKey(env('STRIPE_SECRET'));
           $token = $stripe->tokens()->create
@@ -430,6 +432,8 @@ class TryoutController extends ResponseController
                 
                   $card_data = array('user_id' => $request->player_id,'stripe_id' => $token['id'], 'card_brand' => $card_brand, 'card_last_four' => $card_last_four_digit, 'trial_ends_at' => $card_expiry );
                   DB::table('stripe')->insert($card_data);
+                  $transaction_data = array('tryout_id'=>(int)$tryout_id,'team_id'=>$team_id,'player_id'=>$player_id,'leman_fees'=>$leman_pro_fees->lemanpro_fee,'tryout_fees'=>$tryout_fees);
+                  Transaction::insert($transaction_data);
               }
               else
               {
