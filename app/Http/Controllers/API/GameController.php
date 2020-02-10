@@ -1494,7 +1494,8 @@ class GameController extends ResponseController
             return $this->sendResponse($success);
         }
         elseif($request->user()->id == $request->team_id)
-        {
+        {   
+            $result_activity = array();
             if($request->type == "yellow")
             {
                 $result_activity = Activity::where('type',$request->type)->where('game_id',$request->game_id)->where('player_id',$request->player_id)->get();   
@@ -1515,11 +1516,20 @@ class GameController extends ResponseController
             
             $display_name = $player_profile->first_name.' '.$player_profile->last_name;
             // dd($display_name);
-            $result_activity['display_name'] = $display_name;
-            $result_activity['image'] = URL::to('public/images/profile_images/').'/'.$player_profile->image;
+            // $result_activity['display_name'] = $display_name;
+            // $result_activity['image'] = URL::to('public/images/profile_images/').'/'.$player_profile->image;
+            $result_activitys = [];
+            foreach($result_activity as $key => $result_activity)
+            {
+                $result_activitys[] = $result_activity;
+                $result_activitys[$key]['display_name'] =$display_name;
+                $result_activitys[$key]['image'] = URL::to('public/images/profile_images/').'/'.$player_profile->image;
+            }
+            // $result_activitys['display_name'] = $display_name;
+            // $result_activitys['image'] = URL::to('public/images/profile_images/').'/'.$player_profile->image;
             $success['status'] = "1";
             $success['message'] = "result";
-            $success['data'] = $result_activity;
+            $success['data'] = $result_activitys;
             return $this->sendResponse($success);
         }
         else
