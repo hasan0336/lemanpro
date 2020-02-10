@@ -1,27 +1,4 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-    <title>Player Match Report</title>
-</head>
 
-<body>
-<h1>You Last match report</h1>
-<h2>Date : <?php //echo date("Y/m/d"); ?></h2>
-@foreach($game as $key => $player)
-	<h1> {{$key+1}}</h1>
-	<h2>Hi <b>{{$player['email']}}</b></h2>
-	<h2>Yellow Card <b>{{$player['yellow']}}</b></h2>
-	<h2>Red Card <b>{{$player['red']}}</b></h2>
-	<h2>Goals Scored <b>{{$player['goals']}}</b></h2>
-	<h2>Trophies <b>{{$player['trophies']}}</b></h2>
-	<h2>Playing Time <b>{{$player['time']}}</b></h2>
-	<?php $key//++; ?>
-@endforeach
-
-<br/>
-</body>
-
-</html> -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -97,15 +74,14 @@
   <div class="tamp">
     <div class="content">
       <div class="logo" style="padding: 30px 0;">
-        <img src="images/logo.png" class="img-responsive" />
+        <img src="{{asset('public/email_images/logo.png')}}" class="img-responsive" />
       </div>
       <div class="banner">
-        <img src="images/banner.png"  width="100%">
+        <img src="{{asset('public/email_images/banner.png')}}"  width="100%">
 
       </div>
 
-      <h2>Hi</h2>
-      <p style="font-size: 20px;">Here is today's match summery between "White Falcon and "NYK Club".</p>            
+      <p style="font-size: 20px;">Here is today's match summery between "{{$team_name}}" and "{{$opponent}}".</p>            
       <table class="table">
         <thead>
           <tr bgcolor="#043d6a"  style="color: #fff;">
@@ -116,20 +92,23 @@
             <th>Yellow Card</th>
             <th>Red Card</th>
             <th>Own Goal</th>
+            <th>Time</th>
 
           </tr>
         </thead>
         <tbody>
+        @foreach($game as $key => $player)
           <tr>
-            <td>1</td>
-            <td>John K </td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-            <td>0</td>
-
+        	<td>{{$key+1}}</td>
+            <td>{{$player['first_name'].' '.$player['last_name']}} </td>
+            <td>{{$player['goals']}}</td>
+            <td>{{$player['yellow']}}</td>
+            <td>{{$player['red']}}</td>
+            <td>{{$player['own_goals']}}</td>
+            <td>{{$player['time']}}</td>
           </tr>
-          
+          <?php $key++; ?>
+        @endforeach
 
 
 
@@ -137,10 +116,10 @@
       </table>
       <div class="sign">
         <div class="thankyou">
-      <img src="images/thankyou.png" class="img-responsive">
+      <img src="{{asset('public/email_images/thankyou.png')}}" class="img-responsive">
 </div>
 
-        <p>TEAM WHITE FALCON</p>
+        <p>{{strtoupper($team_name)}}</p>
 
 
 
