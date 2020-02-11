@@ -98,9 +98,10 @@ class GameController extends ResponseController
                             $data['device_type'] = $get_info->device_type;
                             push_notification($data);
                         }
+                        $team_profile = Profile::where('user_id',$request->team_id)->first();
                         $success['status'] = "1";
                         $success['message'] = "Game and Match has been created";
-                        $success['data'] = array('game_id'=>$game->id);
+                        $success['data'] = array('game_id'=>$game->id,'team_name'=>$team_profile->team_name, 'team_nick' $team_profile->team_nick);
                         return $this->sendResponse($success);
                     }
                     else
