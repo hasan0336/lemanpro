@@ -261,7 +261,7 @@ class AuthController extends ResponseController
                 else
                 {
                     $success['status'] = '0';
-                    $success['message'] = "email not exist";
+                    $success['message'] = "Email not exist";
                     return $this->sendResponse($success);
                 }
             }
@@ -412,7 +412,7 @@ class AuthController extends ResponseController
                         $user_info['profile']->image = URL::to('public/images/profile_images/'.$user_info['profile']->image);
                     }
                     $success['status'] = '1';
-                    $success['message'] = "'password changed sucessfully";
+                    $success['message'] = "Password changed sucessfully";
                     $success['data'] = $user_info;
                     $success['token'] =  $user->createToken('token')->accessToken;
                     return $this->sendResponse($success);
