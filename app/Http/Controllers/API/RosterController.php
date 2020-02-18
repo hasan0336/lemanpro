@@ -36,9 +36,43 @@ class RosterController extends ResponseController
         $check_roster = Rosters::where('team_id',$team_id)->where('player_id',$player_id)->first();
         if($request->user()->id == $team_id)
         {
-            if($check_roster == null || $check_roster->request == '0')
+            if($check_roster == null )
             {
                 $rosters = Rosters::create($request->all());
+                if($rosters->id)
+                {
+                    $get_team = Profile::select('*')->where('user_id',$team_id)->first();
+                    $notify = array(
+                        'roster_id'=>$rosters->id,
+                        'to'=>$player_id,
+                        'from'=>$team_id,
+                        'type'=>env('NOTIFICATION_TYPE_SEND_ROSTER_REQUEST'),
+                        'title'=>$get_team->team_name,
+                        'message'=>'Add to Rosters Request',
+                    );
+                    $res_notify = Notification::create($notify);
+                    $get_players = User::select('*')->where('id',$player_id)->first();
+                    
+                    $token[] = $get_players->device_token;
+                    $data = array(
+                        'title' => $notify['title'],
+                        'message' => $notify['message'],
+                        'notification_type' => env('NOTIFICATION_TYPE_SEND_ROSTER_REQUEST')
+                    );
+                    $data['device_tokens'] = $token;
+                    $data['device_type'] = $get_players->device_type;
+                    push_notification($data);
+                    $success['status'] = "1";
+                    $success['message'] = "Request send to player";
+                }
+                
+                return $this->sendResponse($success);
+            }
+            elseif($check_roster->request == '0')
+            {
+                $data = array('request'=> '2');
+                $rosters = Rosters::where('team_id',$team_id)->where('player_id',$player_id)->update($data);
+                $rosters = Rosters::where('team_id',$team_id)->where('player_id',$player_id)->first();
                 if($rosters->id)
                 {
                     $get_team = Profile::select('*')->where('user_id',$team_id)->first();
@@ -337,12 +371,12 @@ class RosterController extends ResponseController
                 $data['device_type'] = $get_team->device_type;
                 push_notification($data);
                 $success['status'] = "1";
-                $success['message'] = "sucessfully deleted";
+                $success['message'] = "Player leave the team";
                 return $this->sendResponse($success);
             }
             else
             {
-                $success['status'] = "1";
+                $success['status'] = "0";
                 $success['message'] = "not exist";
                 return $this->sendResponse($success);
             }

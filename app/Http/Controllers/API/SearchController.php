@@ -109,7 +109,15 @@ class SearchController extends ResponseController
         $longitude = $request->longitude;
         $latitude = $request->latitude;
         $miles = $request->miles;
-        $gender = $request->gender;
+        if($request->gender == null)
+        {
+            $request->gender = '';
+            $gender = $request->gender;
+        }
+        else
+        {
+            $gender = $request->gender;   
+        }
         $age = $request->age;
         $dob  = date('Y', strtotime($age . ' years ago'));
         if($miles == null || $miles == 0)
@@ -140,7 +148,11 @@ class SearchController extends ResponseController
                 if($player_roster == null)
                 {
                     $results[$key]->team_member = '0';   
-                }  
+                } 
+                if($player_roster['request'] == 0)
+                {
+                    $results[$key]->team_member = '0';
+                }
                 if($player_roster['request'] == 1)
                 {
                     $results[$key]->team_member = '1';
@@ -160,7 +172,11 @@ class SearchController extends ResponseController
                 if($player_roster == null)
                 {
                     $results[$key]->team_member = '0';   
-                }  
+                }
+                if($player_roster['request'] == 0)
+                {
+                    $results[$key]->team_member = '0';
+                }
                 if($player_roster['request'] == 1)
                 {
                     $results[$key]->team_member = '1';
@@ -184,6 +200,10 @@ class SearchController extends ResponseController
                 {
                     $results[$key]->team_member = '0';   
                 }  
+                if($player_roster['request'] == 0)
+                {
+                    $results[$key]->team_member = '0';
+                }
                 if($player_roster['request'] == 1)
                 {
                     $results[$key]->team_member = '1';
@@ -207,7 +227,11 @@ class SearchController extends ResponseController
                 if($player_roster == null)
                 {
                     $results[$key]->team_member = '0';   
-                }  
+                }
+                if($player_roster['request'] == 0)
+                {
+                    $results[$key]->team_member = '0';
+                }
                 if($player_roster['request'] == 1)
                 {
                     $results[$key]->team_member = '1';
@@ -232,7 +256,11 @@ class SearchController extends ResponseController
                 if($player_roster == null)
                 {
                     $results[$key]->team_member = '0';   
-                }  
+                }
+                if($player_roster['request'] == 0)
+                {
+                    $results[$key]->team_member = '0';
+                }
                 if($player_roster['request'] == 1)
                 {
                     $results[$key]->team_member = '1';
@@ -254,6 +282,35 @@ class SearchController extends ResponseController
                 {
                     $results[$key]->team_member = '0';   
                 }  
+                if($player_roster['request'] == 0)
+                {
+                    $results[$key]->team_member = '0';
+                }
+                if($player_roster['request'] == 1)
+                {
+                    $results[$key]->team_member = '1';
+                }
+                elseif($player_roster['request'] == 2)
+                {
+                    $results[$key]->team_member = '2';
+                }
+            }
+        }
+        elseif($gender =='' && $age == '' && $latitude == '' && $longitude == '')
+        {
+            
+            $results = Profile::select('user_id as player_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),DB::raw("CONCAT('".URL::to('public/images/profile_images/')."/',image) AS image"))->get();
+            foreach ($results as $key => $value) 
+            {
+                $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
+                if($player_roster == null)
+                {
+                    $results[$key]->team_member = '0';   
+                }  
+                if($player_roster['request'] == 0)
+                {
+                    $results[$key]->team_member = '0';
+                }
                 if($player_roster['request'] == 1)
                 {
                     $results[$key]->team_member = '1';
@@ -277,7 +334,11 @@ class SearchController extends ResponseController
                 if($player_roster == null)
                 {
                     $results[$key]->team_member = '0';   
-                }  
+                }
+                if($player_roster['request'] == 0)
+                {
+                    $results[$key]->team_member = '0';
+                }
                 if($player_roster['request'] == 1)
                 {
                     $results[$key]->team_member = '1';
@@ -312,19 +373,36 @@ class SearchController extends ResponseController
         }
         else
         {
-            $profile = Profile::select('first_name','last_name','dob','gender','cob','cop','height','weight','position','twitter','image')->where('profiles.user_id',$request->player_id)->first();
+            
+            $team_id = auth()->guard('api')->user()->id;
+            $profile = Profile::select('user_id','first_name','last_name','dob','gender','cob','cop','height','weight','position','twitter','image')->where('profiles.user_id',$request->player_id)->first();
             $profile->image = URL::to('public/images/profile_images/').'/'.$profile->image; 
             
             $matches = Match::select(DB::raw('count(game_id) as game_id'),'player_id',DB::raw('SUM(yellow) as yellow'),DB::raw('SUM(red) as red'),DB::raw('SUM(goals) as goals'),DB::raw('SUM(own_goal) as own_goal'),DB::raw('SUM(trophies) as trophies'),DB::raw('SUM(time) as time'))->where('player_id',$request->player_id)->get();
             
-            $team_joined = Rosters::join('profiles','profiles.user_id','=','rosters.team_id')->where('player_id',$request->player_id)->where('request',1)->select('team_name')->first();
+            $team_joined = Rosters::join('profiles','profiles.user_id','=','rosters.team_id')->where('player_id',$request->player_id)->where('request',1)->select('team_name','team_id')->first();
             if($team_joined == null)
             {
                $profile->team_name = ''; 
             }
             else
             {
-               $profile->team_name = $team_joined->team_name; 
+               $profile->team_name = $team_joined->team_name;
+               $profile->team_id = $team_joined->team_id;
+               
+            }
+            $check_player_belongs_to_team =  Rosters::join('profiles','profiles.user_id','=','rosters.team_id')->where('team_id',$team_id)->where('player_id',$request->player_id)->select('team_name','request')->first();
+            if($check_player_belongs_to_team == null || $check_player_belongs_to_team->request == '0')
+            {
+                $profile->team_member = '0';
+            }
+            elseif($check_player_belongs_to_team->request == 2)
+            {
+                $profile->team_member = '2';
+            }
+            else
+            {
+                $profile->team_member = '1';
             }
             foreach ($matches as $key => $value) 
             {
