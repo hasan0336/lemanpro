@@ -616,19 +616,16 @@ class GameController extends ResponseController
         }
         if($request->user()->id == $request->team_id)
         {
-            // $mytime = Carbon::now();
-            // $start_time = $mytime->toDateTimeString();
-            // dd($request->start_time);
             if($request->extra_time == 0)
             {
                 $timestamp = $request->start_time;
-                // dd($timestamp);
+
                 $start_time = $timestamp;
                 $get_pos_out = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->first();
                 
                 $starting_player = array('playing_player' => '1','player_start_time' => $start_time,'playing_pos' =>$get_pos_out->playing_pos);
                 $result_start = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_in_id)->update($starting_player);
-                // dd($result_start);
+
                 $ending_player = array('playing_player' => '2','player_end_time' => $start_time);
                 $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->update($ending_player);
 
@@ -645,7 +642,7 @@ class GameController extends ResponseController
                     $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->update($player_time);
                     
                     $get_result_sub_out_time = Activity::where('player_id',$request->player_out_id)->where('game_id',$request->game_id)->where('type','sub_in')->first();
-                    // dd($get_result_sub_out_time);
+
                     if($get_result_sub_out_time != null || !empty($get_result_sub_out_time))
                     {
                         $activity_data_sub_in = array(
@@ -682,7 +679,7 @@ class GameController extends ResponseController
                         );
                         $get_result = Activity::insert($activity_data_sub_out);   
                     }
-                    // dd($get_minutes);
+
                     $success['status'] = '1';
                     $success['message'] = "player Substitute";
                     return $this->sendResponse($success);
@@ -697,7 +694,7 @@ class GameController extends ResponseController
             else
             {
                 $timestamp = $request->start_time;
-                // dd($timestamp);
+
                 $start_time = $timestamp;
                 $get_pos_out = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->first();
 
@@ -718,7 +715,47 @@ class GameController extends ResponseController
                     $get_minutes = abs($get_minutes) + $get_playing_time->time;
                     $player_time = array('time' => $get_minutes);
                     $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$request->player_out_id)->update($player_time);
-                    // dd($get_minutes);
+
+                    $get_result_sub_out_time = Activity::where('player_id',$request->player_out_id)->where('game_id',$request->game_id)->where('type','sub_in')->first();
+
+                    if($get_result_sub_out_time != null || !empty($get_result_sub_out_time))
+                    {
+                        $activity_data_sub_in = array(
+                            'game_id' =>$request->game_id,
+                            'player_id' =>$request->player_in_id,
+                            'type' =>'sub_in',
+                            'time' =>(int)$get_minutes + (int)$get_result_sub_out_time->time + 1,
+                        );
+                        $get_result = Activity::insert($activity_data_sub_in);
+                        
+                        $activity_data_sub_out = array(
+                                'game_id' =>$request->game_id,
+                                'player_id' =>$request->player_out_id,
+                                'type' =>'sub_out',
+                                'time' =>(int)$get_minutes + (int)$get_result_sub_out_time->time + 1,
+                        );
+                        $get_result = Activity::insert($activity_data_sub_out);
+                    }
+                    else
+                    {
+                        $activity_data_sub_in = array(
+                            'game_id' =>$request->game_id,
+                            'player_id' =>$request->player_in_id,
+                            'type' =>'sub_in',
+                            'time' =>(int)$get_minutes + 1,
+                        );
+                        $get_result = Activity::insert($activity_data_sub_in);
+                        
+                        $activity_data_sub_out = array(
+                                'game_id' =>$request->game_id,
+                                'player_id' =>$request->player_out_id,
+                                'type' =>'sub_out',
+                                'time' =>(int)$get_minutes + 1,
+                        );
+                        $get_result = Activity::insert($activity_data_sub_out);   
+                    }
+                    
+                    
                     $success['status'] = '1';
                     $success['message'] = "player Substitute";
                     return $this->sendResponse($success);

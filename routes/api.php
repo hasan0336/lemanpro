@@ -42,6 +42,7 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 	Route::get('action_request','API\RosterController@action_request');
 	Route::get('roster_listing','API\RosterController@roster_listing');
 	Route::get('delete_player','API\RosterController@delete_player');
+	Route::get('remove_player_from_team','API\RosterController@remove_player_from_team');
 	Route::get('get_notification_list','API\RosterController@get_notification_list');
 
 	

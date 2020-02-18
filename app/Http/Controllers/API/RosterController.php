@@ -329,7 +329,7 @@ class RosterController extends ResponseController
         }
     }
 
-    // delete player from team
+    // player leave team
     public function delete_player(Request $request)
     {
         if($request->team_id == "" || empty($request->team_id))
@@ -372,6 +372,65 @@ class RosterController extends ResponseController
                 push_notification($data);
                 $success['status'] = "1";
                 $success['message'] = "Player leave the team";
+                return $this->sendResponse($success);
+            }
+            else
+            {
+                $success['status'] = "0";
+                $success['message'] = "not exist";
+                return $this->sendResponse($success);
+            }
+        }
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+        }
+    }
+    
+    public function remove_player_from_team(Request $request)
+    {
+        if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team_id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->player_id == "" || empty($request->player_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "player_id is missing";
+            return $this->sendResponse($success);
+        }
+        elseif($request->user()->id == $request->team_id )
+        {
+            $res = DB::table('rosters')->where('team_id', $request->team_id)->where('player_id', $request->player_id)->delete();
+            if($res == 1)
+            {
+                $team_id = $request->team_id;
+                $player_id = $request->player_id;
+                $notify = array(
+                        'to'=>$player_id,
+                        'from'=>$team_id,
+                        'type'=>env('NOTIFICATION_TYPE_SEND_TEAM_REMOVE_PLAYER_REQUEST'),
+                        'title'=>'Left Roster',
+                        'message'=>'Team Remove Player',
+                    );
+                $res_notify = Notification::create($notify);
+                $get_player = User::select('*')->where('id',$player_id)->first();
+                
+                $token[] = $get_player->device_token;
+                $data = array(
+                    'title' => $notify['title'],
+                    'message' => $notify['message'],
+                    'notification_type' => env('NOTIFICATION_TYPE_SEND_PLAYER_LEFT_TEAM_REQUEST')
+                );
+                $data['device_tokens'] = $token;
+                $data['device_type'] = $get_player->device_type;
+                push_notification($data);
+                $success['status'] = "1";
+                $success['message'] = "Team Remove Player";
                 return $this->sendResponse($success);
             }
             else
