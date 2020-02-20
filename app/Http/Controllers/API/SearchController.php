@@ -16,6 +16,7 @@ use App\Tryout;
 use App\Profile;
 use App\TryoutPlayers;
 use App\Match;
+use Carbon\Carbon;
 class SearchController extends ResponseController
 {
     public function search_tryout(Request $request)
@@ -43,10 +44,13 @@ class SearchController extends ResponseController
         {
             $miles = 1;
         }
-        // dd($request->input());
+        
+        $mytime = Carbon::today();
+        $current_time = $mytime->toDateTimeString();
+        // dd($current_time);
     	if($search_team_name && $latitude == null && $longitude == null )
     	{
-    		$results = Tryout::select('team_id','tryouts.id as tryout_id','team_name','costoftryout','dateoftryout','timeoftryout','tryouts.latitude as latitude','tryouts.longitude as longitude','street')->join('profiles','profiles.user_id','=','tryouts.team_id')->where('profiles.team_name', 'LIKE', "%{$search_team_name}%")->get();
+    		$results = Tryout::select('team_id','tryouts.id as tryout_id','team_name','costoftryout','dateoftryout','timeoftryout','tryouts.latitude as latitude','tryouts.longitude as longitude','street')->join('profiles','profiles.user_id','=','tryouts.team_id')->where('profiles.team_name', 'LIKE', "%{$search_team_name}%")->where('tryouts.created_at','>=',$current_time)->get();
             foreach ($results as $key => $value) {
                 $leman_pro_fees = DB::table('lemanpro_fees')->first();
                 $player_tryout = TryoutPlayers::where('tryout_id',$value->tryout_id)->where('player_id',$request->player_id)->first();
@@ -109,6 +113,7 @@ class SearchController extends ResponseController
         $longitude = $request->longitude;
         $latitude = $request->latitude;
         $miles = $request->miles;
+        $dob = '';
         if($request->gender == null)
         {
             $request->gender = '';
@@ -118,8 +123,12 @@ class SearchController extends ResponseController
         {
             $gender = $request->gender;   
         }
-        $age = $request->age;
-        $dob  = date('Y', strtotime($age . ' years ago'));
+        
+        if(isset($request->age) && $request->age != '' || $request->age != null)
+        {
+            $age = $request->age;
+            $dob  = date('Y', strtotime($age . ' years ago'));
+        }
         if($miles == null || $miles == 0)
         {
             $miles = 1;
@@ -139,7 +148,7 @@ class SearchController extends ResponseController
         {
             $longitude = null;   
         }
-        if($gender && $latitude == null && $longitude == null && $age == null )
+        if($gender && $latitude == null && $longitude == null && $dob == null )
         {
             $results = Profile::select('user_id as player_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),DB::raw("CONCAT('".URL::to('public/images/profile_images/')."/',image) AS image"))->where('gender', 'LIKE', "%{$gender}%")->get();
             foreach ($results as $key => $value) 
@@ -163,7 +172,7 @@ class SearchController extends ResponseController
                 }
             }
         }
-        elseif($age && $gender == null && $latitude == null && $longitude == null)
+        elseif($dob && $gender == null && $latitude == null && $longitude == null)
         {
             $results = Profile::select('user_id as player_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),DB::raw("CONCAT('".URL::to('public/images/profile_images/')."/',image) AS image"))->whereyear('dob','=',$dob)->get();
             foreach ($results as $key => $value) 
@@ -187,15 +196,15 @@ class SearchController extends ResponseController
                 }
             }
         }
-        elseif($gender && $latitude && $longitude && $age)
+        elseif($gender && $latitude && $longitude && $dob)
         {
-            // dd(445);
             $results = DB::select(DB::raw('SELECT id,user_id as player_id,CONCAT(first_name," ",last_name) as display_name ,latitude,longitude,image, ( 3959 * acos( cos( radians('.$latitude.') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians('.$longitude.') ) + sin( radians('.$latitude.') ) * sin( radians(latitude) ) ) ) AS distance FROM profiles where profiles.gender LIKE "%'.$gender.'%" AND year(profiles.dob)  = '.$dob.' HAVING distance < ' . $miles . ' ORDER BY distance') );
             foreach ($results as $key => $value) 
             {
-                // dd($value);
+                dd($dob);
                 $player_roster = Rosters::where('team_id',$request->team_id)->where('player_id',$value->player_id)->first();
                 $result[$key]['display_name'] = $value->display_name;
+                $value->image = URL::to('public/images/profile_images/').'/'.$value->image;
                 if($player_roster == null)
                 {
                     $results[$key]->team_member = '0';   
@@ -214,7 +223,7 @@ class SearchController extends ResponseController
                 }
             }
         }
-        elseif($gender == null && $latitude && $longitude && $age)
+        elseif($gender == null && $latitude && $longitude && $dob)
         {
             // dd(445);
             $results = DB::select(DB::raw('SELECT id,user_id as player_id,CONCAT(first_name," ",last_name) as display_name ,latitude,longitude,image, ( 3959 * acos( cos( radians('.$latitude.') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians('.$longitude.') ) + sin( radians('.$latitude.') ) * sin( radians(latitude) ) ) ) AS distance FROM profiles where year(profiles.dob)  = '.$dob.' HAVING distance < ' . $miles . ' ORDER BY distance') );
@@ -242,7 +251,7 @@ class SearchController extends ResponseController
                 }
             }
         }
-        elseif($gender && $latitude && $longitude && $age == null)
+        elseif($gender && $latitude && $longitude && $dob == null)
         {
             // dd(445);
             $results = DB::select(DB::raw('SELECT id,user_id as player_id,CONCAT(first_name," ",last_name) as display_name ,latitude,longitude,image, ( 3959 * acos( cos( radians('.$latitude.') ) * cos( radians( latitude ) ) * cos( radians( longitude ) - radians('.$longitude.') ) + sin( radians('.$latitude.') ) * sin( radians(latitude) ) ) ) AS distance FROM profiles where profiles.gender LIKE "%'.$gender.'%" HAVING distance < ' . $miles . ' ORDER BY distance') );
@@ -271,9 +280,9 @@ class SearchController extends ResponseController
                 }
             }
         }
-        elseif($gender && $age)
+        elseif($gender && $dob)
         {
-            
+            // dd($dob);
             $results = Profile::select('user_id as player_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),DB::raw("CONCAT('".URL::to('public/images/profile_images/')."/',image) AS image"))->where('gender', 'LIKE', "%{$gender}%")->whereyear('dob','=',$dob)->get();
             foreach ($results as $key => $value) 
             {
@@ -296,7 +305,7 @@ class SearchController extends ResponseController
                 }
             }
         }
-        elseif($gender =='' && $age == '' && $latitude == '' && $longitude == '')
+        elseif($gender =='' && $dob == '' && $latitude == '' && $longitude == '')
         {
             
             $results = Profile::select('user_id as player_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),DB::raw("CONCAT('".URL::to('public/images/profile_images/')."/',image) AS image"))->get();

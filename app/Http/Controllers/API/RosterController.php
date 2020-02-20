@@ -198,35 +198,46 @@ class RosterController extends ResponseController
             {
                 if($action == 'accept')
                 {
-                    $res = Rosters::where('id', $request->roster_id)->where('player_id', $request->player_id)->update(array('request'=> 1));
-                    if($res == 1)
+                    $check_player_team = Rosters::where('request',1)->where('player_id',$player_id)->first();
+                    if($check_player_team == null)
                     {
-                        $get_player = Profile::select('*')->where('id',$player_id)->first();
-                        $notify = array(
-                        'roster_id'=>$request->roster_id,
-                        'to'=>$team_id,
-                        'from'=>$player_id,
-                        'type'=>env('NOTIFICATION_TYPE_ACCEPT_REQUEST'),
-                        'title'=>$get_player->first_name.' '.$get_player->last_name,
-                        'message'=>'Player Added to Rosters',
-                        'is_accept'=>'1',
-                        );
-                        $get_info = User::where('id', '=', $team_id)->first();
-                        $res_notify = Notification::create($notify);
-                        Notification::where('id', $notification_id)->update(array('is_accept'=>'1'));
-                        $token[] = $get_info->device_token;
-                        $data = array(
-                            'title' => $notify['title'],
-                            'message' => $notify['message'],
-                            'notification_type' => env('NOTIFICATION_TYPE_ACCEPT_REQUEST')
-                        );
-                        $data['device_tokens'] = $token;
-                        $data['device_type'] = $get_info->device_type;
-                        push_notification($data);
+                        $res = Rosters::where('id', $request->roster_id)->where('player_id', $request->player_id)->update(array('request'=> 1));
+                        if($res == 1)
+                        {
+                            $get_player = Profile::select('*')->where('user_id',$player_id)->first();
+                            $notify = array(
+                            'roster_id'=>$request->roster_id,
+                            'to'=>$team_id,
+                            'from'=>$player_id,
+                            'type'=>env('NOTIFICATION_TYPE_ACCEPT_REQUEST'),
+                            'title'=>$get_player->first_name.' '.$get_player->last_name,
+                            'message'=>'Player Added to Rosters',
+                            'is_accept'=>'1',
+                            );
+                            $get_info = User::where('id', '=', $team_id)->first();
+                            $res_notify = Notification::create($notify);
+                            Notification::where('id', $notification_id)->update(array('is_accept'=>'1'));
+                            $token[] = $get_info->device_token;
+                            $data = array(
+                                'title' => $notify['title'],
+                                'message' => $notify['message'],
+                                'notification_type' => env('NOTIFICATION_TYPE_ACCEPT_REQUEST')
+                            );
+                            $data['device_tokens'] = $token;
+                            $data['device_type'] = $get_info->device_type;
+                            push_notification($data);
+                            $success['status'] = "1";
+                            $success['message'] = "Request accepted";
+                            return $this->sendResponse($success);
+                        }
+                    }
+                    else
+                    {
                         $success['status'] = "1";
-                        $success['message'] = "Request accepted";
+                        $success['message'] = "Player is already in team";
                         return $this->sendResponse($success);
                     }
+                    
                 }
                 elseif($action == 'reject') 
                 {
@@ -289,15 +300,23 @@ class RosterController extends ResponseController
         $team_id = $request->input('team_id');
         if($request->user()->id == $team_id )
         {
-            $players = Rosters::with('user')->where('team_id',$team_id)->where('request',1)->get();
+            $players = Rosters::with('user')->where('team_id',$team_id)->where('request',1)->orderby('rosters.created_at','desc')->get();
             if(count($players) > 0)
             {
                 $players_data = array();
+                $ids = [];
                 foreach ($players as $key => $value) 
                 {
-                    $players_data[$key] = User::join('profiles','users.id','profiles.user_id')->select('users.id as player_id','profiles.id as player_profile_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),'image','profiles.position')->where('users.id',$value['player_id'])->first();
-                    $players_data[$key]['image'] = URL::to('/').'/public/images/profile_images/'.$players_data[$key]['image']; 
+                    $ids[] = $value['player_id'].",";
                 }
+                $res = User::join('profiles','users.id','profiles.user_id')->select('users.id as player_id','profiles.id as player_profile_id',DB::raw('CONCAT('."first_name".'," ",'."last_name".') AS display_name'),'image','profiles.position')->whereIn('users.id',$ids)->orderby('profiles.first_name')->get();
+                
+                foreach($res as $key => $value)
+                {
+                    $res[$key]['image'] = URL::to('/').'/public/images/profile_images/'.$res[$key]['image'];
+                }
+                
+                
                 $check_game_start = Game::where('team_id',$request->team_id)->where('game_end_time','')->where('game_start_time','!=','' )->first();
                 if($check_game_start == null)
                 {
@@ -307,10 +326,11 @@ class RosterController extends ResponseController
                 {
                     $success['is_game_start'] = '1';
                 }
-                // $success['is_game_start'] = count($check_game_start) ? "1" : "0";
+                $success['is_game_start'] = count($check_game_start) ? "1" : "0";
+                $players_data = collect($players_data)->sortBy('display_name')->toArray();
                 $success['status'] = "1";
                 $success['message'] = "Players in the team";
-                $success['data'] = $players_data;
+                $success['data'] = $res;
                 return $this->sendResponse($success);
             }
             else

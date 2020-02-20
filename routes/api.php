@@ -25,6 +25,7 @@ Route::post('otp', 'API\AuthController@otp');
 Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 
 	Route::post('create_profile', 'API\ProfileController@create_profile');
+	Route::post('create_user_profile', 'API\ProfileController@create_user_profile');
 	Route::get('profile','API\ProfileController@profile');
 
 	Route::post('changePassword', 'API\AuthController@changePassword');
@@ -38,7 +39,6 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 	Route::get('tryout_participants','API\TryoutController@tryout_participants');
 	
 	Route::post('send_request','API\RosterController@send_request');
-	Route::get('roster_requests','API\RosterController@roster_requests');
 	Route::get('action_request','API\RosterController@action_request');
 	Route::get('roster_listing','API\RosterController@roster_listing');
 	Route::get('delete_player','API\RosterController@delete_player');
@@ -46,9 +46,6 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 	Route::get('get_notification_list','API\RosterController@get_notification_list');
 
 	
-
-
-
 
 	Route::post('create_game','API\GameController@create_game');
 	Route::post('add_score_sheet','API\GameController@add_score_sheet');
@@ -61,6 +58,7 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 	Route::get('substitute_player','API\GameController@substitute_player');
 	Route::get('sub_players_list','API\GameController@sub_players_list');
 	Route::get('end_match','API\GameController@end_match');
+	Route::get('knock_out_end_sec_half','API\GameController@knock_out_end_sec_half');
 	Route::get('check_game','API\GameController@check_game');
 	Route::get('get_player_match_data','API\GameController@get_player_match_data');
 	Route::get('del_player_match_data','API\GameController@del_player_match_data');
@@ -88,7 +86,4 @@ Route::group(['middleware' => ['auth:api','client.credentials']], function(){
 Route::get('search_tryout','API\SearchController@search_tryout');
 Route::get('search_player','API\SearchController@search_player');
 Route::get('search_player_profile','API\SearchController@search_player_profile');
-// Route::middleware(['auth:api','client.credentials'])->get('/user', function (Request $request) {
 
-// 	Route::post('create_profile', 'API\ProfileController@create_profile');
-// });

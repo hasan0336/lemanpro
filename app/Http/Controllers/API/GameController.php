@@ -450,129 +450,70 @@ class GameController extends ResponseController
 
     public function start_match(Request $request)
     {
-        if($request->extra_time == 0)
+        
+        if($request->team_id == "" || empty($request->team_id))
         {
-            if($request->team_id == "" || empty($request->team_id))
-            {
-                $success['status'] = '0';
-                $success['message'] = "team id is missing";
-                return $this->sendResponse($success);
-            }
-            if($request->game_id == "" || empty($request->game_id))
-            {
-                $success['status'] = '0';
-                $success['message'] = "game id is missing";
-                return $this->sendResponse($success);
-            }
-            if($request->player_players_team_a == "" || empty($request->player_players_team_a))
-            {
-                $success['status'] = '0';
-                $success['message'] = "playing players id is missing";
-                return $this->sendResponse($success);
-            }
-            if($request->opponent == "" || empty($request->opponent))
-            {
-                $success['status'] = '0';
-                $success['message'] = "opponent name is missing";
-                return $this->sendResponse($success);
-            }
-            if($request->game_type == "" || empty($request->game_type))
-            {
-                $success['status'] = '0';
-                $success['message'] = "game type is missing";
-                return $this->sendResponse($success);
-            }
-            if($request->start_time == "" || empty($request->start_time))
-            {
-                $success['status'] = '0';
-                $success['message'] = "start time is missing";
-                return $this->sendResponse($success);
-            }
-            if($request->playing_positions_team_a == "" || empty($request->playing_positions_team_a))
-            {
-                $success['status'] = '0';
-                $success['message'] = "playing positions is missing";
-                return $this->sendResponse($success);
-            }
-            if($request->user()->id == $request->team_id)
-            {
-                // $mytime = Carbon::now();
-                // $start_time = $mytime->toDateTimeString();
-                $start_time = $request->start_time;
-                // $timestamp = strtotime($start_time);
-                // $start_time = date('Y-m-d H:i:s', $timestamp);
-                // dd($timestamp);
-                $match = Game::where('id',$request->game_id)->update(['game_start_time' => $start_time,'opponent'=>$request->opponent,'game_type'=>$request->game_type, 'game_status'=>'1']);
-                $player_players_team_a = explode(',',$request->player_players_team_a);
-                // dd($player_players_team_a);
-                $playing_positions_team_a = explode(',',$request->playing_positions_team_a);
-                $starting_player = array();
-                // $result = '';
-                foreach(array_combine($player_players_team_a, $playing_positions_team_a) as $player_team_a => $player_pos_team_a)
-                {
-                    // dd($player_pos_team_a);
-                    $starting_player = array('playing_player' => '1','player_start_time' => $start_time, 'playing_pos' => $player_pos_team_a);
-                    $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$player_team_a)->where('team_assign','a')->update($starting_player);
-                    // dd($result);
-                }
-                if($result == 1)
-                {
-                    $success['status'] = '1';
-                    $success['message'] = "game started";
-                    return $this->sendResponse($success);
-                }
-                else
-                {
-                    $success['status'] = '0';
-                    $success['message'] = "game not started";
-                    return $this->sendResponse($success);
-                }
-            }
-            else
-            {
-                $success['status'] = "0";
-                $success['message'] = "Unauthorized User";
-                return $this->sendResponse($success);
-            }
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
         }
-        else
+        if($request->game_id == "" || empty($request->game_id))
         {
-            if($request->team_id == "" || empty($request->team_id))
-            {
-                $success['status'] = '0';
-                $success['message'] = "team id is missing";
-                return $this->sendResponse($success);
-            }
-            if($request->game_id == "" || empty($request->game_id))
-            {
-                $success['status'] = '0';
-                $success['message'] = "game id is missing";
-                return $this->sendResponse($success);
-            }
-            if($request->start_time == "" || empty($request->start_time))
-            {
-                $success['status'] = '0';
-                $success['message'] = "start time is missing";
-                return $this->sendResponse($success);
-            }
+            $success['status'] = '0';
+            $success['message'] = "game id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->player_players_team_a == "" || empty($request->player_players_team_a))
+        {
+            $success['status'] = '0';
+            $success['message'] = "playing players id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->opponent == "" || empty($request->opponent))
+        {
+            $success['status'] = '0';
+            $success['message'] = "opponent name is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->game_type == "" || empty($request->game_type))
+        {
+            $success['status'] = '0';
+            $success['message'] = "game type is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->start_time == "" || empty($request->start_time))
+        {
+            $success['status'] = '0';
+            $success['message'] = "start time is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->playing_positions_team_a == "" || empty($request->playing_positions_team_a))
+        {
+            $success['status'] = '0';
+            $success['message'] = "playing positions is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->user()->id == $request->team_id)
+        {
+            // $mytime = Carbon::now();
+            // $start_time = $mytime->toDateTimeString();
             $start_time = $request->start_time;
             // $timestamp = strtotime($start_time);
             // $start_time = date('Y-m-d H:i:s', $timestamp);
             // dd($timestamp);
-            $match = Game::where('id',$request->game_id)->update(['ext_first_hlf_start' => $start_time]);
-            $player_players_team_a = Match::where('game_id',$request->game_id)->where('playing_player',1)->get();
+            $match = Game::where('id',$request->game_id)->update(['game_start_time' => $start_time,'opponent'=>$request->opponent,'game_type'=>$request->game_type, 'game_status'=>'1']);
+            $player_players_team_a = explode(',',$request->player_players_team_a);
             // dd($player_players_team_a);
+            $playing_positions_team_a = explode(',',$request->playing_positions_team_a);
             $starting_player = array();
             // $result = '';
-            foreach($player_players_team_a as $key => $player_pos_team_a)
+            foreach(array_combine($player_players_team_a, $playing_positions_team_a) as $player_team_a => $player_pos_team_a)
             {
                 // dd($player_pos_team_a);
-                $starting_player = array('player_ext_hlf_start' => $start_time);
-
-                $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$player_pos_team_a->player_id)->update($starting_player);
+                $starting_player = array('playing_player' => '1','player_start_time' => $start_time, 'playing_pos' => $player_pos_team_a);
+                $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$player_team_a)->where('team_assign','a')->update($starting_player);
                 // dd($result);
             }
-            // dd($result);
             if($result == 1)
             {
                 $success['status'] = '1';
@@ -585,6 +526,12 @@ class GameController extends ResponseController
                 $success['message'] = "game not started";
                 return $this->sendResponse($success);
             }
+        }
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
         }
     }
 
@@ -842,7 +789,7 @@ class GameController extends ResponseController
 
             // $mytime = Carbon::now();
             // $start_time = $mytime->toDateTimeString();
-            if($request->extra_time == 0)
+            if($request->extra_time == 0 || !isset($request->extra_time) || $request->extra_time == null || $request->extra_time == "")
             {
                 $start_time = $request->end_time;
                 // $start_time = date('Y-m-d H:i:s', $timestamp);
@@ -897,7 +844,95 @@ class GameController extends ResponseController
             return $this->sendResponse($success);
         }
     }
+    
+    public function knock_out_end_sec_half(Request $request)
+    {
+        if($request->team_id == "" || empty($request->team_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "team id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->game_id == "" || empty($request->game_id))
+        {
+            $success['status'] = '0';
+            $success['message'] = "match id is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->end_time == "" || empty($request->end_time))
+        {
+            $success['status'] = '0';
+            $success['message'] = "end time is missing";
+            return $this->sendResponse($success);
+        }
+        if($request->user()->id == $request->team_id)
+        {
 
+            // $mytime = Carbon::now();
+            // $start_time = $mytime->toDateTimeString();
+            if($request->knock_out == 1)
+            {
+                $start_time = $request->end_time;
+                // $start_time = date('Y-m-d H:i:s', $timestamp);
+                $ending_player = array('player_end_time' => $start_time);
+                $result_end_match = DB::table('matches')->where('game_id',$request->game_id)->where('playing_player',1)->where('red','!=',1)->update($ending_player);
+                $ending_game = array('game_end_time' => $start_time,'game_status'=>'4');
+                $result_end_game = DB::table('games')->where('id',$request->game_id)->update($ending_game);
+                $get_playing_time = Match::select('player_id','player_start_time','player_end_time')->where('game_id',$request->game_id)->where('playing_player','1')->get();
+
+                foreach ($get_playing_time as $key => $value) 
+                {
+                    $end_time = Carbon::parse($value->player_end_time)->format('h:i:s');
+                    $start_time = Carbon::parse($value->player_start_time)->format('h:i:s');
+                    $get_minutes = (strtotime($end_time) - strtotime($start_time))/60;
+                    $get_minutes = abs($get_minutes);
+                    $player_time = array('time' => number_format((float)$get_minutes, 0, '.', ''));
+                    $result_end = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$value->player_id)->update($player_time);
+                }
+                $success['status'] = '1';
+                $success['message'] = "Second Half Finished";
+                return $this->sendResponse($success);
+            }
+            elseif($request->knock_out == 2)
+            {
+                $start_time = $request->end_time;
+                $match = Game::where('id',$request->game_id)->update(['ext_first_hlf_start' => $start_time]);
+                $player_players_team_a = Match::where('game_id',$request->game_id)->where('playing_player',1)->get();
+                $starting_player = array();
+                foreach($player_players_team_a as $key => $player_pos_team_a)
+                {
+                    $starting_player = array('player_ext_hlf_start' => $start_time);
+                    $result = DB::table('matches')->where('game_id',$request->game_id)->where('player_id',$player_pos_team_a->player_id)->update($starting_player);
+                }
+                if($result == 1)
+                {
+                    $success['status'] = '1';
+                    $success['message'] = "Extra Time First Half Started";
+                    return $this->sendResponse($success);
+                }
+                else
+                {
+                    $success['status'] = '0';
+                    $success['message'] = "Extra Time First Half not Started";
+                    return $this->sendResponse($success);
+                }
+            }
+            else
+            {
+                $success['status'] = '0';
+                $success['message'] = "Knock Out key is missing";
+                return $this->sendResponse($success);
+            }
+        }
+        else
+        {
+            $success['status'] = "0";
+            $success['message'] = "Unauthorized User";
+            return $this->sendResponse($success);
+        }
+    }
+    
+    
     public function check_game(Request $request)
     {
         

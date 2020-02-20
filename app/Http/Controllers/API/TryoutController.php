@@ -171,7 +171,7 @@ class TryoutController extends ResponseController
     	$input['team_id'] = $request->team_id;
     	if($request->user()->id == $request->team_id)
     	{
-        $tryout_listing = Tryout::select('profiles.first_name','profiles.last_name','profiles.team_name','tryouts.id','tryouts.team_id','tryouts.street','tryouts.state','tryouts.zipcode','tryouts.timeoftryout','tryouts.dateoftryout','tryouts.costoftryout','tryouts.latitude','tryouts.longitude','tryouts.created_at')->join('profiles','profiles.user_id','=','tryouts.team_id')->where('team_id',$input['team_id'])->get();
+        $tryout_listing = Tryout::select('profiles.first_name','profiles.last_name','profiles.team_name','tryouts.id','tryouts.team_id','tryouts.street','tryouts.state','tryouts.zipcode','tryouts.timeoftryout','tryouts.dateoftryout','tryouts.costoftryout','tryouts.latitude','tryouts.longitude','tryouts.created_at')->join('profiles','profiles.user_id','=','tryouts.team_id')->where('team_id',$input['team_id'])->orderby('tryouts.created_at','desc')->get();
 	    	if(count($tryout_listing) > 0)
 	    	{
 	    		$success['status'] = "1";
@@ -354,6 +354,18 @@ class TryoutController extends ResponseController
         $input['number'] = $request->card_no;
         $input['exp_month'] = $request->exp_month;
         $input['exp_year'] = $request->exp_year;
+        if($input['exp_year']  >= now()->year && $input['exp_month'] <= now()->month)
+        {
+            $success['status'] = '0';
+            $success['message'] = "Expiry month is in correct";
+            return $this->sendResponse($success);
+        }
+        if($input['exp_year'] < now()->year)
+        {
+            $success['status'] = '0';
+            $success['message'] = "Expiry year is in correct";
+            return $this->sendResponse($success);
+        }
         $input['cvc'] = $request->cvc;
         $input['amount'] = $request->amount;
     		$check_player =TryoutPlayers::where('player_id',$input['player_id'])->where('tryout_id',$input['tryout_id'])->first();
